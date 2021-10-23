@@ -2,8 +2,6 @@ const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
 
-
-
 var express = require("express");
 var app = express();
 app.use('/public', express.static(__dirname + '/public'));
@@ -40,11 +38,11 @@ app.get("/members", async function(req, res, next) {
         }           
     }); 
     await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-21/pro-clubs/overview?platform=ps4&clubId=19963');
-    await page.waitForSelector('#truste-consent-button');
+    /*await page.waitForSelector('#truste-consent-button');
     const element = await page.$('#truste-consent-button');
     await element.click()
     await page.waitForSelector('#truste-consent-button', {hidden: true});
-    await page.screenshot(options)
+    await page.screenshot(options)*/
     await page.close();
 });
 
@@ -59,9 +57,5 @@ app.get("/matches", async function(req, res, next) {
         }   
     }); 
     await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-21/pro-clubs/match-history?clubId=19963&platform=ps4');
-    await page.waitForSelector('#truste-consent-button');
-    const element = await page.$('#truste-consent-button');
-    await element.click()
-    await page.waitForSelector('#truste-consent-button', {hidden: true});
     await page.close();
 });
