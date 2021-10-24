@@ -1,126 +1,17 @@
-import requests
-import jsonmap
-import time
-from cachetools import cached, TTLCache
 import os
 import discord
 from discord.ext import tasks
 from dotenv import load_dotenv
-import random
-import json
-from datetime import datetime
-import pytz
+from data import get_matches, get_members
+import data_service
 
-results = {}
-to_zone = pytz.timezone('Europe/Helsinki')
-
-
-def find(lst, key, value):
-    for i, dic in enumerate(lst):
-        if dic[key] == value:
-            return i
-    return None
-
-@cached(cache=TTLCache(maxsize=1024, ttl=240))
-def get_members():
-    print("get_members")
-    '''f = open('members.json',)
-    data = json.load(f)
-    f.close()
-    return data'''
-    data = {}
-    try:
-        data = requests.get('http://localhost:3000/members', timeout=6).json()
-    except requests.exceptions.Timeout as err:
-        print(err)
-    return data
-    
-
-@cached(cache=TTLCache(maxsize=1024, ttl=240))
-def get_matches():
-    print("get_matches")
-    '''f = open('matches.json',)
-    data = json.load(f)
-    f.close()
-    return data'''
-    data = {}
-    try:
-        data =requests.get('http://localhost:3000/matches', timeout=6).json()
-    except requests.exceptions.Timeout as err:
-        print(err)
-    return data
-
-def print_members(response):
-    data = response.json()
-    for member in data['members']:
-        for k in sorted(member):
-            name = jsonmap.get_name(k)
-            print(f"{name}: {member[k]}")
-        print("")
-
+match_results_storage = {}
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
-
+CHANNEL = os.getenv('DISCORD_CHANNEL')
 client = discord.Client()
-
-def print_result(match):
-    ts = int(match['timestamp'])
-    score_time = datetime.fromtimestamp(ts)
-    score_time = score_time.astimezone(to_zone).strftime('%d.%m. %H:%M')
-    opponentId = match['clubs']['19963']['opponentClubId']
-    score_teams = match['clubs']['19963']['details']['name'] + ' - ' + match['clubs'][opponentId]['details']['name']
-    score_result = match['clubs']['19963']['scoreString']
-    score_string = score_time + ' ' + score_teams + ' ' + score_result + ' '
-    return score_string
-
-async def print_stats(author, data, stats_filter):
-    message = ""
-    for k, v in sorted(data.items()):
-        stat = None
-        key = jsonmap.get_name(k)
-        if stats_filter and key.startswith(stats_filter.lower()):
-            stat = key + ': ' + v
-        elif not stats_filter:
-            if not key.startswith('skater') and not key.startswith('goalie') and not key.startswith('xfactor'):
-                stat = key + ': ' + v
-        if stat:
-            message += stat + "\n"
-    if message:
-        await author.send(message)
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if '!stats' in message.content:
-        members = get_members()['members']
-        data = "!stats "
-        stats_filter = None
-        for member in members:
-            data = data + f"{member['name']} | "
-        data = data[:-2] + " <skater>|<goalie>|<xfactor>"
-
-        split = message.content.split(' ')
-        if len(split) > 1:
-            index = find(members, 'name', split[1])
-            if index:
-                data = members[index]
-                if len(split) > 2:
-                    stats_filter = split[2]    
-                await print_stats(message.author, data, stats_filter)
-        else:
-            await message.channel.send(data)        
-
-    if '!matches' in message.content:
-        matches = get_matches()
-        result_string = ""
-        for i in reversed(range(0, len(matches))[-5:]):
-            result_string += print_result(matches[i]) + "\n"
-        if result_string:
-            await message.channel.send(result_string)
 
 @tasks.loop(seconds = 5)
 async def myLoop(channel):
@@ -128,17 +19,55 @@ async def myLoop(channel):
     result_string = ""
     for i in reversed(range(0, len(matches))):
         match_id = matches[i]['matchId']
-        if not match_id in results:
-            results[match_id] = matches[i]
-            result_string += print_result(matches[i]) + "\n"
+        if not match_id in match_results_storage:
+            match_results_storage[match_id] = matches[i]
+            result_string += data_service.format_result(matches[i]) + "\n"
     if result_string:
         await channel.send(result_string)
 
 @client.event
 async def on_ready():
-    # 894334112536625186 murohoki
-    # bs 900642208942817293
-    channel = client.get_channel(900642208942817293)
+    channel = client.get_channel(int(CHANNEL))
     myLoop.start(channel=channel)
+
+async def handle_member_stats(message):
+    msg_content_splitted = message.content.split(' ')
+    members = get_members()['members']
+    reply = "!stats "
+    stats_filter = None
+    for member in members:
+        reply = reply + f"{member['name']} | "
+    reply = reply[:-2] + " <skater>|<goalie>|<xfactor>"
+
+    if len(msg_content_splitted) > 1:
+        index = data_service.find(members, 'name', msg_content_splitted[1])
+        if index:
+            reply = members[index]
+            if len(msg_content_splitted) > 2:
+                stats_filter = msg_content_splitted[2]    
+            stats = data_service.format_stats(reply, stats_filter)
+            await message.author.send(stats)
+    else:
+        await message.channel.send(reply)        
+
+async def handle_matches(message):
+    matches = get_matches()
+    result_string = ""
+    for i in reversed(range(0, len(matches))[-5:]):
+        result_string += data_service.format_result(matches[i]) + "\n"
+    if result_string:
+        await message.channel.send(result_string)
+
+
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return    
+
+    if '!stats' in message.content:
+        await handle_member_stats(message)
+
+    if '!matches' in message.content:
+        await handle_matches()
 
 client.run(TOKEN)
