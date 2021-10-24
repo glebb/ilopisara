@@ -5,10 +5,6 @@ from cachetools import cached, TTLCache
 @cached(cache=TTLCache(maxsize=1024, ttl=240))
 def get_members():
     print("get_members")
-    '''f = open('members.json',)
-    data = json.load(f)
-    f.close()
-    return data'''
     data = {}
     try:
         data = requests.get('http://localhost:3000/members', timeout=6).json()
@@ -20,10 +16,6 @@ def get_members():
 @cached(cache=TTLCache(maxsize=1024, ttl=240))
 def get_matches():
     print("get_matches")
-    '''f = open('matches.json',)
-    data = json.load(f)
-    f.close()
-    return data'''
     data = {}
     try:
         data =requests.get('http://localhost:3000/matches', timeout=6).json()

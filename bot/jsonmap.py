@@ -1,7 +1,7 @@
 names = {
     "wins": "wins",
     "losses": "losses",
-    "otl": " losses over-time",
+    "otl": "over-time losses",
     "winnerByDnf": "winner by dnf",
     "record": "record",
     "skwins": "skater wins",

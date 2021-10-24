@@ -2,8 +2,6 @@ import jsonmap
 from datetime import datetime
 import pytz
 
-to_zone = pytz.timezone('Europe/Helsinki')
-
 def find(lst, key, value):
     for i, dic in enumerate(lst):
         if dic[key] == value:
@@ -13,16 +11,16 @@ def find(lst, key, value):
 def format_result(match):
     ts = int(match['timestamp'])
     score_time = datetime.fromtimestamp(ts)
-    score_time = score_time.astimezone(to_zone).strftime('%d.%m. %H:%M')
+    score_time = score_time.astimezone(pytz.timezone('Europe/Helsinki')).strftime('%d.%m. %H:%M')
     opponentId = match['clubs']['19963']['opponentClubId']
     score_teams = match['clubs']['19963']['details']['name'] + ' - ' + match['clubs'][opponentId]['details']['name']
     score_result = match['clubs']['19963']['scoreString']
     score_string = score_time + ' ' + score_teams + ' ' + score_result + ' '
     return score_string
 
-def format_stats(data, stats_filter):
+def format_stats(stats, stats_filter):
     message = ""
-    for k, v in sorted(data.items()):
+    for k, v in sorted(stats.items()):
         stat = None
         key = jsonmap.get_name(k)
         if stats_filter and key.startswith(stats_filter.lower()):
@@ -34,3 +32,16 @@ def format_stats(data, stats_filter):
             message += stat + "\n"
     if message:
         return message
+
+if __name__ == '__main__':
+    import json
+    f = open('members.json',)
+    members = json.load(f)
+    f.close()
+
+    f = open('matches.json',)
+    matches = json.load(f)
+    f.close()
+
+    print(format_stats(members['members'][0], None))
+    print(format_result(matches[0]))

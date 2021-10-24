@@ -42,11 +42,11 @@ async def handle_member_stats(message):
     if len(msg_content_splitted) > 1:
         index = data_service.find(members, 'name', msg_content_splitted[1])
         if index:
-            reply = members[index]
+            stats = members[index]
             if len(msg_content_splitted) > 2:
                 stats_filter = msg_content_splitted[2]    
-            stats = data_service.format_stats(reply, stats_filter)
-            await message.author.send(stats)
+            reply = data_service.format_stats(stats, stats_filter)
+            await message.author.send(reply)
     else:
         await message.channel.send(reply)        
 
@@ -57,7 +57,6 @@ async def handle_matches(message):
         result_string += data_service.format_result(matches[i]) + "\n"
     if result_string:
         await message.channel.send(result_string)
-
 
 @client.event
 async def on_message(message):
