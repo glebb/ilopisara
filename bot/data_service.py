@@ -15,7 +15,7 @@ def format_result(match):
     opponentId = match['clubs']['19963']['opponentClubId']
     score_teams = match['clubs']['19963']['details']['name'] + ' - ' + match['clubs'][opponentId]['details']['name']
     score_result = match['clubs']['19963']['scoreString']
-    score_string = score_time + ' ' + score_teams + ' ' + score_result + ' '
+    score_string = score_time + ' ' + score_teams + ' ' + score_result + ' ' + ' // '+ match['matchId']
     return score_string
 
 def format_stats(stats, stats_filter):
@@ -33,6 +33,24 @@ def format_stats(stats, stats_filter):
     if message:
         return message
 
+def match_details(match):
+    players = ""
+    for k, p in sorted(match['players']['19963'].items(), key=lambda p: int(p[1]['skgoals']) + int(p[1]['skassists']), reverse=True):
+        filler = 3 - len(p['position'])
+        players += p['position'][0].upper() + ' ' + p['playername'] + ', '
+        if p['position'] == 'goalie':
+            players += 'save %:' + p['glsavepct'] + ', '
+            players += 'saves:' + p['glsaves'] + ', '
+            players += 'shots:' + p['glshots'] + "\n"
+        else:
+            players += p['skgoals'] + '+' + p['skassists'] + ', '
+            players += 'shots:' + p['skshots'] + ', '
+            players += 'hits:' + p['skhits'] + ', '
+            players += 'blocked shots:' + p['skbs'] + ', '
+            players += 'p/m:' + p['skplusmin'] + ', '
+            players += 'penalties:' + p['skpim'] + "m\n"
+    return players
+
 if __name__ == '__main__':
     import json
     f = open('members.json',)
@@ -45,3 +63,4 @@ if __name__ == '__main__':
 
     print(format_stats(members['members'][0], None))
     print(format_result(matches[0]))
+    print(match_details(matches[1]))

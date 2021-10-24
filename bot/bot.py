@@ -22,6 +22,8 @@ async def myLoop(channel):
         if not match_id in match_results_storage:
             match_results_storage[match_id] = matches[i]
             result_string += data_service.format_result(matches[i]) + "\n"
+            if len(match_results_storage) >= 5:
+                result_string += data_service.match_details(matches[i]) + "\n"
     if result_string:
         await channel.send(result_string)
 
@@ -51,10 +53,16 @@ async def handle_member_stats(message):
         await message.channel.send(reply)        
 
 async def handle_matches(message):
+    msg_content_splitted = message.content.split(' ')
     matches = get_matches()
     result_string = ""
-    for i in reversed(range(0, len(matches))[-5:]):
-        result_string += data_service.format_result(matches[i]) + "\n"
+    if len(msg_content_splitted) > 1:
+        index = data_service.find(matches, 'matchId', msg_content_splitted[1])
+        result_string += data_service.format_result(matches[index]) + "\n"
+        result_string += data_service.match_details(matches[index]) + "\n" 
+    else:
+        for i in reversed(range(0, len(matches))[-5:]):
+            result_string += data_service.format_result(matches[i]) + "\n" 
     if result_string:
         await message.channel.send(result_string)
 
@@ -67,6 +75,6 @@ async def on_message(message):
         await handle_member_stats(message)
 
     if '!matches' in message.content:
-        await handle_matches()
+        await handle_matches(message)
 
 client.run(TOKEN)
