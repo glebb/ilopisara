@@ -189,3 +189,14 @@ def get_name(key):
         return names[key]
     else:
         return key
+
+def get_key(name):
+    key = ""
+    try:
+        key = list(names.keys())[list(names.values()).index(name)]
+    except ValueError:
+        pass
+    if key:
+        return key
+    else:
+        return name

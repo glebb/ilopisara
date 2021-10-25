@@ -51,6 +51,21 @@ def match_details(match):
             players += 'penalties:' + p['skpim'] + "m\n"
     return players
 
+def top_stats(members, stats_filter):
+    key = jsonmap.get_key(stats_filter)
+    reply = ""
+    try:
+        for member in sorted(members, key=lambda m: float(m[key]), reverse=True):
+            reply += member['name'] + ' ' + member[key] + "\n"
+    except (TypeError, ValueError):
+        for member in sorted(members, key=lambda m: m[key], reverse=True):
+            reply += member['name'] + ' ' + member[key] + "\n"
+    except KeyError:
+        pass
+    if reply:
+        return reply
+
+
 if __name__ == '__main__':
     import json
     f = open('members.json',)
@@ -64,3 +79,4 @@ if __name__ == '__main__':
     print(format_stats(members['members'][0], None))
     print(format_result(matches[0]))
     print(match_details(matches[1]))
+    print(top_stats(members['members'], 'skater goals'))

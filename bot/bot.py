@@ -66,6 +66,13 @@ async def handle_matches(message):
     if result_string:
         await message.channel.send(result_string)
 
+async def handle_top_stats(message):
+    command, *filter = message.content.split(' ')
+    if len(filter) >= 1:
+        members = get_members()['members']
+        result = data_service.top_stats(members, ' '.join(filter))
+        await message.channel.send(result)
+
 @client.event
 async def on_message(message):
     if message.author == client.user:
@@ -76,5 +83,8 @@ async def on_message(message):
 
     if '!matches' in message.content:
         await handle_matches(message)
+
+    if '!top' in message.content:
+        await handle_top_stats(message)
 
 client.run(TOKEN)
