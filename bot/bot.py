@@ -71,7 +71,8 @@ async def handle_top_stats(message):
     if len(filter) >= 1:
         members = get_members()['members']
         result = data_service.top_stats(members, ' '.join(filter))
-        await message.channel.send(result)
+        if result:
+            await message.channel.send(result)
 
 @client.event
 async def on_message(message):
