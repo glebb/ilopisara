@@ -34,7 +34,7 @@ app.get("/members", async function(req, res, next) {
             res.json(data);
         }           
     }); 
-    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-21/pro-clubs/overview?platform=ps4&clubId=19963', {
+    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?platform=ps4&clubId=19963', {
         waitUntil: 'networkidle2'
     });
     /*await page.waitForSelector('#truste-consent-button');
@@ -56,7 +56,7 @@ app.get("/matches", async function(req, res, next) {
             res.json(data);
         }   
     }); 
-    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-21/pro-clubs/match-history?clubId=19963&platform=ps4', {
+    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/match-history?clubId=19963&platform=ps4', {
         waitUntil: 'networkidle2'
     });
     await browser.close();
