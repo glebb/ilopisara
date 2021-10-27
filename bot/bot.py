@@ -21,8 +21,8 @@ async def myLoop(channel):
         match_id = matches[i]['matchId']
         if not match_id in match_results_storage:
             match_results_storage[match_id] = matches[i]
-            result_string += data_service.format_result(matches[i]) + "\n"
-            if len(match_results_storage) >= 5:
+            if len(match_results_storage) > 5:
+                result_string += data_service.format_result(matches[i]) + "\n"
                 result_string += data_service.match_details(matches[i]) + "\n"
     if result_string:
         await channel.send(result_string)
