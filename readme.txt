@@ -1,5 +1,12 @@
 Discord bot to fetch statistics for EA NHL 22
 
+!stats player [<skater>|<goalie>|<xfactor>]
+!matches
+!matches <matchId> (match details)
+!top statistic (e.g. 'hits per game')
+
+the bot will periodically check latest results and post them to specified channel
+
 place .env file in root with following content
 DISCORD_TOKEN=
 DISCORD_CHANNEL=
@@ -17,3 +24,4 @@ node app
 running actual discord bot
 pip install -m requirements.txt
 python bot.py
+
