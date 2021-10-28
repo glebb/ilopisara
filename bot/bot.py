@@ -7,7 +7,7 @@ import data_service
 
 match_results_storage = {}
 
-load_dotenv()
+load_dotenv('../.env')
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 CHANNEL = os.getenv('DISCORD_CHANNEL')

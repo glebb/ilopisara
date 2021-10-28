@@ -1,3 +1,4 @@
+require('dotenv').config({ path: '../.env' })
 const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
@@ -34,7 +35,7 @@ app.get("/members", async function(req, res, next) {
             res.json(data);
         }           
     }); 
-    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?platform=ps4&clubId=19963', {
+    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?platform=' + process.env.PLATFORM + '&clubId=' + process.env.CLUB_ID, {
         waitUntil: 'networkidle2'
     });
     /*await page.waitForSelector('#truste-consent-button');
@@ -56,7 +57,7 @@ app.get("/matches", async function(req, res, next) {
             res.json(data);
         }   
     }); 
-    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/match-history?clubId=19963&platform=ps4', {
+    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/match-history?clubId=' + process.env.CLUB_ID + '&platform=' + process.env.PLATFORM, {
         waitUntil: 'networkidle2'
     });
     await browser.close();

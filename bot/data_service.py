@@ -1,6 +1,8 @@
 import jsonmap
 from datetime import datetime
 import pytz
+from dotenv import load_dotenv
+import os
 
 def find(lst, key, value):
     for i, dic in enumerate(lst):
@@ -12,9 +14,9 @@ def format_result(match):
     ts = int(match['timestamp'])
     score_time = datetime.fromtimestamp(ts)
     score_time = score_time.astimezone(pytz.timezone('Europe/Helsinki')).strftime('%d.%m. %H:%M')
-    opponentId = match['clubs']['19963']['opponentClubId']
-    score_teams = match['clubs']['19963']['details']['name'] + ' - ' + match['clubs'][opponentId]['details']['name']
-    score_result = match['clubs']['19963']['scoreString']
+    opponentId = match['clubs'][os.getenv('CLUB_ID')]['opponentClubId']
+    score_teams = match['clubs'][os.getenv('CLUB_ID')]['details']['name'] + ' - ' + match['clubs'][opponentId]['details']['name']
+    score_result = match['clubs'][os.getenv('CLUB_ID')]['scoreString']
     score_string = score_time + ' ' + score_teams + ' ' + score_result + ' ' + ' // '+ match['matchId']
     return score_string
 
@@ -35,7 +37,7 @@ def format_stats(stats, stats_filter):
 
 def match_details(match):
     players = ""
-    for k, p in sorted(match['players']['19963'].items(), key=lambda p: int(p[1]['skgoals']) + int(p[1]['skassists']), reverse=True):
+    for k, p in sorted(match['players'][os.getenv('CLUB_ID')].items(), key=lambda p: int(p[1]['skgoals']) + int(p[1]['skassists']), reverse=True):
         filler = 3 - len(p['position'])
         players += p['position'][0].upper() + ' ' + p['playername'] + ', '
         if p['position'] == 'goalie':
