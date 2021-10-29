@@ -4,6 +4,7 @@ from discord.ext import tasks
 from dotenv import load_dotenv
 from data import get_matches, get_members
 import data_service
+import jsonmap
 
 match_results_storage = {}
 
@@ -68,11 +69,16 @@ async def handle_matches(message):
 
 async def handle_top_stats(message):
     command, *filter = message.content.split(' ')
+    result = None
     if len(filter) >= 1:
         members = get_members()['members']
         result = data_service.top_stats(members, ' '.join(filter))
         if result:
             await message.channel.send(result)
+    if not result:
+        await message.author.send("Try some of these:\n" + " \n".join(list(sorted(jsonmap.names.values()))[:100]))
+        await message.author.send(" \n".join(list(sorted(jsonmap.names.values()))[100:]))
+
 
 @client.event
 async def on_message(message):
