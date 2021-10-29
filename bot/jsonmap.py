@@ -178,7 +178,7 @@ names = {
     "deflections": "deflections",
     "pkclearzone": "penalty kill clear zone",
     "penaltiesdrawn": "penalties drawn",
-    "gp": "games played",
+    "gp": "gp",
     "winpct": "win percentage",
     "DNF": "DNF",
     "name": "name"
