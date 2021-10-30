@@ -3,6 +3,7 @@ import requests
 from cachetools import cached, TTLCache
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
+import urllib.parse
 
 retry_strategy = Retry(
     total=5,
@@ -32,6 +33,16 @@ def get_matches():
     data = {}
     try:
         data = http.get('http://localhost:3000/matches', timeout=4).json()
+    except requests.exceptions.Timeout as err:
+        print(err)
+    return data
+
+@cached(cache=TTLCache(maxsize=1024, ttl=180))
+def get_team_record(team):
+    print("get_team_record :" + team)
+    data = {}
+    try:
+        data = http.get('http://localhost:3000/team/' + urllib.parse.quote(team), timeout=10).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data

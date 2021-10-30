@@ -2,7 +2,7 @@ import os
 import discord
 from discord.ext import tasks
 from dotenv import load_dotenv
-from data import get_matches, get_members
+from data import get_matches, get_members, get_team_record
 import data_service
 import jsonmap
 
@@ -79,7 +79,19 @@ async def handle_top_stats(message):
         await message.author.send("Try some of these:\n" + " \n".join(list(sorted(jsonmap.names.values()))[:100]))
         await message.author.send(" \n".join(list(sorted(jsonmap.names.values()))[100:]))
 
-
+async def handle_team_record(message):
+    command = message.content.split(' ')
+    if len(command) < 2:
+        await message.channel.send("!team <team_name>")
+    else:
+        team = " ".join(command[1:])
+        await message.channel.send("Getting records for " + team + "\n" + "Please wait...")
+        data = get_team_record(team)
+        result = data_service.team_record(data)
+        if result:
+            await message.channel.send(result)
+        else:
+            await message.channel.send("Something went wrong. Try again after few minutes. Also check team name is correct: " + team)
 @client.event
 async def on_message(message):
     if message.author == client.user:
@@ -88,10 +100,13 @@ async def on_message(message):
     if '!stats' in message.content:
         await handle_member_stats(message)
 
-    if '!matches' in message.content:
+    elif '!matches' in message.content:
         await handle_matches(message)
 
-    if '!top' in message.content:
+    elif '!top' in message.content:
         await handle_top_stats(message)
+
+    elif '!team' in message.content:
+        await handle_team_record(message)
 
 client.run(TOKEN)

@@ -67,6 +67,23 @@ def top_stats(members, stats_filter):
     if reply:
         return reply
 
+def team_record(team):
+    if not team:
+        return None
+    key = list(team.keys())[0]
+    reply = ""
+    if key:
+        reply += team[key]['name'] + "\n"
+        reply += "points: " + team[key]['rankingPoints'] + "\n"
+        reply += "record: " + team[key]['record'] + "\n"
+        reply += "current division: " + str(team[key]['currentDivision']) + "\n"
+        games = int(team[key]['wins']) + int(team[key]['losses']) + int(team[key]['ties']) + int(team[key]['otl'])
+        goals_per_game =  + int(team[key]['goals']) / games
+        goals_against_per_game =  + int(team[key]['goalsAgainst']) / games
+        reply += "goals per game: " + "{:.2f}".format(goals_per_game) + "\n"
+        reply += "goals against per ame: " + "{:.2f}".format(goals_against_per_game)
+    if reply:
+        return reply
 
 if __name__ == '__main__':
     import json
@@ -78,7 +95,13 @@ if __name__ == '__main__':
     matches = json.load(f)
     f.close()
 
+    f = open('team.json',)
+    team = json.load(f)
+    f.close()
+
+
     print(format_stats(members['members'][0], None))
     print(format_result(matches[0]))
     print(match_details(matches[1]))
     print(top_stats(members['members'], 'skater goals'))
+    print(team_record(team))
