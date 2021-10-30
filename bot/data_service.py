@@ -81,7 +81,7 @@ def team_record(team):
         goals_per_game =  + int(team[key]['goals']) / games
         goals_against_per_game =  + int(team[key]['goalsAgainst']) / games
         reply += "goals per game: " + "{:.2f}".format(goals_per_game) + "\n"
-        reply += "goals against per ame: " + "{:.2f}".format(goals_against_per_game)
+        reply += "goals against per game: " + "{:.2f}".format(goals_against_per_game)
     if reply:
         return reply
 
