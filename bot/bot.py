@@ -87,11 +87,18 @@ async def handle_team_record(message):
         team = " ".join(command[1:])
         await message.channel.send("Getting records for " + team + "\n" + "Please wait...")
         data = get_team_record(team)
-        result = data_service.team_record(data)
-        if result:
-            await message.channel.send(result)
+        team_record = data_service.team_record(data)
+        if team_record:
+            clubId = list(data.keys())[0]
+            members = get_members(clubId)
+            top_stats = data_service.top_stats(members['members'], "points per game")
+            top_reply = "---\nTop points per game players:\n" + top_stats
+            await message.channel.send(team_record)
+            await message.channel.send(top_reply)
+
         else:
             await message.channel.send("Something went wrong. Try again after few minutes. Also check team name is correct: " + team)
+
 @client.event
 async def on_message(message):
     if message.author == client.user:

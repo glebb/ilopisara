@@ -17,7 +17,7 @@ const viewPort = { width: 1280, height: 800 };
 (async function() {
     await puppeteer_original.registerCustomQueryHandler('shadow', QueryHandler);
 })();
-app.get("/members", async function(req, res, next) {
+app.get("/members/:clubId", async function(req, res, next) {
     var browser = await puppeteer.launch({ headless: true });    
     var page = await browser.newPage();
     await page.setViewport(viewPort)
@@ -39,13 +39,13 @@ app.get("/members", async function(req, res, next) {
             res.json(data);
         }           
     }); 
-    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?platform=' + process.env.PLATFORM + '&clubId=' + process.env.CLUB_ID, {
+    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?platform=' + process.env.PLATFORM + '&clubId=' + req.params.clubId, {
         waitUntil: 'networkidle2'
     });
     await browser.close();
 });
 
-app.get("/matches", async function(req, res, next) {
+app.get("/matches/:clubId", async function(req, res, next) {
     var browser = await puppeteer.launch({ headless: true });    
     var page = await browser.newPage();
     await page.setViewport(viewPort)
@@ -56,7 +56,7 @@ app.get("/matches", async function(req, res, next) {
             res.json(data);
         }   
     }); 
-    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/match-history?clubId=' + process.env.CLUB_ID + '&platform=' + process.env.PLATFORM, {
+    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/match-history?clubId=' + req.params.clubId + '&platform=' + process.env.PLATFORM, {
         waitUntil: 'networkidle2'
     });
     await browser.close();
