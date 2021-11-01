@@ -1,11 +1,18 @@
 Discord bot to fetch statistics for EA NHL 22
 
 !stats player [<skater>|<goalie>|<xfactor>]
-!matches
-!matches <matchId> (match details)
-!top statistic (e.g. 'hits per game')
+All stats for specific player
 
-the bot will periodically check latest results and post them to specified channel
+!matches <matchId> (match details)
+Last 5 matches or details for specific match
+
+!top statistic (e.g. 'hits per game')
+Rank club members based on single statistic
+
+!team team name (e.g. ilo pisara)
+Team record and other details
+
+The bot will periodically check latest results and post them to specified channel
 
 place .env file in root with following content
 DISCORD_TOKEN=
