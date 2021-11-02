@@ -78,8 +78,12 @@ def team_record(team):
         reply += "record: " + team[key]['record'] + "\n"
         reply += "current division: " + str(team[key]['currentDivision']) + "\n"
         games = int(team[key]['wins']) + int(team[key]['losses']) + int(team[key]['ties']) + int(team[key]['otl'])
-        goals_per_game =  + int(team[key]['goals']) / games
-        goals_against_per_game =  + int(team[key]['goalsAgainst']) / games
+        if games > 0:
+            goals_per_game =  + int(team[key]['goals']) / games
+            goals_against_per_game =  + int(team[key]['goalsAgainst']) / games
+        else:
+            goals_per_game = 0
+            goals_against_per_game = 0
         reply += "goals per game: " + "{:.2f}".format(goals_per_game) + "\n"
         reply += "goals against per game: " + "{:.2f}".format(goals_against_per_game)
     if reply:
