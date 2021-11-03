@@ -11,8 +11,8 @@ match_results_storage = {}
 
 load_dotenv('../.env')
 TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('DISCORD_GUILD')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
+
 client = discord.Client()
 
 @tasks.loop(seconds = 5)
@@ -37,9 +37,11 @@ async def twitch_poller(channel):
 
 @client.event
 async def on_ready():
-    channel = client.get_channel(int(CHANNEL))
-    latest_results.start(channel=channel)
-    twitch_poller.start(channel=channel)
+    if CHANNEL:
+        channel = client.get_channel(int(CHANNEL))
+        latest_results.start(channel=channel)
+    if os.getenv('TWITCH_CLIENT_ID') and CHANNEL:
+        twitch_poller.start(channel=channel)
 
 async def handle_member_stats(message):
     msg_content_splitted = message.content.split(' ')
