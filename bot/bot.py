@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from data import get_matches, get_members, get_team_record
 import data_service
 import jsonmap
+import twitch
 
 match_results_storage = {}
 
@@ -15,7 +16,7 @@ CHANNEL = os.getenv('DISCORD_CHANNEL')
 client = discord.Client()
 
 @tasks.loop(seconds = 5)
-async def myLoop(channel):
+async def latest_results(channel):
     matches = get_matches()
     result_string = ""
     for i in reversed(range(0, len(matches))):
@@ -28,10 +29,17 @@ async def myLoop(channel):
     if result_string:
         await channel.send(result_string)
 
+@tasks.loop(seconds = 15)
+async def twitch_poller(channel):
+    stream = twitch.get_live_stream()
+    if stream and stream['status'] == 'start':
+        await channel.send("Stream started: " +stream['url'])
+
 @client.event
 async def on_ready():
     channel = client.get_channel(int(CHANNEL))
-    myLoop.start(channel=channel)
+    latest_results.start(channel=channel)
+    twitch_poller.start(channel=channel)
 
 async def handle_member_stats(message):
     msg_content_splitted = message.content.split(' ')

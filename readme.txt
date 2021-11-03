@@ -19,6 +19,9 @@ DISCORD_TOKEN=
 DISCORD_CHANNEL=
 PLATFORM=
 CLUB_ID=
+TWITCH_CLIENT_ID=
+TWITCH_OAUTH=
+TWITCH_STREAMERS=
 
 To get puppeteer running in AWS Bitnami Node/Express ec2 image:
 sudo sysctl -w kernel.unprivileged_userns_clone=1
