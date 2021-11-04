@@ -6,6 +6,7 @@ from data import get_matches, get_members, get_team_record
 import data_service
 import jsonmap
 import twitch
+import giphy
 
 match_results_storage = {}
 
@@ -24,10 +25,14 @@ async def latest_results(channel):
         if not match_id in match_results_storage:
             match_results_storage[match_id] = matches[i]
             if len(match_results_storage) > 5:
-                result_string += data_service.format_result(matches[i]) + "\n"
-                result_string += data_service.match_details(matches[i]) + "\n"
-    if result_string:
-        await channel.send(result_string)
+                scores = matches[i]['clubs'][os.getenv('CLUB_ID')]['scoreString'].split(' - ')
+                if int(scores[0]) > int(scores[1]):
+                    gif = giphy.get_win()
+                else:
+                    gif = giphy.get_fail()
+                await channel.send(data_service.format_result(matches[i]))
+                await channel.send(gif)
+                await channel.send(data_service.match_details(matches[i]))
 
 @tasks.loop(seconds = 15)
 async def twitch_poller(channel):
