@@ -71,6 +71,5 @@ app.get("/team/:name", async function(req, res, next) {
     await page.waitForSelector('shadow/#search');
     element = await page.$('shadow/#search');
     await page.focus('shadow/#search');
-    await page.keyboard.type(req.params.name);
-    await page.click('shadow/div.eapl-proclub-ranking__tabs-search > div > iron-icon.eapl-proclub-ranking__search-icon');
+    await page.keyboard.type(req.params.name+"\r\n");
 });
