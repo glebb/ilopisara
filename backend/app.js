@@ -23,13 +23,20 @@ app.get("/members/:clubId", async function(req, res, next) {
     page.on('response', async (response) => { 
         if (response.url().startsWith('https://proclubs.ea.com/api/nhl/members/career/stats')) {
             console.log(response.url())
-            const data = await response.json();
-            res.json(data);
+            const data = await response.json().catch(()=> {
+                res.json([])
+            });
+            if (data) {
+                res.json(data);
+            }            
         }           
     }); 
-    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?platform=' + process.env.PLATFORM + '&clubId=' + req.params.clubId, {
+    const reply = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?platform=' + process.env.PLATFORM + '&clubId=' + req.params.clubId, {
         waitUntil: 'networkidle2'
     });
+    if (reply.status() != 200) {
+        await res.sendStatus(reply.status());
+    }
     await browser.close();
 });
 
@@ -40,17 +47,25 @@ app.get("/matches/:clubId", async function(req, res, next) {
     page.on('response', async (response) => { 
         if (response.url().startsWith('https://proclubs.ea.com/api/nhl/clubs/matches')) {
             console.log(response.url())
-            data = await response.json();
-            res.json(data);
+            const data = await response.json().catch(()=> {
+                res.json([])
+            });
+            if (data) {
+                res.json(data);
+            }            
         }   
     }); 
-    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/match-history?clubId=' + req.params.clubId + '&platform=' + process.env.PLATFORM, {
+    const reply = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/match-history?clubId=' + req.params.clubId + '&platform=' + process.env.PLATFORM, {
         waitUntil: 'networkidle2'
     });
+    if (reply.status() != 200) {
+        await res.sendStatus(reply.status());
+    }
     await browser.close();
 });
 
 app.get("/team/:name", async function(req, res, next) {
+    var sent = false;
     var browser = await puppeteer_original.launch({ headless: true });    
     var page = await browser.newPage();
     await page.setViewport(viewPort) 
@@ -60,16 +75,26 @@ app.get("/team/:name", async function(req, res, next) {
     page.on('response', async (response) => { 
         if (response.url().startsWith('https://proclubs.ea.com/api/nhl/clubs/search')) {
             console.log(response.url());
-            const data = await response.json();
-            await browser.close();
-            res.json(data);    
+            const data = await response.json().catch(() => {
+
+            });
+            if (data) {
+                sent = true;
+                res.json(data);
+            }
         }   
     }); 
-    await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/rankings#platform=' + process.env.PLATFORM, {
+    const reply1 = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/rankings#platform=' + process.env.PLATFORM, {
         waitUntil: 'networkidle2'
     });
+    if (reply1.status() != 200) {
+        await res.sendStatus(reply.status());
+    }
     await page.waitForSelector('shadow/#search');
     element = await page.$('shadow/#search');
     await page.focus('shadow/#search');
-    await page.keyboard.type(req.params.name+"\r\n");
+    await page.keyboard.type(req.params.name+"\n");
+    await page.waitForTimeout(6000);
+    await browser.close();
+    if (!sent) res.json({});
 });
