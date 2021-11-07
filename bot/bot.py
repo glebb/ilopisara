@@ -74,8 +74,9 @@ async def handle_matches(message):
     result_string = ""
     if len(msg_content_splitted) > 1:
         index = data_service.find(matches, 'matchId', msg_content_splitted[1])
-        result_string += data_service.format_result(matches[index]) + "\n"
-        result_string += data_service.match_details(matches[index]) + "\n" 
+        if index:
+            result_string += data_service.format_result(matches[index]) + "\n"
+            result_string += data_service.match_details(matches[index]) + "\n" 
     else:
         for i in reversed(range(0, len(matches))[-5:]):
             result_string += data_service.format_result(matches[i]) + "\n" 
