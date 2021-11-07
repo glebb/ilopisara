@@ -24,7 +24,7 @@ app.get("/members/:clubId", async function(req, res, next) {
         if (response.url().startsWith('https://proclubs.ea.com/api/nhl/members/career/stats')) {
             console.log(response.url())
             const data = await response.json().catch(()=> {
-                res.json([])
+                res.json({})
             });
             if (data) {
                 res.json(data);
