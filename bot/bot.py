@@ -108,7 +108,10 @@ async def handle_team_record(message):
             clubId = list(data.keys())[0]
             members = get_members(clubId)
             top_stats = data_service.top_stats(members['members'], "points per game")
-            top_reply = "---\nTop points per game players:\n" + top_stats
+            if top_stats:
+                top_reply = "---\nTop points per game players:\n" + top_stats
+            else:
+                top_reply = "No top stats available"
             await message.channel.send(team_record)
             await message.channel.send(top_reply)
 
