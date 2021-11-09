@@ -11,13 +11,19 @@ var app = express();
 app.listen(3000, () => {
  console.log("Server running on port 3000");
 });
+var browser;
+var browser2;
+
+
 
 const viewPort = { width: 1280, height: 800 };
 (async function() {
     await puppeteer_original.registerCustomQueryHandler('shadow', QueryHandler);
+    browser = await puppeteer.launch({ headless: true });    
+    browser2 = await puppeteer_original.launch({ headless: true });    
+
 })();
 app.get("/members/:clubId", async function(req, res, next) {
-    var browser = await puppeteer.launch({ headless: true });    
     var page = await browser.newPage();
     await page.setViewport(viewPort)
     page.on('response', async (response) => { 
@@ -37,11 +43,10 @@ app.get("/members/:clubId", async function(req, res, next) {
     if (reply.status() != 200) {
         await res.sendStatus(reply.status());
     }
-    await browser.close();
+    await page.close();
 });
 
 app.get("/matches/:clubId", async function(req, res, next) {
-    var browser = await puppeteer.launch({ headless: true });    
     var page = await browser.newPage();
     await page.setViewport(viewPort)
     page.on('response', async (response) => { 
@@ -61,13 +66,12 @@ app.get("/matches/:clubId", async function(req, res, next) {
     if (reply.status() != 200) {
         await res.sendStatus(reply.status());
     }
-    await browser.close();
+    await page.close();
 });
 
 app.get("/team/:name", async function(req, res, next) {
     var sent = false;
-    var browser = await puppeteer_original.launch({ headless: true });    
-    var page = await browser.newPage();
+    var page = await browser2.newPage();
     await page.setViewport(viewPort) 
     await page.setUserAgent(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'
@@ -95,6 +99,6 @@ app.get("/team/:name", async function(req, res, next) {
     await page.focus('shadow/#search');
     await page.keyboard.type(req.params.name+"\n");
     await page.waitForTimeout(6000);
-    await browser.close();
+    await page.close();
     if (!sent) res.json({});
 });
