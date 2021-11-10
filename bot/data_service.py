@@ -1,7 +1,6 @@
 import jsonmap
 from datetime import datetime
 import pytz
-from dotenv import load_dotenv
 import os
 
 def find(lst, key, value):

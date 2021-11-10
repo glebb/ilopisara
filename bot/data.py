@@ -6,8 +6,13 @@ from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 import urllib.parse
 from dotenv import load_dotenv
+
 load_dotenv('../.env')
 CLUB_ID = os.getenv('CLUB_ID')
+PLATFORM = os.getenv('PLATFORM')
+USE_PROXY = bool(int(os.getenv('USE_PROXY')))
+
+#Season stats: https://proclubs.ea.com/api/nhl/clubs/seasonalStats?platform=ps4&clubIds=19963
 
 retry_strategy = Retry(
     total=5,
@@ -25,7 +30,11 @@ def get_members(club_id=CLUB_ID):
     print("get_members")
     data = {}
     try:
-        data = http.get('http://localhost:3000/members/'+club_id, timeout=4).json()
+        if USE_PROXY:
+            url = 'http://localhost:3000/members/'+club_id
+        else:
+            url = f"https://proclubs.ea.com/api/nhl/members/career/stats?platform={PLATFORM}&clubId={club_id}"
+        data = http.get(url, timeout=4).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data
@@ -36,7 +45,11 @@ def get_matches(club_id=CLUB_ID):
     print("get_matches")
     data = {}
     try:
-        data = http.get('http://localhost:3000/matches/' + club_id, timeout=4).json()
+        if USE_PROXY:
+            url = 'http://localhost:3000/matches/' + club_id
+        else:
+            url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType=gameType5&platform={PLATFORM}&clubIds={club_id}"
+        data = http.get(url, timeout=4).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data
@@ -46,7 +59,12 @@ def get_team_record(team):
     print("get_team_record :" + team)
     data = {}
     try:
-        data = http.get('http://localhost:3000/team/' + urllib.parse.quote(team), timeout=10).json()
+        team_quoted = urllib.parse.quote(team)
+        if USE_PROXY:
+            url = 'http://localhost:3000/team/' + team_quoted
+        else:
+            url = f"https://proclubs.ea.com/api/nhl/clubs/search?platform={PLATFORM}&clubName={team_quoted}"
+        data = http.get(url, timeout=10).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data
