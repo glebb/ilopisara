@@ -6,6 +6,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 import urllib.parse
 from dotenv import load_dotenv
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:77.0) Gecko/20100101 Firefox/77.0'}
 
 load_dotenv('../.env')
 CLUB_ID = os.getenv('CLUB_ID')
@@ -34,7 +35,7 @@ def get_members(club_id=CLUB_ID):
             url = 'http://localhost:3000/members/'+club_id
         else:
             url = f"https://proclubs.ea.com/api/nhl/members/career/stats?platform={PLATFORM}&clubId={club_id}"
-        data = http.get(url, timeout=4).json()
+        data = http.get(url, timeout=4, headers=headers).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data
@@ -49,7 +50,7 @@ def get_matches(club_id=CLUB_ID):
             url = 'http://localhost:3000/matches/' + club_id
         else:
             url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType=gameType5&platform={PLATFORM}&clubIds={club_id}"
-        data = http.get(url, timeout=4).json()
+        data = http.get(url, timeout=4, headers=headers).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data
@@ -64,7 +65,7 @@ def get_team_record(team):
             url = 'http://localhost:3000/team/' + team_quoted
         else:
             url = f"https://proclubs.ea.com/api/nhl/clubs/search?platform={PLATFORM}&clubName={team_quoted}"
-        data = http.get(url, timeout=10).json()
+        data = http.get(url, timeout=10, headers=headers).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data
