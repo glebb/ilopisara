@@ -57,6 +57,7 @@ def get_matches(club_id=CLUB_ID):
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_team_record(team):
+    return "disabled for now"
     print("get_team_record :" + team)
     data = {}
     try:
