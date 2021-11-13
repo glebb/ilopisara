@@ -75,10 +75,11 @@ app.get("/team/:name", async function(req, res, next) {
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36'
        );   
     page.on('response', async (response) => { 
-        if (response.url().startsWith('https://proclubs.ea.com/api/nhl/clubs/search')) {
+        if (response.url().startsWith('https://proclubs.ea.com/api/nhl/clubs/search') && response.headers()['content-length'] > '0') {
             console.log(response.url());
             const data = await response.json()
             res.json(data);
+            await browser2.close();
         }   
     }); 
     const reply1 = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/rankings#platform=' + process.env.PLATFORM, {
@@ -88,6 +89,4 @@ app.get("/team/:name", async function(req, res, next) {
     element = await page.$('shadow/#search');
     await page.focus('shadow/#search');
     await page.keyboard.type(req.params.name+"\n");
-    await page.waitForTimeout(6000);
-    await browser2.close();
 });
