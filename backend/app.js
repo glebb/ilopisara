@@ -11,19 +11,16 @@ var app = express();
 app.listen(3000, () => {
  console.log("Server running on port 3000");
 });
-var browser;
-var browser2;
 
 
 
 const viewPort = { width: 1280, height: 800 };
 (async function() {
     await puppeteer_original.registerCustomQueryHandler('shadow', QueryHandler);
-    browser = await puppeteer.launch({ headless: true });    
-    browser2 = await puppeteer_original.launch({ headless: true });    
 
 })();
 app.get("/members/:clubId", async function(req, res, next) {
+    var browser = await puppeteer.launch({ headless: true });    
     var page = await browser.newPage();
     await page.setViewport(viewPort)
     page.on('response', async (response) => { 
@@ -43,10 +40,11 @@ app.get("/members/:clubId", async function(req, res, next) {
     if (reply.status() != 200) {
         await res.sendStatus(reply.status());
     }
-    await page.close();
+    await browser.close();
 });
 
 app.get("/matches/:clubId", async function(req, res, next) {
+    var browser = await puppeteer.launch({ headless: true });    
     var page = await browser.newPage();
     await page.setViewport(viewPort)
     page.on('response', async (response) => { 
@@ -66,11 +64,11 @@ app.get("/matches/:clubId", async function(req, res, next) {
     if (reply.status() != 200) {
         await res.sendStatus(reply.status());
     }
-    await page.close();
+    await browser.close();
 });
 
 app.get("/team/:name", async function(req, res, next) {
-    var sent = false;
+    var browser2 = await puppeteer_original.launch({ headless: true });    
     var page = await browser2.newPage();
     await page.setViewport(viewPort) 
     await page.setUserAgent(
@@ -79,26 +77,17 @@ app.get("/team/:name", async function(req, res, next) {
     page.on('response', async (response) => { 
         if (response.url().startsWith('https://proclubs.ea.com/api/nhl/clubs/search')) {
             console.log(response.url());
-            const data = await response.json().catch(() => {
-
-            });
-            if (data) {
-                sent = true;
-                res.json(data);
-            }
+            const data = await response.json()
+            res.json(data);
         }   
     }); 
     const reply1 = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/rankings#platform=' + process.env.PLATFORM, {
         waitUntil: 'networkidle2'
     });
-    if (reply1.status() != 200) {
-        await res.sendStatus(reply.status());
-    }
     await page.waitForSelector('shadow/#search');
     element = await page.$('shadow/#search');
     await page.focus('shadow/#search');
     await page.keyboard.type(req.params.name+"\n");
     await page.waitForTimeout(6000);
-    await page.close();
-    if (!sent) res.json({});
+    await browser2.close();
 });
