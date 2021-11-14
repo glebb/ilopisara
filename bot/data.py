@@ -16,15 +16,14 @@ USE_PROXY = bool(int(os.getenv('USE_PROXY')))
 #Season stats: https://proclubs.ea.com/api/nhl/clubs/seasonalStats?platform=ps4&clubIds=19963
 
 retry_strategy = Retry(
-    total=5,
-    status_forcelist=[429, 500, 502, 503, 504],
-    method_whitelist=["HEAD", "GET", "OPTIONS"],
+    total=2,
     backoff_factor=0.2
 )
 adapter = HTTPAdapter(max_retries=retry_strategy)
 http = requests.Session()
 http.mount("https://", adapter)
 http.mount("http://", adapter)
+http.get('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?clubId=19963&platform=ps4')
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_members(club_id=CLUB_ID):
@@ -70,3 +69,6 @@ def get_team_record(team):
     except requests.exceptions.Timeout as err:
         print(err)
     return data
+
+if __name__ == '__main__':
+    print(get_members())
