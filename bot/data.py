@@ -23,7 +23,6 @@ adapter = HTTPAdapter(max_retries=retry_strategy)
 http = requests.Session()
 http.mount("https://", adapter)
 http.mount("http://", adapter)
-http.get('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?clubId=19963&platform=ps4')
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_members(club_id=CLUB_ID):
@@ -56,7 +55,6 @@ def get_matches(club_id=CLUB_ID):
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_team_record(team):
-    return None #disabled for now
     print("get_team_record :" + team)
     data = {}
     try:
