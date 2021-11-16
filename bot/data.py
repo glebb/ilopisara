@@ -13,6 +13,7 @@ CLUB_ID = os.getenv('CLUB_ID')
 PLATFORM = os.getenv('PLATFORM')
 USE_PROXY = bool(int(os.getenv('USE_PROXY')))
 
+# https://proclubs.ea.com/api/nhl/clubs/matches?platform=ps4&clubIds=19963&matchType=gameType5&maxResultCount=50
 #Season stats: https://proclubs.ea.com/api/nhl/clubs/seasonalStats?platform=ps4&clubIds=19963
 
 retry_strategy = Retry(
@@ -40,14 +41,14 @@ def get_members(club_id=CLUB_ID):
     
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_matches(club_id=CLUB_ID):
+def get_matches(club_id=CLUB_ID, count=5):
     print("get_matches")
     data = {}
     try:
         if USE_PROXY:
             url = 'http://localhost:3000/matches/' + club_id
         else:
-            url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType=gameType5&platform={PLATFORM}&clubIds={club_id}"
+            url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType=gameType5&platform={PLATFORM}&clubIds={club_id}&maxResultCount={count}"
         data = http.get(url, timeout=4, headers=headers).json()
     except requests.exceptions.Timeout as err:
         print(err)
