@@ -18,6 +18,8 @@ def save_match(match):
     db.collection('matches').document(match['matchId']).set(match)
 
 def find_matches_by_club_id(versusClubId):
+    if versusClubId == CLUB_ID:
+        return []
     matches = []
     docs = db.collection('matches').stream()
     for doc in docs:
