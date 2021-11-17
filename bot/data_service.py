@@ -14,7 +14,8 @@ def format_result(match):
     score_time = datetime.fromtimestamp(ts)
     score_time = score_time.astimezone(pytz.timezone('Europe/Helsinki')).strftime('%d.%m. %H:%M')
     opponentId = match['clubs'][os.getenv('CLUB_ID')]['opponentClubId']
-    score_teams = match['clubs'][os.getenv('CLUB_ID')]['details']['name'] + ' - ' + match['clubs'][opponentId]['details']['name']
+    opponentName = match['clubs'][opponentId]['details']['name'] if match['clubs'][opponentId]['details'] != None else "???"
+    score_teams = match['clubs'][os.getenv('CLUB_ID')]['details']['name'] + ' - ' + opponentName
     score_result = match['clubs'][os.getenv('CLUB_ID')]['scoreString']
     score_string = score_time + ' ' + score_teams + ' ' + score_result + ' ' + ' // '+ match['matchId']
     return score_string

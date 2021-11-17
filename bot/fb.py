@@ -17,17 +17,15 @@ db = firestore.client()
 def save_match(match):
     db.collection('matches').document(match['matchId']).set(match)
 
-def find_matches_by_club_id(versusClubId):
-    if versusClubId == CLUB_ID:
-        return []
+def find_matches_by_club_id(versusClubId=None):
     matches = []
     docs = db.collection('matches').stream()
     for doc in docs:
         match = doc.to_dict()
         matchVersusClubid = [x for x in match['clubs'] if x != CLUB_ID][0]
-        if matchVersusClubid == versusClubId:
+        if matchVersusClubid == versusClubId or versusClubId == None:
             matches.append(match)
-    return matches
+    return sorted(matches, key=lambda match: float(match['timestamp']))
 
 def find_match_by_id(matchId):
     matches = []

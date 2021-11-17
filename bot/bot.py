@@ -14,13 +14,13 @@ match_results_storage = {}
 load_dotenv('../.env')
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
+CLUB_ID = os.getenv('CLUB_ID')
 
 client = discord.Client()
 
 @tasks.loop(seconds = 5)
 async def latest_results(channel):
     matches = get_matches()
-    result_string = ""
     for i in reversed(range(0, len(matches))):
         match_id = matches[i]['matchId']
         if not match_id in match_results_storage:
@@ -102,6 +102,10 @@ async def handle_top_stats(message):
         await message.author.send("Try some of these:\n" + " \n".join(list(sorted(jsonmap.names.values()))[:100]))
         await message.author.send(" \n".join(list(sorted(jsonmap.names.values()))[100:]))
 
+def chunk_using_generators(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
 async def handle_team_record(message):
     command = message.content.split(' ')
     if len(command) < 2:
@@ -114,7 +118,7 @@ async def handle_team_record(message):
         if team_record:
             clubId = list(data.keys())[0]
             members = get_members(clubId)
-            matches = fb.find_matches_by_club_id(clubId)
+            matches = fb.find_matches_by_club_id(clubId if clubId != CLUB_ID else None)
             top_stats = data_service.top_stats(members['members'], "points per game")
             if top_stats:
                 top_reply = "---\nTop points per game players:\n" + top_stats
@@ -122,11 +126,18 @@ async def handle_team_record(message):
                 top_reply = "No top stats available"
             await message.channel.send(team_record)
             await message.channel.send(top_reply)
+            match_results_header = "---\nMatch history:\n"
             if matches:
-                match_results = "---\nMatch history:\n"
-                for match in matches:
-                    match_results += data_service.format_result(match) + "\n"
-                await message.channel.send(match_results)                
+                match_batches = chunk_using_generators(matches, 30)                
+                for batch in match_batches:
+                    match_results = ""
+                    for match in batch:
+                        match_results += data_service.format_result(match) + "\n"
+                    match_results = match_results_header + match_results
+                    if clubId == CLUB_ID:
+                        await message.author.send(match_results)
+                    else:
+                        await message.channel.send(match_results)                
 
         else:
             await message.channel.send("Something went wrong. Try again after few minutes. Also check team name is correct: " + team)
