@@ -9,7 +9,7 @@ CLUB_ID = os.getenv('CLUB_ID')
 
 
 # Use a service account
-cred = credentials.Certificate('./firebase-credentials.json')
+cred = credentials.Certificate('../firebase-credentials.json')
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
