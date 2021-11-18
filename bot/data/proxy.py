@@ -1,14 +1,13 @@
 
 import requests
 import os
-from cachetools import cached, TTLCache
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 import urllib.parse
 from dotenv import load_dotenv
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:77.0) Gecko/20100101 Firefox/77.0'}
 
-load_dotenv('../../.env')
+load_dotenv('../.env')
 CLUB_ID = os.getenv('CLUB_ID')
 PLATFORM = os.getenv('PLATFORM')
 USE_PROXY = bool(int(os.getenv('USE_PROXY')))
