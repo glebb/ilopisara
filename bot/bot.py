@@ -2,7 +2,7 @@ import os
 import discord
 from discord.ext import tasks
 from dotenv import load_dotenv
-from data import get_matches, get_members, get_team_record
+import data
 import data_service
 import jsonmap
 import twitch
@@ -20,7 +20,7 @@ client = discord.Client()
 
 @tasks.loop(seconds = 5)
 async def latest_results(channel):
-    matches = get_matches()
+    matches = data.api.get_matches()
     for i in reversed(range(0, len(matches))):
         match_id = matches[i]['matchId']
         if not match_id in match_results_storage:
@@ -52,7 +52,7 @@ async def on_ready():
 
 async def handle_member_stats(message):
     msg_content_splitted = message.content.split(' ')
-    members = get_members()['members']
+    members = data.api.get_members()['members']
     reply = "!stats "
     stats_filter = None
     for member in members:
@@ -72,7 +72,7 @@ async def handle_member_stats(message):
 
 async def handle_matches(message):
     msg_content_splitted = message.content.split(' ')
-    matches = get_matches()
+    matches = data.api.get_matches()
     result_string = ""
     if len(msg_content_splitted) > 1:        
         index = data_service.find(matches, 'matchId', msg_content_splitted[1])
@@ -94,7 +94,7 @@ async def handle_top_stats(message):
     command, *filter = message.content.split(' ')
     result = None
     if len(filter) >= 1:
-        members = get_members()['members']
+        members = data.api.get_members()['members']
         result = data_service.top_stats(members, ' '.join(filter))
         if result:
             await message.channel.send(result)
@@ -113,11 +113,11 @@ async def handle_team_record(message):
     else:
         team = " ".join(command[1:])
         await message.channel.send("Getting records for " + team + "\n" + "Please wait...")
-        data = get_team_record(team)
-        team_record = data_service.team_record(data)
+        temp = data.api.get_team_record(team)
+        team_record = data_service.team_record(temp)
         if team_record:
             clubId = list(data.keys())[0]
-            members = get_members(clubId)
+            members = data.api.get_members(clubId)
             matches = fb.find_matches_by_club_id(clubId if clubId != CLUB_ID else None)
             top_stats = data_service.top_stats(members['members'], "points per game")
             if top_stats:
