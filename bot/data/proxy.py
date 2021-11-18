@@ -24,30 +24,33 @@ adapter = HTTPAdapter(max_retries=retry_strategy)
 http = requests.Session()
 http.mount("https://", adapter)
 http.mount("http://", adapter)
-def get_members(club_id):
+def get_members(club_id, platform):
     data = {}
+    params = {'platform': platform}
     try:
         url = 'http://localhost:3000/members/'+club_id
-        data = http.get(url, timeout=4, headers=headers).json()
+        data = http.get(url, timeout=4, headers=headers, params=params).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data
     
-def get_matches(club_id, count):
+def get_matches(club_id, platform, count):
     data = {}
+    params = {'platform': platform, 'count': count}
     try:
         url = 'http://localhost:3000/matches/' + club_id
-        data = http.get(url, timeout=4, headers=headers).json()
+        data = http.get(url, timeout=4, headers=headers, params=params).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data
 
-def get_team_record(team):
+def get_team_record(team, platform):
     data = {}
+    params = {'platform': platform}
     try:
         team_quoted = urllib.parse.quote(team)
         url = 'http://localhost:3000/team/' + team_quoted
-        data = http.get(url, timeout=10, headers=headers).json()
+        data = http.get(url, timeout=10, headers=headers, params=params).json()
     except requests.exceptions.Timeout as err:
         print(err)
     return data

@@ -1,10 +1,9 @@
-require('dotenv').config({ path: '../.env' })
 const puppeteer = require('puppeteer-extra')
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin());
+
 const puppeteer_original = require('puppeteer');
 const {  QueryHandler } = require("query-selector-shadow-dom/plugins/puppeteer");
-puppeteer.use(StealthPlugin())
 
 var express = require("express");
 var app = express();
@@ -12,13 +11,13 @@ app.listen(3000, () => {
  console.log("Server running on port 3000");
 });
 
-
-
 const viewPort = { width: 1280, height: 800 };
+
 (async function() {
     await puppeteer_original.registerCustomQueryHandler('shadow', QueryHandler);
 
 })();
+
 app.get("/members/:clubId", async function(req, res, next) {
     var browser = await puppeteer.launch({ headless: true });    
     var page = await browser.newPage();
@@ -34,7 +33,7 @@ app.get("/members/:clubId", async function(req, res, next) {
             }            
         }           
     }); 
-    const reply = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?platform=' + process.env.PLATFORM + '&clubId=' + req.params.clubId, {
+    const reply = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/overview?platform=' + req.query.platform + '&clubId=' + req.params.clubId, {
         waitUntil: 'networkidle2'
     });
     if (reply.status() != 200) {
@@ -58,7 +57,7 @@ app.get("/matches/:clubId", async function(req, res, next) {
             }            
         }   
     }); 
-    const reply = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/match-history?clubId=' + req.params.clubId + '&platform=' + process.env.PLATFORM, {
+    const reply = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/match-history?clubId=' + req.params.clubId + '&platform=' + req.query.platform + '&maxResultCount=' + req.query.count , {
         waitUntil: 'networkidle2'
     });
     if (reply.status() != 200) {
@@ -82,7 +81,7 @@ app.get("/team/:name", async function(req, res, next) {
             await browser2.close();
         }   
     }); 
-    const reply1 = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/rankings#platform=' + process.env.PLATFORM, {
+    const reply1 = await page.goto('https://www.ea.com/fi-fi/games/nhl/nhl-22/pro-clubs/rankings#platform=' + req.query.platform, {
         waitUntil: 'networkidle2'
     });
     await page.waitForSelector('shadow/#search');
