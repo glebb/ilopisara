@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from data import api
 import data_service
 import jsonmap
-from extra import fb, giphy, twitch
+from extra import fb, giphy, twitch, features
 
 match_results_storage = {}
 
@@ -23,7 +23,8 @@ async def latest_results(channel):
         match_id = matches[i]['matchId']
         if not match_id in match_results_storage:
             match_results_storage[match_id] = matches[i]
-            fb.save_match(matches[i])
+            if features.firebase_enabled():
+                fb.save_match(matches[i])
             if len(match_results_storage) > 5:
                 scores = matches[i]['clubs'][os.getenv('CLUB_ID')]['scoreString'].split(' - ')
                 if int(scores[0]) > int(scores[1]):
@@ -74,7 +75,7 @@ async def handle_matches(message):
     result_string = ""
     if len(msg_content_splitted) > 1:        
         index = data_service.find(matches, 'matchId', msg_content_splitted[1])
-        if not index:
+        if not index and features.firebase_enabled():
             matches = fb.find_match_by_id(msg_content_splitted[1])
             if matches:
                 result_string += data_service.format_result(matches[0]) + "\n"
@@ -116,7 +117,10 @@ async def handle_team_record(message):
         if team_record:
             clubId = list(temp.keys())[0]
             members = api.get_members(clubId)
-            matches = fb.find_matches_by_club_id(clubId if clubId != CLUB_ID else None)
+            if features.firebase_enabled():
+                matches = fb.find_matches_by_club_id(clubId if clubId != CLUB_ID else None)
+            else:
+                matches = None
             top_stats = data_service.top_stats(members['members'], "points per game")
             if top_stats:
                 top_reply = "---\nTop points per game players:\n" + top_stats
