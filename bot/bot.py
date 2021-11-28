@@ -16,16 +16,27 @@ CLUB_ID = os.getenv('CLUB_ID')
 
 client = discord.Client()
 
-@tasks.loop(seconds = 5)
+@tasks.loop(seconds = 15)
 async def latest_results(channel):
-    matches = api.get_matches()
+    if len(match_results_storage) == 0:
+        initial = True
+    else:
+        initial = False
+    regularmatches = api.get_matches()
+    playoffs = api.get_matches(game_type=api.GAMETYPE.PLAYOFFS.value)
+    matches = regularmatches + playoffs
+    matches = sorted(matches, key=lambda match: float(match['timestamp']))
     for i in reversed(range(0, len(matches))):
         match_id = matches[i]['matchId']
         if not match_id in match_results_storage:
             match_results_storage[match_id] = matches[i]
             if features.firebase_enabled():
-                fb.save_match(matches[i])
-            if len(match_results_storage) > 5:
+                if matches[i] in regularmatches:
+                    game_type = 'matches'
+                else:
+                    game_type = 'playoffs'
+                fb.save_match(matches[i], game_type)
+            if not initial:
                 scores = matches[i]['clubs'][os.getenv('CLUB_ID')]['scoreString'].split(' - ')
                 if int(scores[0]) > int(scores[1]):
                     gif = giphy.get_win()
@@ -86,7 +97,7 @@ async def handle_matches(message):
             result_string += data_service.format_result(matches[index]) + "\n"
             result_string += data_service.match_details(matches[index]) + "\n" 
     else:
-        for i in range(0, len(matches))[-5:]:
+        for i in range(0, len(matches))[-10:]:
             result_string += data_service.format_result(matches[i]) + "\n" 
     if result_string:
         await message.channel.send(result_string)

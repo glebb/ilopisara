@@ -27,7 +27,7 @@ def get_members(club_id=CLUB_ID, platform=PLATFORM):
     return members
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_matches(club_id=CLUB_ID, platform=PLATFORM, count=5, game_type = GAMETYPE.REGULARSEASON.value):
+def get_matches(club_id=CLUB_ID, platform=PLATFORM, count=10, game_type = GAMETYPE.REGULARSEASON.value):
     try:
         if USE_PROXY:
             matches = proxy.get_matches(club_id, platform, count)    

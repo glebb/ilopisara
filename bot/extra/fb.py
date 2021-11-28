@@ -13,8 +13,8 @@ firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-def save_match(match):
-    db.collection('matches').document(match['matchId']).set(match)
+def save_match(match, game_type):
+    db.collection(game_type).document(match['matchId']).set(match)
 
 def find_matches_by_club_id(versusClubId=None):
     matches = []
