@@ -28,10 +28,10 @@ def get_members(club_id, platform):
         print(err)
     return data
     
-def get_matches(club_id, platform, count=5):
+def get_matches(club_id, platform, count, game_type):
     data = {}
     try:
-        url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType=gameType5&matchType=gameType10&platform={platform}&clubIds={club_id}&maxResultCount={count}"
+        url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType=gameType{str(game_type)}&matchType=gameType10&platform={platform}&clubIds={club_id}&maxResultCount={count}"
         data = http.get(url, timeout=4, headers=headers).json()
     except requests.exceptions.Timeout as err:
         print(err)

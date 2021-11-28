@@ -16,11 +16,17 @@ db = firestore.client()
 
 
 if __name__ == '__main__':
-    matches = api.get_matches(count=50)
-    batch = db.batch()
-    for match in matches:
-        print(match['matchId'])
-        doc_ref = db.collection('matches').document(match['matchId'])
-        batch.set(doc_ref, match)
-    batch.commit()
+    for type in api.GAMETYPE:
+        matches = api.get_matches(count=50, game_type=type.value)
+        path = 'unknown'
+        if type == api.GAMETYPE.REGULARSEASON:
+            path = 'matches'
+        elif type == api.GAMETYPE.PLAYOFFS:
+            path = 'playoffs'
+        batch = db.batch()
+        for match in matches:
+            print(match['matchId'])
+            doc_ref = db.collection(path).document(match['matchId'])
+            batch.set(doc_ref, match)
+        batch.commit()
 

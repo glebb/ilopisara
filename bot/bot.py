@@ -72,6 +72,8 @@ async def handle_member_stats(message):
 async def handle_matches(message):
     msg_content_splitted = message.content.split(' ')
     matches = api.get_matches()
+    matches = matches + api.get_matches(game_type=api.GAMETYPE.PLAYOFFS.value)
+    matches = sorted(matches, key=lambda match: float(match['timestamp']))
     result_string = ""
     if len(msg_content_splitted) > 1:        
         index = data_service.find(matches, 'matchId', msg_content_splitted[1])
@@ -84,7 +86,7 @@ async def handle_matches(message):
             result_string += data_service.format_result(matches[index]) + "\n"
             result_string += data_service.match_details(matches[index]) + "\n" 
     else:
-        for i in reversed(range(0, len(matches))[-5:]):
+        for i in range(0, len(matches))[-5:]:
             result_string += data_service.format_result(matches[i]) + "\n" 
     if result_string:
         await message.channel.send(result_string)

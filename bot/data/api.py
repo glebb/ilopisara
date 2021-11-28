@@ -3,6 +3,11 @@ import os
 from cachetools import cached, TTLCache
 from dotenv import load_dotenv
 from data import proxy, direct
+from enum import Enum
+
+class GAMETYPE(Enum):
+    REGULARSEASON = 5
+    PLAYOFFS = 10
 
 load_dotenv('../../.env')
 USE_PROXY = bool(int(os.getenv('USE_PROXY')))
@@ -22,12 +27,12 @@ def get_members(club_id=CLUB_ID, platform=PLATFORM):
     return members
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_matches(club_id=CLUB_ID, platform=PLATFORM, count=5):
+def get_matches(club_id=CLUB_ID, platform=PLATFORM, count=5, game_type = GAMETYPE.REGULARSEASON.value):
     try:
         if USE_PROXY:
             matches = proxy.get_matches(club_id, platform, count)    
         else:
-            matches = direct.get_matches(club_id, platform, count)
+            matches = direct.get_matches(club_id, platform, count, game_type)
     except JSONDecodeError as err:
         print(err)
         matches = []
