@@ -3,7 +3,7 @@ import os
 from firebase_admin import credentials
 from firebase_admin import firestore
 from dotenv import load_dotenv
-import data
+from data import api
 load_dotenv('../.env')
 CLUB_ID = os.getenv('CLUB_ID')
 
@@ -16,7 +16,7 @@ db = firestore.client()
 
 
 if __name__ == '__main__':
-    matches = data.get_matches(count=50)
+    matches = api.get_matches(count=50)
     batch = db.batch()
     for match in matches:
         print(match['matchId'])
