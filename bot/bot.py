@@ -130,8 +130,8 @@ async def handle_team_record(message):
         if team_record:
             clubId = list(temp.keys())[0]
             members = api.get_members(clubId)
-            if features.firebase_enabled():
-                matches = fb.find_matches_by_club_id(clubId if clubId != CLUB_ID else None)
+            if features.firebase_enabled() and clubId != CLUB_ID:
+                matches = fb.find_matches_by_club_id(clubId)
             else:
                 matches = None
             top_stats = data_service.top_stats(members['members'], "points per game")
@@ -149,13 +149,21 @@ async def handle_team_record(message):
                     for match in batch:
                         match_results += data_service.format_result(match) + "\n"
                     match_results = match_results_header + match_results
-                    if clubId == CLUB_ID:
-                        await message.author.send(match_results)
-                    else:
-                        await message.channel.send(match_results)                
-
+                    await message.channel.send(match_results)                
         else:
             await message.channel.send("Something went wrong. Try again after few minutes. Also check team name is correct: " + team)
+
+async def handle_history(message):
+    matches = fb.find_matches_by_club_id(None)
+    match_batches = chunk_using_generators(matches, 30)                
+    match_results_header = "---\nMatch history:\n"
+    for batch in match_batches:
+        match_results = ""
+        for match in batch:
+            match_results += data_service.format_result(match) + "\n"
+        match_results = match_results_header + match_results
+        await message.author.send(match_results)
+
 
 @client.event
 async def on_message(message):
@@ -173,5 +181,9 @@ async def on_message(message):
 
     elif '!team' in message.content:
         await handle_team_record(message)
+
+    elif '!history' in message.content and features.firebase_enabled():
+        await handle_history(message)
+
 
 client.run(TOKEN)

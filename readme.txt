@@ -12,6 +12,9 @@ Rank club members based on single statistic
 !team team name (e.g. ilo pisara)
 Team record and other details
 
+!history
+Own club match history
+
 The bot will periodically check latest results and post them to specified channel
 
 place .env file in root with following content
