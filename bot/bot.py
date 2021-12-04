@@ -16,6 +16,17 @@ CLUB_ID = os.getenv('CLUB_ID')
 
 client = discord.Client()
 
+def is_win(match):
+    scores = match['clubs'][os.getenv('CLUB_ID')]['scoreString'].split(' - ')
+    return int(scores[0]) > int(scores[1])
+
+def get_match_mark(match):
+    if is_win(match):
+        mark = ":white_check_mark: "
+    else:
+        mark = ":x: "
+    return mark
+
 @tasks.loop(seconds = 15)
 async def latest_results(channel):
     if len(match_results_storage) == 0:
@@ -37,12 +48,13 @@ async def latest_results(channel):
                     game_type = 'playoffs'
                 fb.save_match(matches[i], game_type)
             if not initial:
-                scores = matches[i]['clubs'][os.getenv('CLUB_ID')]['scoreString'].split(' - ')
-                if int(scores[0]) > int(scores[1]):
+                if is_win(matches[i]):
+                    mark = ":white_check_mark: "
                     gif = giphy.get_win()
                 else:
+                    mark = ":x: "
                     gif = giphy.get_fail()
-                await channel.send(data_service.format_result(matches[i]))
+                await channel.send(mark + data_service.format_result(matches[i]))
                 await channel.send(gif)
                 await channel.send(data_service.match_details(matches[i]))
 
@@ -91,14 +103,14 @@ async def handle_matches(message):
         if not index and features.firebase_enabled():
             matches = fb.find_match_by_id(msg_content_splitted[1])
             if matches:
-                result_string += data_service.format_result(matches[0]) + "\n"
+                result_string += get_match_mark(matches[index]) + data_service.format_result(matches[0]) + "\n"
                 result_string += data_service.match_details(matches[0]) + "\n" 
         if index:
-            result_string += data_service.format_result(matches[index]) + "\n"
+            result_string += get_match_mark(matches[index]) + data_service.format_result(matches[index]) + "\n"
             result_string += data_service.match_details(matches[index]) + "\n" 
     else:
         for i in range(0, len(matches))[-10:]:
-            result_string += data_service.format_result(matches[i]) + "\n" 
+            result_string += get_match_mark(matches[i]) + data_service.format_result(matches[i]) + "\n" 
     if result_string:
         await message.channel.send(result_string)
 
