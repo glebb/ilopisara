@@ -172,7 +172,7 @@ async def handle_history(message):
     for batch in match_batches:
         match_results = ""
         for match in batch:
-            match_results += data_service.format_result(match) + "\n"
+            match_results += get_match_mark(match) + data_service.format_result(match) + "\n"
         match_results = match_results_header + match_results
         await message.author.send(match_results)
 
