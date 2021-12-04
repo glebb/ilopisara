@@ -159,7 +159,7 @@ async def handle_team_record(message):
                 for batch in match_batches:
                     match_results = ""
                     for match in batch:
-                        match_results += data_service.format_result(match) + "\n"
+                        match_results += get_match_mark(match) + data_service.format_result(match) + "\n"
                     match_results = match_results_header + match_results
                     await message.channel.send(match_results)                
         else:
@@ -167,7 +167,7 @@ async def handle_team_record(message):
 
 async def handle_history(message):
     matches = fb.find_matches_by_club_id(None)
-    match_batches = chunk_using_generators(matches, 30)                
+    match_batches = chunk_using_generators(matches, 25)                
     match_results_header = "---\nMatch history:\n"
     for batch in match_batches:
         match_results = ""
