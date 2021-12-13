@@ -12,9 +12,11 @@ match_results_storage = {}
 load_dotenv('../.env')
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
+
 CLUB_ID = os.getenv('CLUB_ID')
 
 client = discord.Client()
+single_channel = None
 
 def is_win(match):
     scores = match['clubs'][os.getenv('CLUB_ID')]['scoreString'].split(' - ')
@@ -66,6 +68,8 @@ async def twitch_poller(channel):
 
 @client.event
 async def on_ready():
+    global single_channel
+    single_channel = client.get_channel(int(os.getenv('SINGLE_CHANNEL')))
     if CHANNEL:
         channel = client.get_channel(int(CHANNEL))
         latest_results.start(channel=channel)
@@ -90,7 +94,7 @@ async def handle_member_stats(message):
             reply = data_service.format_stats(stats, stats_filter)
             await message.author.send(reply)
     else:
-        await message.channel.send(reply)        
+        await single_channel.send(reply)        
 
 async def handle_matches(message):
     msg_content_splitted = message.content.split(' ')
@@ -112,7 +116,7 @@ async def handle_matches(message):
         for i in range(0, len(matches))[-10:]:
             result_string += get_match_mark(matches[i]) + data_service.format_result(matches[i]) + "\n" 
     if result_string:
-        await message.channel.send(result_string)
+        await single_channel.send(result_string)
 
 async def handle_top_stats(message):
     command, *filter = message.content.split(' ')
@@ -121,7 +125,7 @@ async def handle_top_stats(message):
         members = api.get_members()['members']
         result = data_service.top_stats(members, ' '.join(filter))
         if result:
-            await message.channel.send(result)
+            await single_channel.send(result)
     if not result:
         await message.author.send("Try some of these:\n" + " \n".join(list(sorted(jsonmap.names.values()))[:100]))
         await message.author.send(" \n".join(list(sorted(jsonmap.names.values()))[100:]))
@@ -133,10 +137,10 @@ def chunk_using_generators(lst, n):
 async def handle_team_record(message):
     command = message.content.split(' ')
     if len(command) < 2:
-        await message.channel.send("!team <team_name>")
+        await single_channel.send("!team <team_name>")
     else:
         team = " ".join(command[1:])
-        await message.channel.send("Getting records for " + team + "\n" + "Please wait...")
+        await single_channel.send("Getting records for " + team + "\n" + "Please wait...")
         temp = api.get_team_record(team)
         team_record = data_service.team_record(temp)
         if team_record:
@@ -151,8 +155,8 @@ async def handle_team_record(message):
                 top_reply = "---\nTop points per game players:\n" + top_stats
             else:
                 top_reply = "No top stats available"
-            await message.channel.send(team_record)
-            await message.channel.send(top_reply)
+            await single_channel.send(team_record)
+            await single_channel.send(top_reply)
             match_results_header = "---\nMatch history:\n"
             if matches:
                 match_batches = chunk_using_generators(matches, 30)                
@@ -161,9 +165,9 @@ async def handle_team_record(message):
                     for match in batch:
                         match_results += get_match_mark(match) + data_service.format_result(match) + "\n"
                     match_results = match_results_header + match_results
-                    await message.channel.send(match_results)                
+                    await single_channel.send(match_results)                
         else:
-            await message.channel.send("Something went wrong. Try again after few minutes. Also check team name is correct: " + team)
+            await single_channel.send("Something went wrong. Try again after few minutes. Also check team name is correct: " + team)
 
 async def handle_history(message):
     matches = fb.find_matches_by_club_id(None)
