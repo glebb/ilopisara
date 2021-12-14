@@ -107,7 +107,7 @@ async def handle_matches(message):
         if not index and features.firebase_enabled():
             matches = fb.find_match_by_id(msg_content_splitted[1])
             if matches:
-                result_string += get_match_mark(matches[index]) + data_service.format_result(matches[0]) + "\n"
+                result_string += get_match_mark(matches[0]) + data_service.format_result(matches[0]) + "\n"
                 result_string += data_service.match_details(matches[0]) + "\n" 
         if index:
             result_string += get_match_mark(matches[index]) + data_service.format_result(matches[index]) + "\n"
