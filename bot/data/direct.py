@@ -1,4 +1,5 @@
 
+from simplejson import JSONDecodeError
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
@@ -24,16 +25,16 @@ def get_members(club_id, platform):
     try:
         url = f"https://proclubs.ea.com/api/nhl/members/career/stats?platform={platform}&clubId={club_id}"
         data = http.get(url, timeout=4, headers=headers).json()
-    except requests.exceptions.Timeout as err:
+    except (requests.exceptions.Timeout, JSONDecodeError) as err:
         print(err)
     return data
     
 def get_matches(club_id, platform, count, game_type):
-    data = {}
+    data = []
     try:
         url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType=gameType{str(game_type)}&matchType=gameType10&platform={platform}&clubIds={club_id}&maxResultCount={count}"
         data = http.get(url, timeout=4, headers=headers).json()
-    except requests.exceptions.Timeout as err:
+    except (requests.exceptions.Timeout, JSONDecodeError) as err:
         print(err)
     return data
 
@@ -43,6 +44,6 @@ def get_team_record(team, platform):
         team_quoted = urllib.parse.quote(team)
         url = f"https://proclubs.ea.com/api/nhl/clubs/search?platform={platform}&clubName={team_quoted}"
         data = http.get(url, timeout=10, headers=headers).json()
-    except requests.exceptions.Timeout as err:
+    except (requests.exceptions.Timeout, JSONDecodeError) as err:
         print(err)
     return data

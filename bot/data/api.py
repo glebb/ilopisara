@@ -16,26 +16,26 @@ PLATFORM = os.getenv('PLATFORM')
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_members(club_id=CLUB_ID, platform=PLATFORM):
+    members = {}
     try:
         if USE_PROXY:
             members = proxy.get_members(club_id, platform)
         else:
             members = direct.get_members(club_id, platform)
     except JSONDecodeError as err:
-        print(err)
-        members = {}
+        print(err)        
     return members
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_matches(club_id=CLUB_ID, platform=PLATFORM, count=10, game_type = GAMETYPE.REGULARSEASON.value):
+    matches = []
     try:
         if USE_PROXY:
             matches = proxy.get_matches(club_id, platform, count)    
         else:
             matches = direct.get_matches(club_id, platform, count, game_type)
     except JSONDecodeError as err:
-        print(err)
-        matches = []
+        print(err)        
     return matches
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))

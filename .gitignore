@@ -243,3 +243,4 @@ dmypy.json
 cython_debug/
 bot/firebase-credentials.json
 firebase-credentials.json
+.DS_Store

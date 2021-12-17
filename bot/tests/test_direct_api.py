@@ -10,11 +10,15 @@ PLATFORM= 'ps4'
 CLUB_ID = '19963'
 
 
-@pytest.mark.parametrize("count", [(1), (20)])
+@pytest.mark.parametrize("count", [(1), (5)])
 def test_get_matches(count):
     matches = api.get_matches(CLUB_ID, PLATFORM, count)
     assert len(matches) == count
     assert type(matches) == type([])
+
+def test_get_matches_max_result_count_capped_to_5():
+    matches = api.get_matches(CLUB_ID, PLATFORM, 20)
+    assert len(matches) == 5
 
 @pytest.mark.parametrize("clubId", [(""), ("00006660000"), ("cxvcxvcxvc"), None])
 def test_get_matches_wrong_id(clubId):
