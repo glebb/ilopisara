@@ -98,7 +98,10 @@ async def handle_member_stats(message):
 
 async def handle_matches(message):
     msg_content_splitted = message.content.split(' ')
-    matches = api.get_matches()
+    if features.firebase_enabled():
+        matches = fb.find_matches_by_club_id(None)
+    else:
+        matches = api.get_matches()
     matches = matches + api.get_matches(game_type=api.GAMETYPE.PLAYOFFS.value)
     matches = sorted(matches, key=lambda match: float(match['timestamp']))
     result_string = ""
