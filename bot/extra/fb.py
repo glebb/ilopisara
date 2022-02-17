@@ -8,10 +8,14 @@ CLUB_ID = os.getenv('CLUB_ID')
 
 
 # Use a service account
-cred = credentials.Certificate('../firebase-credentials.json')
-firebase_admin.initialize_app(cred)
+try:
+    cred = credentials.Certificate('../firebase-credentials.json')
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+except:
+    print('Firebase not enabled')
 
-db = firestore.client()
+
 
 def save_match(match, game_type):
     db.collection(game_type).document(match['matchId']).set(match)

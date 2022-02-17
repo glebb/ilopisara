@@ -17,16 +17,7 @@ Own club match history
 
 The bot will periodically check latest results and post them to specified channel
 
-place .env file in root with following content
-PLATFORM=
-CLUB_ID=
-USE_PROXY=0
-DISCORD_TOKEN=
-DISCORD_CHANNEL=
-TWITCH_CLIENT_ID=
-TWITCH_OAUTH=
-TWITCH_STREAMERS=
-GIPHY_API_KEY=
+Copy sample.env as .env and fill all values
 
 run bot:
 pip install -m requirements.txt

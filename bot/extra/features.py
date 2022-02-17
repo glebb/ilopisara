@@ -8,7 +8,7 @@ load_dotenv('../../.env')
 def firebase_enabled():
     try:
         credentials.Certificate('../firebase-credentials.json')
-    except (IOError, ValueError):
+    except (IOError, ValueError, FileNotFoundError):
         print('Firebase not enabled. To enable, create ../firebase-credentials.json')
         return False
     return True
