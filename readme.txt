@@ -3,7 +3,10 @@ Discord bot to fetch statistics for EA NHL 22
 ----------
 
 The story:
-2008/10/02 - NHL09 EA Sports Hockey League - murohoki [PS3]: I couldn't wait any longer for someone to come up with a thread like this, so I decided to grab the bunny by the ears and set it up myself.  In short, I've created a club called "murohoki" to gather people interested in NHL09 to play together. The idea is to play "just for fun", but you can cry blood and gnash your teeth if you feel like it. If you are interested, please post your PSN ID here and I will send you an invitation via the game. #murohoki @ IRCnet will also serve as a place where you can express your interest." -p. leikkari https://murobbs.muropaketti.com/posts/1702401461/  
+
+2008/10/02 - NHL09 EA Sports Hockey League - murohoki [PS3]: 
+"I couldn't wait any longer for someone to come up with a thread like this, so I decided to grab the bunny by the ears and set it up myself.  In short, I've created a club called "murohoki" to gather people interested in NHL09 to play together. The idea is to play "just for fun", but you can cry blood and gnash your teeth if you feel like it. If you are interested, please post your PSN ID here and I will send you an invitation via the game. #murohoki @ IRCnet will also serve as a place where you can express your interest." 
+   -p. leikkari https://murobbs.muropaketti.com/posts/1702401461/  
 
 With these words, the story of murohoki began in 2008. It was EA Sports NHL 09 – the first game in the franchise with EASHL mode. It was truly revolutionary and murohoki was there from the beginning! In addition to p. leikkari, aka Yoosef, the original gang included names like zpede, Noddactius, arieli, NSi, bodhi-FIN and Pe-Te, just to name a few. Since then, with every new EA Sports NHL incarnation, murohoki has been present on PSN, at least with some sort of lineup.  
 
