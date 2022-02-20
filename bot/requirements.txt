@@ -5,3 +5,4 @@ pytz
 cachetools
 firebase-admin
 simplejson
+pytest

@@ -27,7 +27,7 @@ def get_live_stream():
         print("Error - make sure your headers and params are correct.")
         live = None
         return None
-    if 'data' in data and data['data'][0]['game_name'].lower() == 'nhl 22':
+    if 'data' in data and len(data['data']) > 0 and data['data'][0]['game_name'].lower() == 'nhl 22':
         url = "https://www.twitch.tv/" + data['data'][0]['user_login']
         if not live or live != data['data'][0]['started_at']:
             live = data['data'][0]['started_at']
