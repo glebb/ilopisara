@@ -140,7 +140,6 @@ async def handle_game_record(message):
         matches = fb.find_matches_by_club_id(None)
         records = data_service.game_record(matches, ' '.join(filter))
         if records:
-            print(records)
             for game_record in records:
                 result += get_match_mark(game_record[1]) + data_service.format_result(game_record[1]) + "\n"
                 result += game_record[1]['players'][CLUB_ID][game_record[0]]['playername']+": "
