@@ -2,6 +2,9 @@ import jsonmap
 from datetime import datetime
 import pytz
 import os
+from dotenv import load_dotenv
+load_dotenv('../.env')
+CLUB_ID = os.getenv('CLUB_ID')
 
 def find(lst, key, value):
     for i, dic in enumerate(lst):
@@ -37,8 +40,7 @@ def format_stats(stats, stats_filter):
 
 def match_details(match):
     players = ""
-    for k, p in sorted(match['players'][os.getenv('CLUB_ID')].items(), key=lambda p: int(p[1]['skgoals']) + int(p[1]['skassists']), reverse=True):
-        filler = 3 - len(p['position'])
+    for _, p in sorted(match['players'][os.getenv('CLUB_ID')].items(), key=lambda p: int(p[1]['skgoals']) + int(p[1]['skassists']), reverse=True):
         players += p['position'][0].upper() + ' ' + p['playername'] + ', '
         if p['position'] == 'goalie':
             players += 'save %:' + p['glsavepct'] + ', '
@@ -66,6 +68,25 @@ def top_stats(members, stats_filter):
         pass
     if reply:
         return reply
+    
+def game_record(matches, stats_filter):
+    key = jsonmap.get_key(stats_filter)
+    ref_matches = []
+    for match in matches:
+        for playerid, data in match['players'][CLUB_ID].items():
+            try:
+                if (not ref_matches and key in data) or float(data[key]) > float(ref_matches[0][1]['players'][CLUB_ID][ref_matches[0][0]][key]):
+                    ref_matches.clear()
+                    ref_matches.append([playerid, match, key])
+                elif float(data[key]) == float(ref_matches[0][1]['players'][CLUB_ID][ref_matches[0][0]][key]):
+                    ref_matches.append([playerid, match, key])
+            except (TypeError, ValueError):
+                pass
+            except KeyError:
+                pass
+           
+    if ref_matches:
+        return ref_matches
 
 def team_record(team):
     if not team:
@@ -91,21 +112,22 @@ def team_record(team):
 
 if __name__ == '__main__':
     import json
-    f = open('members.json',)
+    f = open('tests/members.json',)
     members = json.load(f)
     f.close()
 
-    f = open('matches.json',)
+    f = open('tests/matches.json',)
     matches = json.load(f)
     f.close()
 
-    f = open('team.json',)
+    f = open('tests/team.json',)
     team = json.load(f)
     f.close()
 
 
-    print(format_stats(members['members'][0], None))
-    print(format_result(matches[0]))
-    print(match_details(matches[1]))
-    print(top_stats(members['members'], 'skater goals'))
-    print(team_record(team))
+    #print(format_stats(members['members'][0], None))
+    #print(format_result(matches[0]))
+    #print(match_details(matches[1]))
+    #print(top_stats(members['members'], 'skater goals'))
+    #print(team_record(team))
+    print(len(game_record(matches, "xca dsfgsd gfsd")))

@@ -47,3 +47,16 @@ def find_match_by_id(matchId):
         match = doc.to_dict()
         matches.append(match)
     return matches
+
+if __name__ == '__main__':
+    matches = find_matches_by_club_id()
+    stat = 'position'
+    ref_match = None
+    for match in matches:
+        for playerid, data in match['players'][CLUB_ID].items():
+            if not ref_match or float(data[stat]) > float(ref_match[1]['players'][CLUB_ID][ref_match[0]][stat]):
+                ref_match = [playerid, match]
+    print(ref_match[0])
+    print(ref_match[1]['players'][CLUB_ID][ref_match[0]]['playername'])
+    print(ref_match[1]['players'][CLUB_ID][ref_match[0]][stat])
+                

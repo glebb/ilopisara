@@ -122,7 +122,7 @@ async def handle_matches(message):
         await single_channel.send(result_string)
 
 async def handle_top_stats(message):
-    command, *filter = message.content.split(' ')
+    _, *filter = message.content.split(' ')
     result = None
     if len(filter) >= 1:
         members = api.get_members()['members']
@@ -132,6 +132,24 @@ async def handle_top_stats(message):
     if not result:
         await message.author.send("Try some of these:\n" + " \n".join(list(sorted(jsonmap.names.values()))[:100]))
         await message.author.send(" \n".join(list(sorted(jsonmap.names.values()))[100:]))
+
+async def handle_game_record(message):
+    _, *filter = message.content.split(' ')
+    result = ""
+    if len(filter) >= 1:
+        matches = fb.find_matches_by_club_id(None)
+        records = data_service.game_record(matches, ' '.join(filter))
+        if records:
+            print(records)
+            for game_record in records:
+                result += get_match_mark(game_record[1]) + data_service.format_result(game_record[1]) + "\n"
+                result += game_record[1]['players'][CLUB_ID][game_record[0]]['playername']+": "
+                result += game_record[1]['players'][CLUB_ID][game_record[0]][game_record[2]] + " " + ' '.join(filter) + "\n"
+            await single_channel.send(result)
+    if not result:
+        await message.author.send("Try some of these:\n" + " \n".join(list(sorted(jsonmap.names.values()))[:100]))
+        await message.author.send(" \n".join(list(sorted(jsonmap.names.values()))[100:]))
+
 
 def chunk_using_generators(lst, n):
     for i in range(0, len(lst), n):
@@ -203,6 +221,9 @@ async def on_message(message):
 
     elif '!history' in message.content and features.firebase_enabled():
         await handle_history(message)
+
+    elif '!record' in message.content:
+        await handle_game_record(message)
 
 
 client.run(TOKEN)
