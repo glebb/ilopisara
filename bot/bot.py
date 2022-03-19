@@ -138,12 +138,14 @@ async def handle_game_record(message):
     result = ""
     if len(filter) >= 1:
         matches = fb.find_matches_by_club_id(None)
-        records = data_service.game_record(matches, ' '.join(filter))
+        record = ' '.join(filter)
+        records = data_service.game_record(matches, record)
         if records:
+            result = f"Single game record for {record}:\n"
             for game_record in records:
                 result += get_match_mark(game_record[1]) + data_service.format_result(game_record[1]) + "\n"
                 result += game_record[1]['players'][CLUB_ID][game_record[0]]['playername']+": "
-                result += game_record[1]['players'][CLUB_ID][game_record[0]][game_record[2]] + " " + ' '.join(filter) + "\n"
+                result += game_record[1]['players'][CLUB_ID][game_record[0]][game_record[2]] + " " + record + "\n"
             await single_channel.send(result)
     if not result:
         await message.author.send("Try some of these:\n" + " \n".join(list(sorted(jsonmap.names.values()))[:100]))

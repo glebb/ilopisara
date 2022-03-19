@@ -74,6 +74,9 @@ def game_record(matches, stats_filter):
     ref_matches = []
     for match in matches:
         for playerid, data in match['players'][CLUB_ID].items():
+            if key == 'points' or key == 'skpoints':
+                data[key] = str(int(float(data['skgoals']) + float(data['skassists'])))
+                match['players'][CLUB_ID][playerid] = data
             try:
                 if (not ref_matches and key in data) or float(data[key]) > float(ref_matches[0][1]['players'][CLUB_ID][ref_matches[0][0]][key]):
                     ref_matches.clear()
