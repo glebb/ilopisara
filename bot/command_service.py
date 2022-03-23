@@ -31,7 +31,7 @@ async def member_stats(msg_content_splitted):
 
 async def matches(msg_content_splitted):
     if features.firebase_enabled():
-        matches = await fb.find_matches_by_club_id(None)
+        matches = fb.find_matches_by_club_id(None)
     else:
         matches = api.get_matches()
     matches = matches + api.get_matches(game_type=api.GAMETYPE.PLAYOFFS.value)
