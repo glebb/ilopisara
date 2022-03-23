@@ -1,81 +1,30 @@
-from itertools import zip_longest
 import interactions
 from dotenv import load_dotenv
 import os
-import jsonmap
+from ibot_tasks import get_latest_results
+from ibot_commands import create_top_command, create_team_command, create_matches_command
 import asyncio
-import random
-import time
+import ibot_commands
 
-load_dotenv('../.env')
-TOKEN = os.getenv('DISCORD_TOKEN')
-CHANNEL = os.getenv('DISCORD_CHANNEL')
+load_dotenv("../.env")
+TOKEN = os.getenv("DISCORD_TOKEN")
 
-bot = interactions.Client(token=TOKEN)
+client = interactions.Client(token=TOKEN)
+ibot_commands.client = client
 
-all_stats_as_choices = []
-for key, value in jsonmap.names.items():
-    choice = interactions.Choice(
-        name=key,
-        value=key,
-    )    
-    all_stats_as_choices.append(choice)
-
-n=24
-stat_choice_chunks=[all_stats_as_choices[i:i + n] for i in range(0, len(all_stats_as_choices), n)]
-
-
-
-command_options = []
-for i in range(0, len(stat_choice_chunks)):
-    option = interactions.Option(
-            name=f"stats{i+1}",
-            description=f"stats{i+1}",
-            type=interactions.OptionType.STRING,
-            choices = stat_choice_chunks[i],
-    )    
-    command_options.append(option)
-
-@bot.command(
-    name="stats",
-    description="Top stats",
-    options = command_options,
-)
-async def stats(ctx: interactions.CommandContext, stats1="", stats2="", stats3="", stats4="", stats5="", stats6="", stats7="", stats8="", stats9="", stats10=""):
-    await ctx.send(f"Hi there!")
-
-for i in range(0, len(stat_choice_chunks)):
-    @bot.autocomplete(command="stats", name=f"stats{i+1}")
-    async def autocomplete_choice_list(ctx, user_input: str = ""):
-        await ctx.populate(stat_choice_chunks[i])
-
-@bot.command(
-    name="test",
-    description="test",
-)
-async def test(ctx: interactions.CommandContext):
-    await ctx.send(f"Hi there!")
-
-
-loop = asyncio.get_event_loop()
-
-task1 = loop.create_task(bot._ready())
+create_top_command(client)
+create_team_command(client)
+create_matches_command(client)
 
 async def do_stuff_every_x_seconds(timeout, stuff):
     while True:
         await asyncio.sleep(timeout)
-        await stuff()
-
-async def stuff():
-    await asyncio.sleep(random.random() * 3)
-    print(round(time.time(), 1), "Finished doing stuff")
-    await bot._http.send_message(900642208942817293, "test")
+        await stuff(client)
 
 
+event_loop = asyncio.get_event_loop()
+bot_task = event_loop.create_task(client._ready())
+get_results_task = event_loop.create_task(do_stuff_every_x_seconds(30, get_latest_results))
+all_tasks = asyncio.gather(bot_task, get_results_task)
+event_loop.run_until_complete(all_tasks)
 
-task2 = loop.create_task(do_stuff_every_x_seconds(5, stuff))
-
-gathered = asyncio.gather(task1, task2)
-
-loop.run_until_complete(gathered)
-#bot.start()

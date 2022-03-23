@@ -57,7 +57,7 @@ def match_details(match):
 
 def top_stats(members, stats_filter):
     key = jsonmap.get_key(stats_filter)
-    reply = ""
+    reply = f"Top {stats_filter}\n"
     try:
         for member in sorted(members, key=lambda m: float(m[key]), reverse=True):
             reply += member['name'] + ' ' + member[key] + "\n"
@@ -65,7 +65,7 @@ def top_stats(members, stats_filter):
         for member in sorted(members, key=lambda m: m[key], reverse=True):
             reply += member['name'] + ' ' + member[key] + "\n"
     except KeyError:
-        pass
+        reply = ""
     if reply:
         return reply
     
@@ -97,7 +97,7 @@ def team_record(team):
     key = list(team.keys())[0]
     reply = ""
     if key:
-        reply += team[key]['name'] + "\n"
+        reply += "Team: " + team[key]['name'] + "\n"
         reply += "points: " + team[key]['rankingPoints'] + "\n"
         reply += "record: " + team[key]['record'] + "\n"
         reply += "current division: " + str(team[key]['currentDivision']) + "\n"

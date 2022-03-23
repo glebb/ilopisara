@@ -6,3 +6,5 @@ cachetools
 firebase-admin
 simplejson
 pytest
+asyncio
+discord-py-interactions

@@ -6,6 +6,8 @@ from data import api
 import data_service
 import jsonmap
 from extra import fb, giphy, twitch, features
+import command_service
+import helpers
 
 match_results_storage = {}
 
@@ -17,17 +19,6 @@ CLUB_ID = os.getenv('CLUB_ID')
 
 client = discord.Client()
 single_channel = None
-
-def is_win(match):
-    scores = match['clubs'][os.getenv('CLUB_ID')]['scoreString'].split(' - ')
-    return int(scores[0]) > int(scores[1])
-
-def get_match_mark(match):
-    if is_win(match):
-        mark = ":white_check_mark: "
-    else:
-        mark = ":x: "
-    return mark
 
 @tasks.loop(seconds = 15)
 async def latest_results(channel):
@@ -50,7 +41,7 @@ async def latest_results(channel):
                     game_type = 'playoffs'
                 fb.save_match(matches[i], game_type)
             if not initial:
-                if is_win(matches[i]):
+                if helpers.is_win(matches[i]):
                     mark = ":white_check_mark: "
                     gif = giphy.get_win()
                 else:
@@ -78,48 +69,14 @@ async def on_ready():
 
 async def handle_member_stats(message):
     msg_content_splitted = message.content.split(' ')
-    members = api.get_members()['members']
-    reply = "!stats "
-    stats_filter = None
-    for member in members:
-        reply = reply + f"{member['name']} | "
-    reply = reply[:-2] + " <skater>|<goalie>|<xfactor>"
-
-    if len(msg_content_splitted) > 1:
-        index = data_service.find(members, 'name', msg_content_splitted[1])
-        if index:
-            stats = members[index]
-            if len(msg_content_splitted) > 2:
-                stats_filter = msg_content_splitted[2]    
-            reply = data_service.format_stats(stats, stats_filter)
-            await message.author.send(reply)
-    else:
-        await single_channel.send(reply)        
+    reply = await command_service.member_stats(msg_content_splitted)
+    await message.author.send(reply)
+    
 
 async def handle_matches(message):
     msg_content_splitted = message.content.split(' ')
-    if features.firebase_enabled():
-        matches = fb.find_matches_by_club_id(None)
-    else:
-        matches = api.get_matches()
-    matches = matches + api.get_matches(game_type=api.GAMETYPE.PLAYOFFS.value)
-    matches = sorted(matches, key=lambda match: float(match['timestamp']))
-    result_string = ""
-    if len(msg_content_splitted) > 1:        
-        index = data_service.find(matches, 'matchId', msg_content_splitted[1])
-        if not index and features.firebase_enabled():
-            matches = fb.find_match_by_id(msg_content_splitted[1])
-            if matches:
-                result_string += get_match_mark(matches[0]) + data_service.format_result(matches[0]) + "\n"
-                result_string += data_service.match_details(matches[0]) + "\n" 
-        if index:
-            result_string += get_match_mark(matches[index]) + data_service.format_result(matches[index]) + "\n"
-            result_string += data_service.match_details(matches[index]) + "\n" 
-    else:
-        for i in range(0, len(matches))[-10:]:
-            result_string += get_match_mark(matches[i]) + data_service.format_result(matches[i]) + "\n" 
-    if result_string:
-        await single_channel.send(result_string)
+    result_string = await command_service.matches(msg_content_splitted)
+    await single_channel.send(result_string)
 
 async def handle_top_stats(message):
     _, *filter = message.content.split(' ')
@@ -135,26 +92,14 @@ async def handle_top_stats(message):
 
 async def handle_game_record(message):
     _, *filter = message.content.split(' ')
-    result = ""
-    if len(filter) >= 1:
-        matches = fb.find_matches_by_club_id(None)
-        record = ' '.join(filter)
-        records = data_service.game_record(matches, record)
-        if records:
-            result = f"Single game record for {record}:\n"
-            for game_record in records:
-                result += get_match_mark(game_record[1]) + data_service.format_result(game_record[1]) + "\n"
-                result += game_record[1]['players'][CLUB_ID][game_record[0]]['playername']+": "
-                result += game_record[1]['players'][CLUB_ID][game_record[0]][game_record[2]] + " " + record + "\n"
-            await single_channel.send(result)
+    result = await command_service.game_record(filter)
     if not result:
         await message.author.send("Try some of these:\n" + " \n".join(list(sorted(jsonmap.names.values()))[:100]))
         await message.author.send(" \n".join(list(sorted(jsonmap.names.values()))[100:]))
+    else:
+        await single_channel.send(result)        
 
 
-def chunk_using_generators(lst, n):
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
 
 async def handle_team_record(message):
     command = message.content.split(' ')
@@ -166,6 +111,7 @@ async def handle_team_record(message):
         temp = api.get_team_record(team)
         team_record = data_service.team_record(temp)
         if team_record:
+            await single_channel.send(team_record)
             clubId = list(temp.keys())[0]
             members = api.get_members(clubId)
             if features.firebase_enabled() and clubId != CLUB_ID:
@@ -177,28 +123,21 @@ async def handle_team_record(message):
                 top_reply = "---\nTop points per game players:\n" + top_stats
             else:
                 top_reply = "No top stats available"
-            await single_channel.send(team_record)
             await single_channel.send(top_reply)
-            match_results_header = "---\nMatch history:\n"
-            if matches:
-                match_batches = chunk_using_generators(matches, 30)                
-                for batch in match_batches:
-                    match_results = ""
-                    for match in batch:
-                        match_results += get_match_mark(match) + data_service.format_result(match) + "\n"
-                    match_results = match_results_header + match_results
-                    await single_channel.send(match_results)                
+            match_results = await command_service.match_results2(matches) 
+            await single_channel.send(match_results)               
         else:
             await single_channel.send("Something went wrong. Try again after few minutes. Also check team name is correct: " + team)
 
+
 async def handle_history(message):
     matches = fb.find_matches_by_club_id(None)
-    match_batches = chunk_using_generators(matches, 25)                
+    match_batches = helpers.chunk_using_generators(matches, 25)                
     match_results_header = "---\nMatch history:\n"
     for batch in match_batches:
         match_results = ""
         for match in batch:
-            match_results += get_match_mark(match) + data_service.format_result(match) + "\n"
+            match_results += helpers.get_match_mark(match) + data_service.format_result(match) + "\n"
         match_results = match_results_header + match_results
         await message.author.send(match_results)
 
