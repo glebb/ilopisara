@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from data import api
-from extra import features, fb, giphy
+from extra import features, fb, giphy, twitch
 import helpers
 import data_service
 
@@ -46,3 +46,9 @@ async def get_latest_results(bot):
                 await bot._http.send_message(
                     CHANNEL, data_service.match_details(matches[i])
                 )
+
+
+async def twitch_poller(bot):
+    stream = twitch.get_live_stream()
+    if stream and stream['status'] == 'start':
+        await bot._http.send_message(CHANNEL, "Stream started: " +stream['url'])

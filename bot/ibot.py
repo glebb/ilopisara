@@ -1,7 +1,7 @@
 import interactions
 from dotenv import load_dotenv
 import os
-from ibot_tasks import get_latest_results
+from ibot_tasks import get_latest_results, twitch_poller
 from ibot_commands import create_top_command, create_team_command, create_matches_command, create_stats_command, create_record_command
 import asyncio
 import ibot_commands
@@ -27,6 +27,7 @@ async def do_stuff_every_x_seconds(timeout, stuff):
 event_loop = asyncio.get_event_loop()
 bot_task = event_loop.create_task(client._ready())
 get_results_task = event_loop.create_task(do_stuff_every_x_seconds(30, get_latest_results))
-all_tasks = asyncio.gather(bot_task, get_results_task)
+twitch_task = event_loop.create_task(do_stuff_every_x_seconds(45, twitch_poller))
+all_tasks = asyncio.gather(bot_task, get_results_task, twitch_task)
 event_loop.run_until_complete(all_tasks)
 
