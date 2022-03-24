@@ -1,5 +1,4 @@
 import os
-from pydoc import cli
 from dotenv import load_dotenv
 import interactions
 from data import api
@@ -15,6 +14,13 @@ client: interactions.Client = None
 load_dotenv("../.env")
 CLUB_ID = int(os.getenv("CLUB_ID"))
 CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
+
+
+async def long_running_top(stat):
+    members = api.get_members()["members"]
+    result = data_service.top_stats(members, stat)
+    if result:
+        await client._http.send_message(CHANNEL, f"{result}")
 
 
 def create_top_command(bot):
@@ -60,12 +66,11 @@ def create_top_command(bot):
             or stats9
             or stats10
         )
-        members = api.get_members()["members"]
-        result = data_service.top_stats(members, stat)
-        if result:
-            await ctx.send(f"{result}")
+        await ctx.send("Please wait...")
+        asyncio.ensure_future(long_running_top(stat))
 
     for i in range(0, len(stat_choice_chunks)):
+
         @bot.autocomplete(command="top", name=f"stats{i+1}")
         async def autocomplete_choice_list(ctx, user_input: str = ""):
             await ctx.populate(stat_choice_chunks[i])
@@ -75,24 +80,28 @@ async def long_running_team(name):
     temp = api.get_team_record(name)
     team_record = data_service.team_record(temp)
     if team_record:
-        await client._http.send_message(CHANNEL,team_record)
+        await client._http.send_message(CHANNEL, team_record)
         clubId = list(temp.keys())[0]
         members = api.get_members(clubId)
         if features.firebase_enabled() and clubId != CLUB_ID:
             matches = fb.find_matches_by_club_id(clubId)
         else:
             matches = None
-        top_stats = data_service.top_stats(members['members'], "points per game")
+        top_stats = data_service.top_stats(members["members"], "points per game")
         if top_stats:
-            top_reply = top_stats
+            top_reply = "---\n" + top_stats
         else:
-            top_reply = "No top stats available"
-        await client._http.send_message(CHANNEL,top_reply)
-        match_results = command_service.match_results2(matches) 
-        await client._http.send_message(CHANNEL, match_results)               
+            top_reply = "---\n" + "No top stats available"
+        await client._http.send_message(CHANNEL, top_reply)
+        match_results = command_service.match_results2(matches)
+        await client._http.send_message(CHANNEL, match_results)
     else:
-        await client._http.send_message(CHANNEL, "Something went wrong. Try again after few minutes. Also check team name is correct: " + name)
-    
+        await client._http.send_message(
+            CHANNEL,
+            "\nSomething went wrong. Try again after few minutes. Also check team name is correct: "
+            + name,
+        )
+
 
 def create_team_command(bot):
     @bot.command(
@@ -108,13 +117,14 @@ def create_team_command(bot):
         ],
     )
     async def team(ctx: interactions.CommandContext, name=""):
-        asyncio.ensure_future(long_running_team(name))
         await ctx.send("Please wait...")
+        asyncio.ensure_future(long_running_team(name))
+
 
 async def long_running_matches(match_id):
     matches = await command_service.matches(match_id)
     await client._http.send_message(CHANNEL, matches)
-    
+
 
 def create_matches_command(bot):
     @bot.command(
@@ -130,12 +140,9 @@ def create_matches_command(bot):
         ],
     )
     async def matches(ctx: interactions.CommandContext, match_id=""):
+        await ctx.send("Please wait...")
         if match_id:
-            match_id = ['', match_id]
+            match_id = ["", match_id]
         else:
             match_id = []
         asyncio.ensure_future(long_running_matches(match_id))
-        await ctx.send("Please wait...")
-
-        
-        
