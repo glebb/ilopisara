@@ -124,7 +124,7 @@ async def handle_team_record(message):
             else:
                 top_reply = "No top stats available"
             await single_channel.send(top_reply)
-            match_results = await command_service.match_results2(matches) 
+            match_results = command_service.match_results2(matches) 
             await single_channel.send(match_results)               
         else:
             await single_channel.send("Something went wrong. Try again after few minutes. Also check team name is correct: " + team)
