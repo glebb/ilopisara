@@ -4,7 +4,11 @@ import interactions
 from data import api
 import data_service
 
-from ibot_services import get_stats_choice_chunks
+from ibot_services import (
+    get_stats_choice_chunks,
+    get_member_choices,
+    get_match_stats_choice_chucnks,
+)
 import command_service
 import asyncio
 from extra import features, fb
@@ -146,3 +150,69 @@ def create_matches_command(bot):
         else:
             match_id = []
         asyncio.ensure_future(long_running_matches(match_id))
+
+
+async def long_running_stats(ctx: interactions.CommandContext, player_name):
+    reply = await command_service.member_stats(player_name)
+    await ctx.author.send(reply)
+
+
+def create_stats_command(bot):
+    @bot.command(
+        name="stats",
+        description="Player stats",
+        options=[
+            interactions.Option(
+                name="player_name",
+                description="Player name",
+                type=interactions.OptionType.STRING,
+                required=True,
+                choices=get_member_choices(),
+            ),
+        ],
+    )
+    async def stats(ctx: interactions.CommandContext, player_name=""):
+        await ctx.send("Please wait...")
+        if player_name:
+            player_name = ["", player_name]
+        else:
+            player_name = []
+        asyncio.ensure_future(long_running_stats(ctx, player_name))
+
+
+async def long_running_record(stat):
+    print(stat)
+    result = await command_service.game_record([stat])
+    await client._http.send_message(CHANNEL, result)
+
+
+def create_record_command(bot):
+    stat_choice_chunks = get_match_stats_choice_chucnks()
+    command_options = []
+    for i in range(0, len(stat_choice_chunks)):
+        option = interactions.Option(
+            name=f"rstats{i+1}",
+            description=f"rstats{i+1}",
+            type=interactions.OptionType.STRING,
+            choices=stat_choice_chunks[i],
+        )
+        command_options.append(option)
+
+    @bot.command(
+        name="record",
+        description="Game record",
+        options=command_options,
+    )
+    async def record(
+        ctx: interactions.CommandContext,
+        rstats1="",
+        rstats2="",
+        rstats3="",
+    ):
+        stat = (
+            rstats1
+            or rstats2
+            or rstats3
+        )
+        await ctx.send("Please wait...")
+        asyncio.ensure_future(long_running_record(stat))

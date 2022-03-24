@@ -2,7 +2,7 @@ import interactions
 from dotenv import load_dotenv
 import os
 from ibot_tasks import get_latest_results
-from ibot_commands import create_top_command, create_team_command, create_matches_command
+from ibot_commands import create_top_command, create_team_command, create_matches_command, create_stats_command, create_record_command
 import asyncio
 import ibot_commands
 
@@ -15,6 +15,8 @@ ibot_commands.client = client
 create_top_command(client)
 create_team_command(client)
 create_matches_command(client)
+create_stats_command(client)
+create_record_command(client)
 
 async def do_stuff_every_x_seconds(timeout, stuff):
     while True:

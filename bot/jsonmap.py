@@ -181,14 +181,16 @@ names = {
     "gc": "gc",
     "gcFC": "gcFC",
     "prevassists": "prevassists",
-    "name": "name"
+    "name": "name",
 }
+
 
 def get_name(key):
     if key in names:
         return names[key]
     else:
         return key
+
 
 def get_key(name):
     key = ""
@@ -200,3 +202,74 @@ def get_key(name):
         return key
     else:
         return name
+
+
+match = [
+    "points",
+    "skassists",
+    "skbs",
+    "skdeflections",
+    "skfol",
+    "skfopct",
+    "skfow",
+    "skgiveaways",
+    "skgoals",
+    "skgwg",
+    "skhits",
+    "skinterceptions",
+    "skpassattempts",
+    "skpasses",
+    "skpasspct",
+    "skpenaltiesdrawn",
+    "skpim",
+    "skpkclearzone",
+    "skplusmin",
+    "skpossession",
+    "skppg",
+    "sksaucerpasses",
+    "skshg",
+    "skshotattempts",
+    "skshotonnetpct",
+    "skshotpct",
+    "skshots",
+    "sktakeaways",
+    "teamSide",
+    "toi",
+    "toiseconds",
+    "playername",
+    "class",
+    "glbrksavepct",
+    "glbrksaves",
+    "glbrkshots",
+    "gldsaves",
+    "glga",
+    "glgaa",
+    "glpensavepct",
+    "glpensaves",
+    "glpenshots",
+    "glpkclearzone",
+    "glpokechecks",
+    "glsavepct",
+    "glsaves",
+    "glshots",
+    "glsoperiods",
+    "isGuest",
+    "memberString",
+    "opponentClubId",
+    "opponentScore",
+    "player_dnf",
+    "playerLevel",
+    "pNhlOnlineGameType",
+    "position",
+    "posSorted",
+    "rankpoints",
+    "ranktierassetid",
+    "ratingDefense",
+    "ratingOffense",
+    "ratingTeamplay",
+    "removedReason",
+    "result",
+    "score",
+    "scoreRaw",
+    "scoreString",
+]
