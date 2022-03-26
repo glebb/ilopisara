@@ -52,8 +52,6 @@ async def latest_results(channel):
                 await channel.send(mark + data_service.format_result(matches[i]))
                 await channel.send(gif)
                 await channel.send(data_service.match_details(matches[i]))
-                if helpers.is_win(matches[i]) and :
-                    await channel.send()
 
 @tasks.loop(seconds = 15)
 async def twitch_poller(channel):
