@@ -2,7 +2,6 @@ import os
 import discord
 from discord.ext import tasks
 from dotenv import load_dotenv
-from bot.helpers import teppo_scores
 from data import api
 import data_service
 import jsonmap
