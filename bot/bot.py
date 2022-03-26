@@ -14,6 +14,7 @@ match_results_storage = {}
 load_dotenv('../.env')
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DISCORD_CHANNEL')
+MATCH_CHANNEL = int(os.getenv('MATCH_CHANEL'))
 
 CLUB_ID = os.getenv('CLUB_ID')
 
@@ -63,7 +64,7 @@ async def on_ready():
     single_channel = client.get_channel(int(os.getenv('SINGLE_CHANNEL')))
     if CHANNEL:
         channel = client.get_channel(int(CHANNEL))
-        latest_results.start(channel=channel)
+        latest_results.start(channel=MATCH_CHANNEL)
     if os.getenv('TWITCH_CLIENT_ID') and CHANNEL:
         twitch_poller.start(channel=channel)
 
