@@ -23,3 +23,9 @@ def get_match_mark(match):
     else:
         mark = ":x: "
     return mark
+
+def teppo_scores(match):
+    for _, p in match['players'][os.getenv('CLUB_ID')].items():
+        if p['playername'] == 'bodhi-FIN' and int(p['skgoals']) > 0:
+            return True
+    return False
