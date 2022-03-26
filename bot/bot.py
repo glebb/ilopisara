@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import tasks
 from dotenv import load_dotenv
+from bot.helpers import teppo_scores
 from data import api
 import data_service
 import jsonmap
@@ -41,18 +42,18 @@ async def latest_results(channel):
                 else:
                     game_type = 'playoffs'
                 fb.save_match(matches[i], game_type)
-            if not initial:
+            if not initial:                
                 if helpers.is_win(matches[i]):
                     mark = ":white_check_mark: "
-                    gif = giphy.get_win()
+                    gif = "https://www.youtube.com/watch?v=IIlQgcTeHUE" if helpers.teppo_scores(matches[i]) else giphy.get_win()
                 else:
                     mark = ":x: "
                     gif = giphy.get_fail()
                 await channel.send(mark + data_service.format_result(matches[i]))
                 await channel.send(gif)
                 await channel.send(data_service.match_details(matches[i]))
-                if helpers.is_win(matches[i]) and helpers.teppo_scores(matches[i]):
-                    await channel.send("https://www.youtube.com/watch?v=IIlQgcTeHUE")
+                if helpers.is_win(matches[i]) and :
+                    await channel.send()
 
 @tasks.loop(seconds = 15)
 async def twitch_poller(channel):
