@@ -33,8 +33,7 @@ async def matches(msg_content_splitted):
     if features.firebase_enabled():
         matches = fb.find_matches_by_club_id(None)
     else:
-        matches = api.get_matches()
-    matches = matches + api.get_matches(game_type=api.GAMETYPE.PLAYOFFS.value)
+        matches = api.get_matches() + api.get_matches(game_type=api.GAMETYPE.PLAYOFFS.value)
     matches = sorted(matches, key=lambda match: float(match['timestamp']))
     result_string = ""
     if len(msg_content_splitted) > 1:        

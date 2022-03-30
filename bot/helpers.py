@@ -1,21 +1,39 @@
+from dataclasses import dataclass
 import os
 from dotenv import load_dotenv
 
+from extra import giphy
+import random
 
-load_dotenv('../.env')
-TOKEN = os.getenv('DISCORD_TOKEN')
-CHANNEL = os.getenv('DISCORD_CHANNEL')
 
-CLUB_ID = os.getenv('CLUB_ID')
+load_dotenv("../.env")
+TOKEN = os.getenv("DISCORD_TOKEN")
+CHANNEL = os.getenv("DISCORD_CHANNEL")
+
+CLUB_ID = os.getenv("CLUB_ID")
+
+goalie_fails = (
+    "https://youtu.be/fR-_q9XeYZo?t=11",
+    "https://www.youtube.com/watch?v=KFQnIFN1pYo",
+    "https://youtu.be/e9civjk7z_M?t=179",
+)
+
+
+@dataclass
+class ResultMark:
+    mark: str
+    gif: str
 
 
 def chunk_using_generators(lst, n):
     for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+        yield lst[i : i + n]
+
 
 def is_win(match):
-    scores = match['clubs'][os.getenv('CLUB_ID')]['scoreString'].split(' - ')
+    scores = match["clubs"][os.getenv("CLUB_ID")]["scoreString"].split(" - ")
     return int(scores[0]) > int(scores[1])
+
 
 def get_match_mark(match):
     if is_win(match):
@@ -24,8 +42,30 @@ def get_match_mark(match):
         mark = ":x: "
     return mark
 
+
 def teppo_scores(match):
-    for _, p in match['players'][os.getenv('CLUB_ID')].items():
-        if p['playername'] == 'bodhi-FIN' and int(p['skgoals']) > 0:
+    for _, p in match["players"][os.getenv("CLUB_ID")].items():
+        if p["playername"] == "bodhi-FIN" and int(p["skgoals"]) > 0:
             return True
     return False
+
+
+def is_goalie(match):
+    for _, p in match["players"][os.getenv("CLUB_ID")].items():
+        if p["position"] == "goalie":
+            return True
+    return False
+
+
+def get_result_marks(match):
+    if is_win(match):
+        mark = ":white_check_mark: "
+        gif = (
+            "https://www.youtube.com/watch?v=IIlQgcTeHUE"
+            if teppo_scores(match)
+            else giphy.get_win()
+        )
+    else:
+        mark = ":x:"
+        gif = random.choice(goalie_fails) if is_goalie else giphy.get_fail()
+    return ResultMark(mark, gif)
