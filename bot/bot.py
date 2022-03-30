@@ -105,10 +105,7 @@ async def handle_game_record(message):
     if not result:
         await message.author.send(
             "Try some of these:\n"
-            + " \n".join(list(sorted(jsonmap.names.values()))[:100])
-        )
-        await message.author.send(
-            " \n".join(list(sorted(jsonmap.names.values()))[100:])
+            + " \n".join(list(sorted(jsonmap.match))[:100])
         )
     else:
         await single_channel.send(result)
