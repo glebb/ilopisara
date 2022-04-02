@@ -67,5 +67,5 @@ def get_result_marks(match):
         )
     else:
         mark = ":x:"
-        gif = random.choice(goalie_fails) if is_goalie else giphy.get_fail()
+        gif = random.choice(goalie_fails) if is_goalie(match) else giphy.get_fail()
     return ResultMark(mark, gif)
