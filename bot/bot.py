@@ -62,10 +62,11 @@ async def twitch_poller(channel):
 async def on_ready():
     global single_channel
     single_channel = client.get_channel(int(os.getenv("SINGLE_CHANNEL")))
-    if CHANNEL:
+    if MATCH_CHANNEL:
         channel = client.get_channel(MATCH_CHANNEL)
         latest_results.start(channel=channel)
     if os.getenv("TWITCH_CLIENT_ID") and CHANNEL:
+        channel = client.get_channel(CHANNEL)
         twitch_poller.start(channel=channel)
 
 
