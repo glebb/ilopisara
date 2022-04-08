@@ -66,7 +66,7 @@ async def on_ready():
         channel = client.get_channel(MATCH_CHANNEL)
         latest_results.start(channel=channel)
     if os.getenv("TWITCH_CLIENT_ID") and CHANNEL:
-        channel = client.get_channel(CHANNEL)
+        channel = client.get_channel(int(CHANNEL))
         twitch_poller.start(channel=channel)
 
 
