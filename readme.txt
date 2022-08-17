@@ -56,13 +56,4 @@ Copy sample.env as .env and fill all values
 
 run bot:
 pip install -m requirements.txt
-python bot.py
-
-Sometimes the apis require additional auth stuff,
-then use proxy and start the node app, which uses puppeteer. Might work, but probalby not. If so, fix it.
-
-To run proxy:
-npm i
-node app
-
-
+python ibot.py
