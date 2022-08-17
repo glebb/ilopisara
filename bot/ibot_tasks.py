@@ -8,6 +8,7 @@ import data_service
 
 load_dotenv("../.env")
 CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
+MATCH_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
 
 
 match_results_storage = {}
@@ -40,11 +41,11 @@ async def get_latest_results(bot):
                     mark = ":x: "
                     gif = giphy.get_fail()
                 await bot._http.send_message(
-                    CHANNEL, mark + data_service.format_result(matches[i])
+                    MATCH_CHANNEL, mark + data_service.format_result(matches[i])
                 )
-                await bot._http.send_message(CHANNEL, gif)
+                await bot._http.send_message(MATCH_CHANNEL, gif)
                 await bot._http.send_message(
-                    CHANNEL, data_service.match_details(matches[i])
+                    MATCH_CHANNEL, data_service.match_details(matches[i])
                 )
 
 
