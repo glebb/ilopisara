@@ -54,16 +54,19 @@ async def matches(msg_content_splitted):
 
 async def game_record(filter):
     result = ""
-    if len(filter) >= 1:
-        matches = fb.find_matches_by_club_id(None)
-        record = ' '.join(filter)
-        records = data_service.game_record(matches, record)
-        if records:
-            result = f"Single game record for {record}:\n"
-            for game_record in records:
-                result += helpers.get_match_mark(game_record[1]) + data_service.format_result(game_record[1]) + "\n"
-                result += game_record[1]['players'][CLUB_ID][game_record[0]]['playername']+": "
-                result += game_record[1]['players'][CLUB_ID][game_record[0]][game_record[2]] + " " + record + "\n"
+    if features.firebase_enabled():
+        if len(filter) >= 1:
+            matches = fb.find_matches_by_club_id(None)
+            record = ' '.join(filter)
+            records = data_service.game_record(matches, record)
+            if records:
+                result = f"Single game record for {record}:\n"
+                for game_record in records:
+                    result += helpers.get_match_mark(game_record[1]) + data_service.format_result(game_record[1]) + "\n"
+                    result += game_record[1]['players'][CLUB_ID][game_record[0]]['playername']+": "
+                    result += game_record[1]['players'][CLUB_ID][game_record[0]][game_record[2]] + " " + record + "\n"
+    else:
+        result="No records available."
             
     return result
 
