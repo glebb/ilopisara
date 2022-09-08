@@ -1,12 +1,8 @@
 requests
-discord
 python-dotenv
 pytz
 cachetools
-firebase-admin
 simplejson
 pytest
-asyncio
-discord-py-interactions
 nextcord
 pymongo

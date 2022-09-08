@@ -1,10 +1,9 @@
-from dataclasses import dataclass
 import os
-from dotenv import load_dotenv
-
-from extra import giphy
 import random
+from dataclasses import dataclass
 
+from dotenv import load_dotenv
+from extra import giphy
 
 load_dotenv("../.env")
 TOKEN = os.getenv("DISCORD_TOKEN")

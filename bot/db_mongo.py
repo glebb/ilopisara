@@ -4,6 +4,7 @@ from pymongo import MongoClient
 client = MongoClient()
 db = client.ilo
 
+
 def update_matches():
     new_matches = []
     for type in api.GAMETYPE:
@@ -21,10 +22,23 @@ def update_matches():
                 new_matches.append(match)
     return new_matches
 
+
 def find_matches_by_club_id(versusClubId=None):
-    matches = db.matches.find({f"clubs.{versusClubId}": { "$exists" : True }}) if versusClubId else db.matches.find()
-    playoff_matches = db.playoffs.find({f"clubs.{versusClubId}": { "$exists" : True }}) if versusClubId else  db.playoffs.find()
-    return sorted(list(matches) + list(playoff_matches), key=lambda match: float(match['timestamp']))
+    matches = (
+        db.matches.find({f"clubs.{versusClubId}": {"$exists": True}})
+        if versusClubId
+        else db.matches.find()
+    )
+    playoff_matches = (
+        db.playoffs.find({f"clubs.{versusClubId}": {"$exists": True}})
+        if versusClubId
+        else db.playoffs.find()
+    )
+    return sorted(
+        list(matches) + list(playoff_matches),
+        key=lambda match: float(match["timestamp"]),
+    )
+
 
 def find_match_by_id(matchId):
     matches = db.matches.find({"matchId": matchId})

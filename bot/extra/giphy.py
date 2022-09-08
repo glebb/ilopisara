@@ -1,6 +1,7 @@
-import requests
 import os
 import random
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv('../.env')

@@ -5,7 +5,6 @@ import db_mongo
 import helpers
 from data import api
 from dotenv import load_dotenv
-from extra import fb, features
 
 load_dotenv("../.env")
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -52,7 +51,7 @@ async def member_stats(name, stats_filter=None):
 async def game_record(filter):
     result = ""
     matches = db_mongo.find_matches_by_club_id(None)
-    record = ' '.join(filter)
+    record = " ".join(filter)
     records = data_service.game_record(matches, record)
     if records:
         result = f"Single game record for {record}:\n"
@@ -63,13 +62,10 @@ async def game_record(filter):
                 + "\n"
             )
             result += (
-                game_record[1]["players"][CLUB_ID][game_record[0]]["playername"]
-                + ": "
+                game_record[1]["players"][CLUB_ID][game_record[0]]["playername"] + ": "
             )
             result += (
-                game_record[1]["players"][CLUB_ID][game_record[0]][
-                    game_record[2]
-                ]
+                game_record[1]["players"][CLUB_ID][game_record[0]][game_record[2]]
                 + " "
                 + record
                 + "\n"
