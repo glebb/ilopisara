@@ -1,9 +1,11 @@
 import os
 import sys
+
 import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data import api
+
 api.USE_PROXY = False
 
 PLATFORM= 'ps4'
@@ -38,11 +40,11 @@ def test_get_members_wrong_id(clubId):
     assert type(members) == type({})    
 
 def test_get_team_record():
-    record = api.get_team_record("Ilo Pisara")
+    record = api.get_team_record("Ilo Pisara", PLATFORM)
     assert len(record) == 1
     assert type(record) == type({}) 
 
 def test_get_team_record_unknown_team():
-    record = api.get_team_record("poiuerew slfdsj vmxcnvxc")
+    record = api.get_team_record("poiuerew slfdsj vmxcnvxc", PLATFORM)
     assert len(record) == 0
     assert type(record) == type({})
