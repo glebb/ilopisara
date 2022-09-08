@@ -1,8 +1,8 @@
 import os
 
-import jsonmap
 import command_service
 import data_service
+import jsonmap
 from base_logger import logger
 from data import api
 from dotenv import load_dotenv
@@ -29,7 +29,7 @@ async def team(
 ):
     response = await command_service.team_record(name)
     response = "No results found" if not response else response
-    await interaction.response.send_message(response)
+    await interaction.response.send_message(response[:1999])
 
 
 @bot.slash_command(
@@ -40,7 +40,7 @@ async def results(
 ):
     response = await command_service.results()
     response = "No results found" if not response else response
-    await interaction.response.send_message(response)
+    await interaction.response.send_message(response[:1999])
 
 
 @bot.slash_command(guild_ids=[GUILD_ID], description="Display match details")
@@ -53,7 +53,7 @@ async def match(
 ):
     response = await command_service.match(id)
     response = "No results found" if not response else response
-    await interaction.response.send_message(response)
+    await interaction.response.send_message(response[:1999])
 
 
 @bot.slash_command(guild_ids=[GUILD_ID], description="Rank players by stat")
@@ -67,7 +67,7 @@ async def top(
     members = api.get_members()["members"]
     response = data_service.top_stats(members, stats_name)
     response = "No results found" if not response else response
-    await interaction.response.send_message(response)
+    await interaction.response.send_message(response[:1999])
 
 
 @bot.slash_command(guild_ids=[GUILD_ID], description="Display single player stats")
@@ -85,7 +85,7 @@ async def player(
 ):
     response = await command_service.member_stats(name, filter)
     response = "No results found" if not response else response
-    await interaction.response.send_message(response)
+    await interaction.response.send_message(response[:1999])
 
 
 @bot.slash_command(guild_ids=[GUILD_ID], description="Display game record for a stat")
