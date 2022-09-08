@@ -8,3 +8,5 @@ simplejson
 pytest
 asyncio
 discord-py-interactions
+nextcord
+pymongo
