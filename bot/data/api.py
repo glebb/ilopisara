@@ -1,9 +1,11 @@
-from json.decoder import JSONDecodeError
 import os
-from cachetools import cached, TTLCache
-from dotenv import load_dotenv
-from data import proxy, direct
 from enum import Enum
+from json.decoder import JSONDecodeError
+
+from cachetools import TTLCache, cached
+from data import direct, proxy
+from dotenv import load_dotenv
+
 
 class GAMETYPE(Enum):
     REGULARSEASON = 5
@@ -40,8 +42,5 @@ def get_matches(club_id=CLUB_ID, platform=PLATFORM, count=10, game_type = GAMETY
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_team_record(team, platform=PLATFORM):
-    if USE_PROXY:
-        team_record = proxy.get_team_record(team, platform)    
-    else:
-        team_record = direct.get_team_record(team, platform)    
+    team_record = direct.get_team_record(team, platform)    
     return team_record

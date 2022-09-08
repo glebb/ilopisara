@@ -6,6 +6,13 @@ from dotenv import load_dotenv
 load_dotenv('../.env')
 CLUB_ID = os.getenv('CLUB_ID')
 
+filters = {
+    1: "goalie",
+    2: "skater",
+    3: "xfactor",
+}
+
+
 def find(lst, key, value):
     for i, dic in enumerate(lst):
         if dic[key] == value:
@@ -23,8 +30,10 @@ def format_result(match):
     score_string = score_time + ' ' + score_teams + ' ' + score_result + ' ' + ' // '+ match['matchId']
     return score_string
 
-def format_stats(stats, stats_filter):
+def format_stats(stats, stats_filter=None):
     message = ""
+    if stats_filter:
+        stats_filter = filters[stats_filter]
     for k, v in sorted(stats.items()):
         stat = None
         key = jsonmap.get_name(k)
@@ -56,7 +65,7 @@ def match_details(match):
     return players
 
 def top_stats(members, stats_filter):
-    key = jsonmap.get_key(stats_filter)
+    key = jsonmap.get_key(stats_filter, jsonmap.names)
     reply = f"Top {stats_filter}\n"
     try:
         for member in sorted(members, key=lambda m: float(m[key]), reverse=True):
@@ -70,7 +79,7 @@ def top_stats(members, stats_filter):
         return reply
     
 def game_record(matches, stats_filter):
-    key = jsonmap.get_key(stats_filter)
+    key = jsonmap.get_key(stats_filter, jsonmap.match)
     ref_matches = []
     for match in matches:
         for playerid, data in match['players'][CLUB_ID].items():
