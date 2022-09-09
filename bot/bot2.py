@@ -2,21 +2,41 @@ import os
 
 import command_service
 import data_service
+import db_mongo
+import helpers
 import jsonmap
-from base_logger import logger
 from data import api
 from dotenv import load_dotenv
 from nextcord import Interaction, SlashOption
 from nextcord.ext import commands
 
 load_dotenv("../.env")
+DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
 GUILD_ID = int(os.getenv("GUILD_ID"))
 TOKEN = os.getenv("DISCORD_TOKEN")
 CLUB_ID = os.getenv("CLUB_ID")
 
 members = list(map(lambda x: x["name"], api.get_members()["members"]))
 
-bot = commands.Bot()
+
+class Bot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bg_task = self.loop.create_task(self.watch_db())
+
+    async def watch_db(self):
+        await self.wait_until_ready()
+        await db_mongo.watch(self)
+
+    async def report_results(self, result):
+        channel = self.get_channel(int(DISCORD_CHANNEL))
+        result_string = (
+            helpers.get_match_mark(result) + data_service.format_result(result) + "\n"
+        )
+        await channel.send(result_string)
+
+
+bot = Bot()
 
 
 @bot.slash_command(guild_ids=[GUILD_ID], description="Display team overview")
@@ -115,6 +135,7 @@ async def select_stats(interaction: Interaction, stats_name: str):
     ]
     await interaction.response.send_autocomplete(get_near_stats[:25])
 
+
 @record.on_autocomplete("stats_name")
 async def select_stats(interaction: Interaction, stats_name: str):
     if not stats_name:
@@ -129,6 +150,7 @@ async def select_stats(interaction: Interaction, stats_name: str):
     ]
     await interaction.response.send_autocomplete(get_near_stats[:25])
 
+
 @player.on_autocomplete("name")
 async def select_player(interaction: Interaction, name: str):
     if not name:
@@ -136,11 +158,8 @@ async def select_player(interaction: Interaction, name: str):
         await interaction.response.send_autocomplete(members[:25])
         return
     # send a list of nearest matches from the list of dog breeds
-    get_near_members = [
-        n
-        for n in list(members)
-        if name.lower() in n.lower()
-    ]
+    get_near_members = [n for n in list(members) if name.lower() in n.lower()]
     await interaction.response.send_autocomplete(get_near_members[:25])
+
 
 bot.run(TOKEN)

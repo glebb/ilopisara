@@ -12,7 +12,7 @@ class GAMETYPE(Enum):
     PLAYOFFS = 10
 
 
-load_dotenv("../../.env")
+load_dotenv("../.env")
 CLUB_ID = os.getenv("CLUB_ID")
 PLATFORM = os.getenv("PLATFORM")
 

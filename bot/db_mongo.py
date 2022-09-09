@@ -1,21 +1,51 @@
-from data import api
-from pymongo import MongoClient
+import asyncio
+import os
+import pprint
 
-client = MongoClient()
+import motor.motor_asyncio
+import pymongo.errors
+from base_logger import logger
+from data import api
+from dotenv import load_dotenv
+
+client = motor.motor_asyncio.AsyncIOMotorClient()
 db = client.ilo
 
+pp = pprint.PrettyPrinter(indent=2)
 
-def update_matches():
+load_dotenv("../.env")
+DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
+
+async def watch(bot):
+    resume_token = None
+    pipeline = [{"$match": {"operationType": "insert"}}]
+    try:
+        async with db.matches.watch(pipeline) as stream:
+            async for insert_change in stream:
+                await bot.report_results(insert_change["fullDocument"])
+                resume_token = stream.resume_token
+    except pymongo.errors.PyMongoError:
+        if resume_token is None:
+            # There is no usable resume token because there was a
+            # failure during ChangeStream initialization.
+            logger.error("Database connection is fucked, cannot watch for updates")
+        else:
+            # Use the interrupted ChangeStream's resume token to
+            # create a new ChangeStream. The new stream will
+            # continue from the last seen insert change without
+            # missing any events.
+            async with db.matches.watch(pipeline, resume_after=resume_token) as stream:
+                async for insert_change in stream:
+                    await bot.report_results(insert_change["fullDocument"])
+
+
+async def update_matches():
     new_matches = []
     for type in api.GAMETYPE:
         matches = api.get_matches(count=50, game_type=type.value)
-        path = "unknown"
-        if type == api.GAMETYPE.REGULARSEASON:
-            path = "matches"
-        elif type == api.GAMETYPE.PLAYOFFS:
-            path = "playoffs"
         for match in matches:
-            update_result = db[path].update_one(
+            match["gameType"] = type.value
+            update_result = await db.matches.update_one(
                 {"matchId": match["matchId"]}, {"$setOnInsert": match}, upsert=True
             )
             if update_result.matched_count == 0:
@@ -23,28 +53,30 @@ def update_matches():
     return new_matches
 
 
-def find_matches_by_club_id(versusClubId=None):
+async def find_matches_by_club_id(versusClubId=None):
     matches = (
         db.matches.find({f"clubs.{versusClubId}": {"$exists": True}})
         if versusClubId
         else db.matches.find()
     )
+
     playoff_matches = (
         db.playoffs.find({f"clubs.{versusClubId}": {"$exists": True}})
         if versusClubId
         else db.playoffs.find()
     )
     return sorted(
-        list(matches) + list(playoff_matches),
+        await matches.to_list(length=10000)
+        + await playoff_matches.to_list(length=10000),
         key=lambda match: float(match["timestamp"]),
     )
 
 
-def find_match_by_id(matchId):
+async def find_match_by_id(matchId):
     matches = db.matches.find({"matchId": matchId})
     playoff_matches = db.playoffs.find({"matchId": matchId})
-    return list(matches) + list(playoff_matches)
+    return await matches.to_list(length=1) + await playoff_matches.to_list(length=1)
 
 
 if __name__ == "__main__":
-    print(len(find_matches_by_club_id(121775)))
+    asyncio.run(update_matches())

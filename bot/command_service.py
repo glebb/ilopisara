@@ -14,7 +14,7 @@ CLUB_ID = os.getenv("CLUB_ID")
 
 
 async def results(clubId=None):
-    matches = db_mongo.find_matches_by_club_id(clubId)
+    matches = await db_mongo.find_matches_by_club_id(clubId)
     result_string = ""
     for i in range(0, len(matches))[-10:]:
         result_string += (
@@ -27,7 +27,7 @@ async def results(clubId=None):
 
 async def match(match_id):
     result_string = ""
-    matches = db_mongo.find_match_by_id(match_id)
+    matches = await db_mongo.find_match_by_id(match_id)
     if matches:
         result_string += (
             helpers.get_match_mark(matches[0])
@@ -50,7 +50,7 @@ async def member_stats(name, stats_filter=None):
 
 async def game_record(filter):
     result = ""
-    matches = db_mongo.find_matches_by_club_id(None)
+    matches = await db_mongo.find_matches_by_club_id(None)
     record = " ".join(filter)
     records = data_service.game_record(matches, record)
     if records:
@@ -98,7 +98,7 @@ async def team_record(name):
         clubId = list(temp.keys())[0]
         members = api.get_members(clubId)
         if clubId != CLUB_ID:
-            matches = db_mongo.find_matches_by_club_id(clubId)
+            matches = await db_mongo.find_matches_by_club_id(clubId)
         else:
             matches = None
         top_stats = data_service.top_stats(members["members"], "points per game")
