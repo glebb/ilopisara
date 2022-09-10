@@ -17,6 +17,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 CLUB_ID = os.getenv("CLUB_ID")
 
 members = list(map(lambda x: x["name"], api.get_members()["members"]))
+members = sorted(members, key=str.casefold)
 
 
 class Bot(commands.Bot):
@@ -103,9 +104,10 @@ async def player(
         required=False,
     ),
 ):
-    response = await command_service.member_stats(name, filter)
+    response, public = await command_service.member_stats(name, filter)
     response = "No results found" if not response else response
-    await interaction.response.send_message(response[:1999])
+    await interaction.user.send(response[:1999])
+    await interaction.response.send_message(public)
 
 
 @bot.slash_command(guild_ids=[GUILD_ID], description="Display game record for a stat")

@@ -41,11 +41,13 @@ async def match(match_id):
 async def member_stats(name, stats_filter=None):
     members = api.get_members()["members"]
     reply = ""
+    public_reply = ""
     index = data_service.find(members, "name", name)
     if index:
         stats = members[index]
         reply = data_service.format_stats(stats, stats_filter)
-    return reply
+        public_reply = "Record: " + members[index]["record"] + "\nRest of the stats delivered by DM."
+    return reply, public_reply
 
 
 async def game_record(filter):
