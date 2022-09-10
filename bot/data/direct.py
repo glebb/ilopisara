@@ -1,6 +1,7 @@
 import urllib.parse
 
 import requests
+from base_logger import logger
 from requests.adapters import HTTPAdapter
 from simplejson import JSONDecodeError
 from urllib3.util import Retry
@@ -24,10 +25,10 @@ def get_members(club_id, platform):
     data = {}
     try:
         url = f"https://proclubs.ea.com/api/nhl/members/career/stats?platform={platform}&clubId={club_id}"
-        print(url)
+        logger.info(f"Fetching url: {url}")
         data = http.get(url, timeout=4, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
-        print(err)
+        logger.error(err)
     return data
 
 
@@ -35,10 +36,10 @@ def get_matches(club_id, platform, count, game_type):
     data = []
     try:
         url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType=gameType{str(game_type)}&platform={platform}&clubIds={club_id}&maxResultCount={count}"
-        print(url)
+        logger.info(f"Fetching url: {url}")
         data = http.get(url, timeout=4, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
-        print(err)
+        logger.error(err)
     return data
 
 
@@ -47,8 +48,8 @@ def get_team_record(team, platform):
     try:
         team_quoted = urllib.parse.quote(team)
         url = f"https://proclubs.ea.com/api/nhl/clubs/search?platform={platform}&clubName={team_quoted}"
-        print(url)
+        logger.info(f"Fetching url: {url}")
         data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
-        print(err)
+        logger.error(err)
     return data

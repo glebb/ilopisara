@@ -2,6 +2,7 @@ import os
 from enum import Enum
 from json.decoder import JSONDecodeError
 
+from base_logger import logger
 from cachetools import TTLCache, cached
 from data import direct
 from dotenv import load_dotenv
@@ -23,7 +24,7 @@ def get_members(club_id=CLUB_ID, platform=PLATFORM):
     try:
         members = direct.get_members(club_id, platform)
     except JSONDecodeError as err:
-        print(err)
+        logger.error(err)
     return members
 
 
@@ -35,11 +36,14 @@ def get_matches(
     try:
         matches = direct.get_matches(club_id, platform, count, game_type)
     except JSONDecodeError as err:
-        print(err)
+        logger.error(err)
     return matches
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_team_record(team, platform=PLATFORM):
-    team_record = direct.get_team_record(team, platform)
+    try:
+        team_record = direct.get_team_record(team, platform)
+    except JSONDecodeError as err:
+        logger.error(err)
     return team_record

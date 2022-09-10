@@ -1,6 +1,5 @@
 import asyncio
 import os
-import pprint
 
 import motor.motor_asyncio
 import pymongo.errors
@@ -10,8 +9,6 @@ from dotenv import load_dotenv
 
 client = motor.motor_asyncio.AsyncIOMotorClient()
 db = client.ilo
-
-pp = pprint.PrettyPrinter(indent=2)
 
 load_dotenv("../.env")
 DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
