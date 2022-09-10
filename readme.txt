@@ -1,4 +1,5 @@
-Discord bot to fetch statistics for EA NHL 22
+Discord bot to fetch statistics for EA NHL
+Utilizes NHL api's (ONLINE) and local mongo db (DB) to preserve match history with stats.
 
 ----------
 
@@ -34,26 +35,41 @@ Oh... How is all this related to the Discord bot you might ask? Well, back in th
 
 ----------
 
-Info about the bot:
-!stats player [<skater>|<goalie>|<xfactor>]
-All stats for specific player
+Bot (slash) commands:
+/results
+Show results of latest games from ONLINE
 
-!matches <matchId> (match details)
-Last 5 matches or details for specific match
+/team <name>
+Team record and other details from ONLINE.
+Checks also DB for previous matches against this team.
 
-!top statistic (e.g. 'hits per game')
-Rank club members based on single statistic
+/player <name> <filter>
+All stats for player from ONLINE
 
-!team team name (e.g. ilo pisara)
-Team record and other details
+/top <stat>
+Rank club members based on single statistic from ONLINE
 
-!history
-Own club match history
+/match <id>
+Details for specific match from DB.
 
-The bot will periodically check latest results and post them to specified channel
+/record <stat>
+Single game record for a stat from DB
+
+The bot will monitor latest results (from DB) and post them to specified channel.
+
+----------
+
+Technical requirements:
+* Local mongodb instance, with replica sets setup.
+   mongodb.conf:
+      replication:
+      replSetName: "rs0"
+   mongosh: rs.initiate()
+* Cronjob to execute db_mongo.py to fetch game results periodically
+   0 * * * * cd /home/<user>/ilopisara/bot && /home/<user>/ilopisara/.venv/bin/python db_mongo.py
+* IP that allows access for NHL apis. (test by running py.test)
 
 Copy sample.env as .env and fill all values
+Install python requirements: pip install -m requirements.txt
 
-run bot:
-pip install -m requirements.txt
-python ibot.py
+run: python bot2.py
