@@ -67,12 +67,12 @@ async def results(
 @bot.slash_command(guild_ids=[GUILD_ID], description="Display match details")
 async def match(
     interaction: Interaction,
-    id: str = SlashOption(
-        name="id",
+    match_id: str = SlashOption(
+        name="match_id",
         description="Match id",
     ),
 ):
-    response = await command_service.match(id)
+    response = await command_service.match(match_id)
     response = "No results found" if not response else response
     await interaction.response.send_message(response[:1999])
 
@@ -85,8 +85,8 @@ async def top(
         description="Stats name (e.g. points)",
     ),
 ):
-    members = api.get_members()["members"]
-    response = data_service.top_stats(members, stats_name)
+    online_members = api.get_members()["members"]
+    response = data_service.top_stats(online_members, stats_name)
     response = "No results found" if not response else response
     await interaction.response.send_message(response[:1999])
 
@@ -98,13 +98,13 @@ async def player(
         name="name",
         description="Player name",
     ),
-    filter: int = SlashOption(
-        name="filter",
+    stats_filter: int = SlashOption(
+        name="stats_filter",
         choices={"goalie": 1, "skater": 2, "xfactor": 3},
         required=False,
     ),
 ):
-    response, public = await command_service.member_stats(name, filter)
+    response, public = await command_service.member_stats(name, stats_filter)
     response = "No results found" if not response else response
     await interaction.user.send(response[:1999])
     await interaction.response.send_message(public)
@@ -139,7 +139,7 @@ async def select_stats(interaction: Interaction, stats_name: str):
 
 
 @record.on_autocomplete("stats_name")
-async def select_stats(interaction: Interaction, stats_name: str):
+async def select_stats_for_record(interaction: Interaction, stats_name: str):
     if not stats_name:
         # send the full autocomplete list
         await interaction.response.send_autocomplete(list(jsonmap.match.values())[:25])

@@ -33,10 +33,10 @@ async def watch(bot):
 
 async def update_matches():
     new_matches = []
-    for type in api.GAMETYPE:
-        matches = api.get_matches(count=50, game_type=type.value)
+    for game_type in api.GAMETYPE:
+        matches = api.get_matches(count=50, game_type=game_type.value)
         for match in matches:
-            match["gameType"] = type.value
+            match["gameType"] = game_type.value
             update_result = await db.matches.update_one(
                 {"matchId": match["matchId"]}, {"$setOnInsert": match}, upsert=True
             )

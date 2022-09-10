@@ -50,24 +50,24 @@ async def member_stats(name, stats_filter=None):
     return reply, public_reply
 
 
-async def game_record(filter):
+async def game_record(stats_filter):
     result = ""
     matches = await db_mongo.find_matches_by_club_id(None)
-    record = " ".join(filter)
-    records = data_service.game_record(matches, record)
+    temp = " ".join(stats_filter)
+    records = data_service.game_record(matches, temp)
     if records:
-        result = f"Single game record for {record}:\n"
-        for game_record in records[:10]:
+        result = f"Single game record for {temp}:\n"
+        for record in records[:10]:
             result += (
-                helpers.get_match_mark(game_record[1])
-                + data_service.format_result(game_record[1])
+                helpers.get_match_mark(record[1])
+                + data_service.format_result(record[1])
                 + "\n"
             )
             result += (
-                game_record[1]["players"][CLUB_ID][game_record[0]]["playername"] + ": "
+                record[1]["players"][CLUB_ID][record[0]]["playername"] + ": "
             )
             result += (
-                game_record[1]["players"][CLUB_ID][game_record[0]][game_record[2]]
+                record[1]["players"][CLUB_ID][record[0]][record[2]]
                 + " "
                 + record
                 + "\n"
@@ -80,27 +80,27 @@ def match_results2(matches):
     if matches:
         match_batches = helpers.chunk_using_generators(matches, 30)
         for batch in match_batches:
-            match_results = ""
-            for match in batch:
-                match_results += (
-                    helpers.get_match_mark(match)
-                    + data_service.format_result(match)
+            match_results_string = ""
+            for match_result in batch:
+                match_results_string += (
+                    helpers.get_match_mark(match_result)
+                    + data_service.format_result(match_result)
                     + "\n"
                 )
-            match_results = match_results_header + match_results
-            return match_results
+            match_results_string = match_results_header + match_results_string
+            return match_results_string
 
 
 async def team_record(name):
     result_string = ""
     temp = api.get_team_record(name)
-    team_record = data_service.team_record(temp)
-    if team_record:
-        result_string += team_record + "\n"
-        clubId = list(temp.keys())[0]
-        members = api.get_members(clubId)
-        if clubId != CLUB_ID:
-            matches = await db_mongo.find_matches_by_club_id(clubId)
+    record = data_service.team_record(temp)
+    if record:
+        result_string += record + "\n"
+        club_id = list(temp.keys())[0]
+        members = api.get_members(club_id)
+        if club_id != CLUB_ID:
+            matches = await db_mongo.find_matches_by_club_id(club_id)
         else:
             matches = None
         top_stats = data_service.top_stats(members["members"], "points per game")

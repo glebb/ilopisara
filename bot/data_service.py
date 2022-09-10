@@ -171,19 +171,19 @@ if __name__ == "__main__":
     f = open(
         "tests/members.json",
     )
-    members = json.load(f)
+    _members = json.load(f)
     f.close()
 
     f = open(
         "tests/matches.json",
     )
-    matches = json.load(f)
+    _matches = json.load(f)
     f.close()
 
     f = open(
         "tests/team.json",
     )
-    team = json.load(f)
+    _team = json.load(f)
     f.close()
 
     # print(format_stats(members['members'][0], None))
@@ -191,4 +191,4 @@ if __name__ == "__main__":
     # print(match_details(matches[1]))
     # print(top_stats(members['members'], 'skater goals'))
     # print(team_record(team))
-    print(len(game_record(matches, "xca dsfgsd gfsd")))
+    print(len(game_record(_matches, "xca dsfgsd gfsd")))
