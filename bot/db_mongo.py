@@ -16,6 +16,7 @@ pp = pprint.PrettyPrinter(indent=2)
 load_dotenv("../.env")
 DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
 
+
 async def watch(bot):
     resume_token = None
     pipeline = [{"$match": {"operationType": "insert"}}]
@@ -26,14 +27,8 @@ async def watch(bot):
                 resume_token = stream.resume_token
     except pymongo.errors.PyMongoError:
         if resume_token is None:
-            # There is no usable resume token because there was a
-            # failure during ChangeStream initialization.
             logger.error("Database connection is fucked, cannot watch for updates")
         else:
-            # Use the interrupted ChangeStream's resume token to
-            # create a new ChangeStream. The new stream will
-            # continue from the last seen insert change without
-            # missing any events.
             async with db.matches.watch(pipeline, resume_after=resume_token) as stream:
                 async for insert_change in stream:
                     await bot.report_results(insert_change["fullDocument"])
@@ -59,23 +54,15 @@ async def find_matches_by_club_id(versusClubId=None):
         if versusClubId
         else db.matches.find()
     )
-
-    playoff_matches = (
-        db.playoffs.find({f"clubs.{versusClubId}": {"$exists": True}})
-        if versusClubId
-        else db.playoffs.find()
-    )
     return sorted(
-        await matches.to_list(length=10000)
-        + await playoff_matches.to_list(length=10000),
+        await matches.to_list(length=10000),
         key=lambda match: float(match["timestamp"]),
     )
 
 
 async def find_match_by_id(matchId):
     matches = db.matches.find({"matchId": matchId})
-    playoff_matches = db.playoffs.find({"matchId": matchId})
-    return await matches.to_list(length=1) + await playoff_matches.to_list(length=1)
+    return await matches.to_list(length=1)
 
 
 if __name__ == "__main__":
