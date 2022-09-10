@@ -6,3 +6,5 @@ simplejson
 pytest
 nextcord
 pymongo
+asyncio
+motor
