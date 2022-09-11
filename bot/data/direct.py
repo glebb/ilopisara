@@ -35,7 +35,7 @@ def get_members(club_id, platform):
 def get_matches(club_id, platform, count, game_type):
     data = []
     try:
-        url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType=gameType{str(game_type)}&platform={platform}&clubIds={club_id}&maxResultCount={count}"
+        url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType={str(game_type)}&platform={platform}&clubIds={club_id}&maxResultCount={count}"
         logger.info(f"Fetching url: {url}")
         data = http.get(url, timeout=4, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:

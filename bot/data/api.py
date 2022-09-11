@@ -9,8 +9,9 @@ from dotenv import load_dotenv
 
 
 class GAMETYPE(Enum):
-    REGULARSEASON = 5
-    PLAYOFFS = 10
+    REGULARSEASON = "gameType5"
+    PLAYOFFS = "gameType10"
+    PRIVATE = "club_private"
 
 
 load_dotenv("../.env")
