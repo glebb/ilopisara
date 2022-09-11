@@ -1,13 +1,13 @@
 import os
 
+from dotenv import load_dotenv
+from nextcord import Interaction, SlashOption
+from nextcord.ext import commands
 import command_service
 import data_service
 import db_mongo
 import jsonmap
 from data import api
-from dotenv import load_dotenv
-from nextcord import Interaction, SlashOption
-from nextcord.ext import commands
 
 load_dotenv("../.env")
 DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
@@ -94,7 +94,7 @@ async def player(
     interaction: Interaction,
     name: str = SlashOption(
         name="name",
-        description="Player name",
+        choices={name: name for name in members}
     ),
     stats_filter: int = SlashOption(
         name="stats_filter",
@@ -151,7 +151,7 @@ async def select_stats_for_record(interaction: Interaction, stats_name: str):
     await interaction.response.send_autocomplete(get_near_stats[:25])
 
 
-@player.on_autocomplete("name")
+"""@player.on_autocomplete("name")
 async def select_player(interaction: Interaction, name: str):
     if not name:
         # send the full autocomplete list
@@ -159,7 +159,7 @@ async def select_player(interaction: Interaction, name: str):
         return
     # send a list of nearest matches from the list of dog breeds
     get_near_members = [n for n in list(members) if name.lower() in n.lower()]
-    await interaction.response.send_autocomplete(get_near_members[:25])
+    await interaction.response.send_autocomplete(get_near_members[:25])"""
 
 
 bot.run(TOKEN)

@@ -152,6 +152,7 @@ def team_record(team):
     if key:
         reply += "Team: " + team[key]["name"] + "\n"
         reply += "points: " + team[key]["rankingPoints"] + "\n"
+        reply += "star level: " + team[key]["starLevel"] + "\n"
         reply += "record: " + team[key]["record"] + "\n"
         reply += "current division: " + str(team[key]["currentDivision"]) + "\n"
         games = (
