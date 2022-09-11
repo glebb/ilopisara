@@ -14,13 +14,13 @@ load_dotenv("../.env")
 DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
 
 
-async def watch(bot):
+async def watch(result_handler):
     resume_token = None
     pipeline = [{"$match": {"operationType": "insert"}}]
     try:
         async with db.matches.watch(pipeline) as stream:
             async for insert_change in stream:
-                await bot.report_results(insert_change["fullDocument"])
+                await result_handler((insert_change["fullDocument"]))
                 resume_token = stream.resume_token
     except pymongo.errors.PyMongoError:
         if resume_token is None:
@@ -28,7 +28,7 @@ async def watch(bot):
         else:
             async with db.matches.watch(pipeline, resume_after=resume_token) as stream:
                 async for insert_change in stream:
-                    await bot.report_results(insert_change["fullDocument"])
+                    await result_handler((insert_change["fullDocument"]))
 
 
 async def update_matches():

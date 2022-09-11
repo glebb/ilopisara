@@ -3,7 +3,6 @@ import os
 import command_service
 import data_service
 import db_mongo
-import helpers
 import jsonmap
 from data import api
 from dotenv import load_dotenv
@@ -27,14 +26,13 @@ class Bot(commands.Bot):
 
     async def watch_db(self):
         await self.wait_until_ready()
-        await db_mongo.watch(self)
+        await db_mongo.watch(self.report_results)
 
-    async def report_results(self, result):
+    async def report_results(self, match):
         channel = self.get_channel(int(DISCORD_CHANNEL))
-        result_string = (
-            helpers.get_match_mark(result) + data_service.format_result(result) + "\n"
-        )
-        await channel.send(result_string)
+        result_string = data_service.match_result(match)
+        if result_string:
+            await channel.send(result_string)
 
 
 bot = Bot()

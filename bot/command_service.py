@@ -17,11 +17,7 @@ async def results(clubId=None):
     matches = await db_mongo.find_matches_by_club_id(clubId)
     result_string = ""
     for i in range(0, len(matches))[-10:]:
-        result_string += (
-            helpers.get_match_mark(matches[i])
-            + data_service.format_result(matches[i])
-            + "\n"
-        )
+        result_string += data_service.format_result(matches[i]) + "\n"
     return result_string
 
 
@@ -29,12 +25,7 @@ async def match(match_id):
     result_string = ""
     matches = await db_mongo.find_match_by_id(match_id)
     if matches:
-        result_string += (
-            helpers.get_match_mark(matches[0])
-            + data_service.format_result(matches[0])
-            + "\n"
-        )
-        result_string += data_service.match_details(matches[0]) + "\n"
+        result_string = data_service.match_result(matches[0])
     return result_string
 
 
@@ -46,7 +37,11 @@ async def member_stats(name, stats_filter=None):
     if index:
         stats = members[index]
         reply = data_service.format_stats(stats, stats_filter)
-        public_reply = "Record: " + members[index]["record"] + "\nRest of the stats delivered by DM."
+        public_reply = (
+            "Record: "
+            + members[index]["record"]
+            + "\nRest of the stats delivered by DM."
+        )
     return reply, public_reply
 
 
@@ -58,18 +53,12 @@ async def game_record(stats_filter):
     if records:
         result = f"Single game record for {temp}:\n"
         for record in records[:10]:
-            result += (
-                helpers.get_match_mark(record[1])
-                + data_service.format_result(record[1])
-                + "\n"
-            )
-            result += (
-                record[1]["players"][CLUB_ID][record[0]]["playername"] + ": "
-            )
+            result += data_service.format_result(record[1]) + "\n"
+            result += record[1]["players"][CLUB_ID][record[0]]["playername"] + ": "
             result += (
                 record[1]["players"][CLUB_ID][record[0]][record[2]]
                 + " "
-                + record
+                + temp
                 + "\n"
             )
     return result
@@ -82,11 +71,7 @@ def match_results2(matches):
         for batch in match_batches:
             match_results_string = ""
             for match_result in batch:
-                match_results_string += (
-                    helpers.get_match_mark(match_result)
-                    + data_service.format_result(match_result)
-                    + "\n"
-                )
+                match_results_string += data_service.format_result(match_result) + "\n"
             match_results_string = match_results_header + match_results_string
             return match_results_string
 

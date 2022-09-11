@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+import helpers
 import jsonmap
 import pytz
 from dotenv import load_dotenv
@@ -48,7 +49,7 @@ def format_result(match):
         + " // "
         + match["matchId"]
     )
-    return score_string
+    return helpers.get_match_mark(match) + score_string
 
 
 def format_stats(stats, stats_filter=None):
@@ -73,7 +74,7 @@ def format_stats(stats, stats_filter=None):
         return message
 
 
-def match_details(match):
+def _match_details(match):
     players = ""
     for _, p in sorted(
         match["players"][os.getenv("CLUB_ID")].items(),
@@ -93,6 +94,12 @@ def match_details(match):
             players += "p/m:" + p["skplusmin"] + ", "
             players += "penalties:" + p["skpim"] + "m\n"
     return players
+
+
+def match_result(match):
+    result_string = format_result(match) + "\n"
+    result_string += _match_details(match) + "\n"
+    return result_string
 
 
 def top_stats(members, stats_filter):
