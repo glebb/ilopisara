@@ -1,6 +1,7 @@
 import asyncio
 import os
 
+import helpers
 import motor.motor_asyncio
 import pymongo.errors
 from base_logger import logger
@@ -33,7 +34,7 @@ async def watch(result_handler):
 
 async def update_matches():
     new_matches = []
-    for game_type in api.GAMETYPE:
+    for game_type in helpers.GAMETYPE:
         matches = api.get_matches(count=50, game_type=game_type.value)
         for match in matches:
             match["gameType"] = game_type.value
@@ -45,16 +46,17 @@ async def update_matches():
     return new_matches
 
 
-async def find_matches_by_club_id(versusClubId=None):
+async def find_matches_by_club_id(versusClubId=None, game_type=None):
     matches = (
-        db.matches.find({f"clubs.{versusClubId}": {"$exists": True}})
+        db.matches.find({f"clubs.{versusClubId}": {"$exists": True}}).sort(
+            "timestamp", 1
+        )
         if versusClubId
-        else db.matches.find()
+        else db.matches.find({"gameType": game_type} if game_type else {}).sort(
+            "timestamp", 1
+        )
     )
-    return sorted(
-        await matches.to_list(length=10000),
-        key=lambda match: float(match["timestamp"]),
-    )
+    return await matches.to_list(length=10000)
 
 
 async def find_match_by_id(matchId):

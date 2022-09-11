@@ -46,10 +46,9 @@ def format_result(match):
         + " "
         + score_result
         + " "
-        + " // "
-        + match["matchId"]
     )
-    return helpers.get_match_mark(match) + score_string
+    return helpers.get_match_mark(match) + score_string + helpers.get_match_type_mark(match) + " // " + match["matchId"]
+
 
 
 def format_stats(stats, stats_filter=None):

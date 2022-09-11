@@ -13,8 +13,8 @@ CHANNEL = os.getenv("DISCORD_CHANNEL")
 CLUB_ID = os.getenv("CLUB_ID")
 
 
-async def results(clubId=None):
-    matches = await db_mongo.find_matches_by_club_id(clubId)
+async def results(clubId=None, game_type = None):
+    matches = await db_mongo.find_matches_by_club_id(clubId, game_type)
     result_string = ""
     for i in range(0, len(matches))[-10:]:
         result_string += data_service.format_result(matches[i]) + "\n"
@@ -47,7 +47,7 @@ async def member_stats(name, stats_filter=None):
 
 async def game_record(stats_filter):
     result = ""
-    matches = await db_mongo.find_matches_by_club_id(None)
+    matches = await db_mongo.find_matches_by_club_id()
     temp = " ".join(stats_filter)
     records = data_service.game_record(matches, temp)
     if records:
@@ -85,7 +85,7 @@ async def team_record(name):
         club_id = list(temp.keys())[0]
         members = api.get_members(club_id)
         if club_id != CLUB_ID:
-            matches = await db_mongo.find_matches_by_club_id(club_id)
+            matches = await db_mongo.find_matches_by_club_id(club_id, None)
         else:
             matches = None
         top_stats = data_service.top_stats(members["members"], "points per game")

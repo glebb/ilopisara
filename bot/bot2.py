@@ -6,6 +6,7 @@ from nextcord.ext import commands
 import command_service
 import data_service
 import db_mongo
+import helpers
 import jsonmap
 from data import api
 
@@ -56,8 +57,14 @@ async def team(
 )
 async def results(
     interaction: Interaction,
+    game_type: str = SlashOption(
+        name="game_type",
+        choices={g_type.name: g_type.value for g_type in helpers.GAMETYPE},
+        required=False,
+        description="Optionally limit matches by game type"
+    ),
 ):
-    response = await command_service.results()
+    response = await command_service.results(None, game_type)
     response = "No results found" if not response else response
     await interaction.response.send_message(response[:1999])
 

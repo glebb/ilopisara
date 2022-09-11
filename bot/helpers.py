@@ -1,3 +1,4 @@
+from enum import Enum
 import os
 import random
 from dataclasses import dataclass
@@ -10,6 +11,12 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 CHANNEL = os.getenv("DISCORD_CHANNEL")
 
 CLUB_ID = os.getenv("CLUB_ID")
+
+class GAMETYPE(Enum):
+    REGULARSEASON = "gameType5"
+    PLAYOFFS = "gameType10"
+    PRIVATE = "club_private"
+    
 
 goalie_fails = (
     "https://youtu.be/fR-_q9XeYZo?t=11",
@@ -39,6 +46,16 @@ def get_match_mark(match):
         mark = ":white_check_mark: "
     else:
         mark = ":x: "
+    return mark
+
+def get_match_type_mark(match):
+    mark = ""
+    if match["gameType"] == GAMETYPE.REGULARSEASON.value:
+        mark = " :hockey: "
+    if match["gameType"] == GAMETYPE.PLAYOFFS.value:
+        mark = " :trophy: "
+    if match["gameType"] == GAMETYPE.PRIVATE.value:
+        mark = " :handshake: "
     return mark
 
 

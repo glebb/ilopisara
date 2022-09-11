@@ -1,17 +1,12 @@
 import os
-from enum import Enum
 from json.decoder import JSONDecodeError
 
 from base_logger import logger
 from cachetools import TTLCache, cached
 from data import direct
 from dotenv import load_dotenv
+import helpers
 
-
-class GAMETYPE(Enum):
-    REGULARSEASON = "gameType5"
-    PLAYOFFS = "gameType10"
-    PRIVATE = "club_private"
 
 
 load_dotenv("../.env")
@@ -31,7 +26,7 @@ def get_members(club_id=CLUB_ID, platform=PLATFORM):
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_matches(
-    club_id=CLUB_ID, platform=PLATFORM, count=10, game_type=GAMETYPE.REGULARSEASON.value
+    club_id=CLUB_ID, platform=PLATFORM, count=10, game_type=helpers.GAMETYPE.REGULARSEASON.value
 ):
     matches = []
     try:
