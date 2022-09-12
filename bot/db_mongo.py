@@ -95,5 +95,4 @@ async def get_known_team_names():
 
 
 if __name__ == "__main__":
-    # asyncio.run(update_matches())
-    print(asyncio.run(get_known_team_names()))
+    asyncio.run(update_matches())
