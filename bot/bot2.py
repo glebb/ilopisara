@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from nextcord import Interaction, SlashOption
-from nextcord.ext import commands
+from nextcord.ext import commands, tasks
 
 import command_service
 import data_service
@@ -24,7 +24,9 @@ members = sorted(members, key=str.casefold)
 class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.bg_task = self.loop.create_task(self.watch_db())
+        self.db_watcher = self.loop.create_task(self.watch_db())
+        self.teams = []
+        self.fetch_team_names.start()
 
     async def watch_db(self):
         await self.wait_until_ready()
@@ -35,6 +37,10 @@ class Bot(commands.Bot):
         result_string = data_service.match_result(match)
         if result_string:
             await channel.send(result_string)
+
+    @tasks.loop(minutes=10)
+    async def fetch_team_names(self):
+        self.teams = await db_mongo.get_known_team_names()
 
 
 bot = Bot()
@@ -129,10 +135,8 @@ async def record(
 @top.on_autocomplete("stats_name")
 async def select_stats(interaction: Interaction, stats_name: str):
     if not stats_name:
-        # send the full autocomplete list
         await interaction.response.send_autocomplete(list(jsonmap.names.values())[:25])
         return
-    # send a list of nearest matches from the list of dog breeds
     get_near_stats = [
         stat
         for stat in list(jsonmap.names.values())
@@ -144,10 +148,8 @@ async def select_stats(interaction: Interaction, stats_name: str):
 @record.on_autocomplete("stats_name")
 async def select_stats_for_record(interaction: Interaction, stats_name: str):
     if not stats_name:
-        # send the full autocomplete list
         await interaction.response.send_autocomplete(list(jsonmap.match.values())[:25])
         return
-    # send a list of nearest matches from the list of dog breeds
     get_near_stats = [
         stat
         for stat in list(jsonmap.match.values())
@@ -156,15 +158,13 @@ async def select_stats_for_record(interaction: Interaction, stats_name: str):
     await interaction.response.send_autocomplete(get_near_stats[:25])
 
 
-"""@player.on_autocomplete("name")
-async def select_player(interaction: Interaction, name: str):
+@team.on_autocomplete("name")
+async def select_teams(interaction: Interaction, name: str):
     if not name:
-        # send the full autocomplete list
-        await interaction.response.send_autocomplete(members[:25])
+        await interaction.response.send_autocomplete(bot.teams[:25])
         return
-    # send a list of nearest matches from the list of dog breeds
-    get_near_members = [n for n in list(members) if name.lower() in n.lower()]
-    await interaction.response.send_autocomplete(get_near_members[:25])"""
+    get_near_names = [n for n in list(bot.teams) if n.lower().startswith(name.lower())]
+    await interaction.response.send_autocomplete(get_near_names[:25])
 
 
 bot.run(TOKEN)
