@@ -1,10 +1,11 @@
 import urllib.parse
 
 import requests
-from base_logger import logger
 from requests.adapters import HTTPAdapter
 from simplejson import JSONDecodeError
 from urllib3.util import Retry
+
+from base_logger import logger
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:77.0) Gecko/20100101 Firefox/77.0"

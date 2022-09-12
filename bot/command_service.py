@@ -1,10 +1,11 @@
 import os
 
+from dotenv import load_dotenv
+
 import data_service
 import db_mongo
 import helpers
 from data import api
-from dotenv import load_dotenv
 
 load_dotenv("../.env")
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -13,7 +14,7 @@ CHANNEL = os.getenv("DISCORD_CHANNEL")
 CLUB_ID = os.getenv("CLUB_ID")
 
 
-async def results(clubId=None, game_type = None):
+async def results(clubId=None, game_type=None):
     matches = await db_mongo.find_matches_by_club_id(clubId, game_type)
     result_string = ""
     for i in range(0, len(matches))[-10:]:
@@ -56,10 +57,7 @@ async def game_record(stats_filter):
             result += data_service.format_result(record[1]) + "\n"
             result += record[1]["players"][CLUB_ID][record[0]]["playername"] + ": "
             result += (
-                record[1]["players"][CLUB_ID][record[0]][record[2]]
-                + " "
-                + temp
-                + "\n"
+                record[1]["players"][CLUB_ID][record[0]][record[2]] + " " + temp + "\n"
             )
     return result
 

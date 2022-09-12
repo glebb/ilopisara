@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from nextcord import Interaction, SlashOption
 from nextcord.ext import commands
+
 import command_service
 import data_service
 import db_mongo
@@ -61,7 +62,7 @@ async def results(
         name="game_type",
         choices={g_type.name: g_type.value for g_type in helpers.GAMETYPE},
         required=False,
-        description="Optionally limit matches by game type"
+        description="Optionally limit matches by game type",
     ),
 ):
     response = await command_service.results(None, game_type)
@@ -99,10 +100,7 @@ async def top(
 @bot.slash_command(guild_ids=[GUILD_ID], description="Display single player stats")
 async def player(
     interaction: Interaction,
-    name: str = SlashOption(
-        name="name",
-        choices={name: name for name in members}
-    ),
+    name: str = SlashOption(name="name", choices={name: name for name in members}),
     stats_filter: int = SlashOption(
         name="stats_filter",
         choices={"goalie": 1, "skater": 2, "xfactor": 3},

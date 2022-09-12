@@ -1,10 +1,11 @@
 import os
 from datetime import datetime
 
-import helpers
-import jsonmap
 import pytz
 from dotenv import load_dotenv
+
+import helpers
+import jsonmap
 
 load_dotenv("../.env")
 CLUB_ID = os.getenv("CLUB_ID")
@@ -39,16 +40,14 @@ def format_result(match):
         match["clubs"][os.getenv("CLUB_ID")]["details"]["name"] + " - " + opponentName
     )
     score_result = match["clubs"][os.getenv("CLUB_ID")]["scoreString"]
-    score_string = (
-        score_time
-        + " "
-        + score_teams
-        + " "
-        + score_result
-        + " "
+    score_string = score_time + " " + score_teams + " " + score_result + " "
+    return (
+        helpers.get_match_mark(match)
+        + score_string
+        + helpers.get_match_type_mark(match)
+        + " // "
+        + match["matchId"]
     )
-    return helpers.get_match_mark(match) + score_string + helpers.get_match_type_mark(match) + " // " + match["matchId"]
-
 
 
 def format_stats(stats, stats_filter=None):

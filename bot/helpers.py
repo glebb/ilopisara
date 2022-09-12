@@ -1,9 +1,10 @@
-from enum import Enum
 import os
 import random
 from dataclasses import dataclass
+from enum import Enum
 
 from dotenv import load_dotenv
+
 from extra import giphy
 
 load_dotenv("../.env")
@@ -12,11 +13,12 @@ CHANNEL = os.getenv("DISCORD_CHANNEL")
 
 CLUB_ID = os.getenv("CLUB_ID")
 
+
 class GAMETYPE(Enum):
     REGULARSEASON = "gameType5"
     PLAYOFFS = "gameType10"
     PRIVATE = "club_private"
-    
+
 
 goalie_fails = (
     "https://youtu.be/fR-_q9XeYZo?t=11",
@@ -47,6 +49,7 @@ def get_match_mark(match):
     else:
         mark = ":x: "
     return mark
+
 
 def get_match_type_mark(match):
     mark = ""

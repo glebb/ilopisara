@@ -1,13 +1,12 @@
 import os
 from json.decoder import JSONDecodeError
 
-from base_logger import logger
 from cachetools import TTLCache, cached
-from data import direct
 from dotenv import load_dotenv
+
 import helpers
-
-
+from base_logger import logger
+from data import direct
 
 load_dotenv("../.env")
 CLUB_ID = os.getenv("CLUB_ID")
@@ -26,7 +25,10 @@ def get_members(club_id=CLUB_ID, platform=PLATFORM):
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_matches(
-    club_id=CLUB_ID, platform=PLATFORM, count=10, game_type=helpers.GAMETYPE.REGULARSEASON.value
+    club_id=CLUB_ID,
+    platform=PLATFORM,
+    count=10,
+    game_type=helpers.GAMETYPE.REGULARSEASON.value,
 ):
     matches = []
     try:
