@@ -1,14 +1,13 @@
 import asyncio
 import os
 
+import helpers
 import motor.motor_asyncio
 import pymongo.errors
-from cachetools import TTLCache, cached
-from dotenv import load_dotenv
-
-import helpers
 from base_logger import logger
+from cachetools import TTLCache, cached
 from data import api
+from dotenv import load_dotenv
 
 client = motor.motor_asyncio.AsyncIOMotorClient()
 db = client.ilo
@@ -84,13 +83,6 @@ async def get_known_team_names():
 
     data = await temp.to_list(length=10000)
     all_names = sorted(data[0]["allNames"], key=str.casefold)
-    temp = db.matches.find({ "clubs." + CLUB_ID : { "$exists" : True } })
-    data = await temp.to_list(length=1)
-    try:
-        own_name = data[0]["clubs"][CLUB_ID]["details"]["name"]
-        all_names.insert(0, all_names.pop(all_names.index(own_name)))
-    except:
-        pass
     return all_names
 
 

@@ -6,8 +6,6 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from data import api
 
-api.USE_PROXY = False
-
 PLATFORM = "ps4"
 CLUB_ID = "19963"
 
@@ -54,3 +52,16 @@ def test_get_team_record_unknown_team():
     record = api.get_team_record("poiuerew slfdsj vmxcnvxc", PLATFORM)
     assert len(record) == 0
     assert type(record) == type({})
+
+
+def test_team_info():
+    info = api.get_team_info(CLUB_ID, PLATFORM)
+    assert len(info) == 1
+    assert type(info) == type({})
+
+
+def test_seasonal_stats():
+    stats = api.get_seasonal_stats(CLUB_ID, PLATFORM)
+    print(stats)
+    assert len(stats) == 1
+    assert type(stats) == type([])

@@ -1,15 +1,14 @@
 import os
 
-from dotenv import load_dotenv
-from nextcord import Interaction, SlashOption
-from nextcord.ext import commands, tasks
-
 import command_service
 import data_service
 import db_mongo
 import helpers
 import jsonmap
 from data import api
+from dotenv import load_dotenv
+from nextcord import Interaction, SlashOption
+from nextcord.ext import commands, tasks
 
 load_dotenv("../.env")
 DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
@@ -18,14 +17,15 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 CLUB_ID = os.getenv("CLUB_ID")
 
 members = list(map(lambda x: x["name"], api.get_members()["members"]))
-members = sorted(members, key=str.casefold)
+members = tuple(sorted(members, key=str.casefold))
+team_name = api.get_team_info(CLUB_ID)[CLUB_ID]["name"]
 
 
 class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db_watcher = self.loop.create_task(self.watch_db())
-        self.teams = []
+        self.teams = ()
         self.fetch_team_names.start()
 
     async def watch_db(self):
@@ -40,7 +40,12 @@ class Bot(commands.Bot):
 
     @tasks.loop(minutes=10)
     async def fetch_team_names(self):
-        self.teams = await db_mongo.get_known_team_names()
+        teams = await db_mongo.get_known_team_names()
+        try:
+            teams.insert(0, teams.pop(teams.index(team_name)))
+        except:
+            pass
+        self.teams = tuple(teams)
 
 
 bot = Bot()

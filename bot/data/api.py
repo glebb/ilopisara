@@ -45,3 +45,20 @@ def get_team_record(team, platform=PLATFORM):
     except JSONDecodeError as err:
         logger.error(err)
     return team_record
+
+@cached(cache=TTLCache(maxsize=1024, ttl=180))
+def get_team_info(team, platform=PLATFORM):
+    try:
+        team_info = direct.get_team_info(team, platform)
+    except JSONDecodeError as err:
+        logger.error(err)
+    return team_info
+
+
+@cached(cache=TTLCache(maxsize=1024, ttl=180))
+def get_seasonal_stats(team, platform=PLATFORM):
+    try:
+        stats = direct.get_seasonal_stats(team, platform)
+    except JSONDecodeError as err:
+        logger.error(err)
+    return stats

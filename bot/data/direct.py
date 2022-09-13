@@ -12,8 +12,6 @@ headers = {
 }
 
 
-# TODO Season stats: https://proclubs.ea.com/api/nhl/clubs/seasonalStats?platform=ps4&clubIds=19963
-
 retry_strategy = Retry(total=2, backoff_factor=0.2)
 
 adapter = HTTPAdapter(max_retries=retry_strategy)
@@ -54,3 +52,26 @@ def get_team_record(team, platform):
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
         logger.error(err)
     return data
+
+
+def get_team_info(team_id, platform):
+    data = {}
+    try:
+        url = f"https://proclubs.ea.com/api/nhl/clubs/info?platform={platform}&clubIds={team_id}"
+        logger.info(f"Fetching url: {url}")
+        data = http.get(url, timeout=4, headers=headers).json()
+    except (requests.exceptions.Timeout, JSONDecodeError) as err:
+        logger.error(err)
+    return data
+    
+
+def get_seasonal_stats(team_id, platform):
+    data = {}
+    try:
+        url = f"https://proclubs.ea.com/api/nhl/clubs/seasonalStats?platform={platform}&clubIds={team_id}"
+        logger.info(f"Fetching url: {url}")
+        data = http.get(url, timeout=4, headers=headers).json()
+    except (requests.exceptions.Timeout, JSONDecodeError) as err:
+        logger.error(err)
+    return data
+    
