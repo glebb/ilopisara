@@ -3,15 +3,7 @@ import random
 from dataclasses import dataclass
 from enum import Enum
 
-from dotenv import load_dotenv
-
 from extra import giphy
-
-load_dotenv("../.env")
-TOKEN = os.getenv("DISCORD_TOKEN")
-CHANNEL = os.getenv("DISCORD_CHANNEL")
-
-CLUB_ID = os.getenv("CLUB_ID")
 
 
 class GAMETYPE(Enum):

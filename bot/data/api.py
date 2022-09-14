@@ -1,12 +1,11 @@
 import os
 from json.decoder import JSONDecodeError
 
-from cachetools import TTLCache, cached
-from dotenv import load_dotenv
-
 import helpers
 from base_logger import logger
+from cachetools import TTLCache, cached
 from data import direct
+from dotenv import load_dotenv
 
 load_dotenv("../.env")
 CLUB_ID = os.getenv("CLUB_ID")
@@ -45,6 +44,7 @@ def get_team_record(team, platform=PLATFORM):
     except JSONDecodeError as err:
         logger.error(err)
     return team_record
+
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_team_info(team, platform=PLATFORM):

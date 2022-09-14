@@ -1,5 +1,4 @@
 import asyncio
-import os
 
 import helpers
 import motor.motor_asyncio
@@ -7,14 +6,9 @@ import pymongo.errors
 from base_logger import logger
 from cachetools import TTLCache, cached
 from data import api
-from dotenv import load_dotenv
 
 client = motor.motor_asyncio.AsyncIOMotorClient()
 db = client.ilo
-
-load_dotenv("../.env")
-DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
-CLUB_ID = os.getenv("CLUB_ID")
 
 
 async def watch(result_handler):

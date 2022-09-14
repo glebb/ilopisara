@@ -1,16 +1,12 @@
 import os
 
-from dotenv import load_dotenv
-
 import data_service
 import db_mongo
 import helpers
 from data import api
+from dotenv import load_dotenv
 
 load_dotenv("../.env")
-TOKEN = os.getenv("DISCORD_TOKEN")
-CHANNEL = os.getenv("DISCORD_CHANNEL")
-
 CLUB_ID = os.getenv("CLUB_ID")
 
 

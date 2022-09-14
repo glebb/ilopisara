@@ -24,7 +24,7 @@ team_name = api.get_team_info(CLUB_ID)[CLUB_ID]["name"]
 class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.db_watcher = self.loop.create_task(self.watch_db())
+        self.loop.create_task(self.watch_db())
         self.teams = ()
         self.fetch_team_names.start()
 
