@@ -76,7 +76,7 @@ async def get_known_team_names():
     )
 
     data = await temp.to_list(length=10000)
-    all_names = sorted(data[0]["allNames"], key=str.casefold)
+    all_names = sorted(data[0]["allNames"][-24:], key=str.casefold)
     return all_names
 
 

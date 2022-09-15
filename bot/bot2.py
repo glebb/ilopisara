@@ -44,7 +44,7 @@ class Bot(commands.Bot):
         try:
             teams.insert(0, teams.pop(teams.index(team_name)))
         except:
-            pass
+            teams.insert(0, team_name)
         self.teams = tuple(teams)
 
 
