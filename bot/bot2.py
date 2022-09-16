@@ -25,7 +25,7 @@ class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.loop.create_task(self.watch_db())
-        self.teams = ()
+        self.all_teams = ()
         self.fetch_team_names.start()
 
     async def watch_db(self):
@@ -38,14 +38,17 @@ class Bot(commands.Bot):
         if result_string:
             await channel.send(result_string)
 
+    def get_team_names(self):
+        short_list = list(self.all_teams[-24:])
+        try:
+            short_list.insert(0, short_list.pop(short_list.index(team_name)))
+        except:
+            short_list.insert(0, team_name)
+        return tuple(short_list)
+
     @tasks.loop(minutes=10)
     async def fetch_team_names(self):
-        teams = await db_mongo.get_known_team_names()
-        try:
-            teams.insert(0, teams.pop(teams.index(team_name)))
-        except:
-            teams.insert(0, team_name)
-        self.teams = tuple(teams)
+        self.all_teams = tuple(await db_mongo.get_known_team_names())
 
 
 bot = Bot()
@@ -166,9 +169,11 @@ async def select_stats_for_record(interaction: Interaction, stats_name: str):
 @team.on_autocomplete("name")
 async def select_teams(interaction: Interaction, name: str):
     if not name:
-        await interaction.response.send_autocomplete(bot.teams[:25])
+        await interaction.response.send_autocomplete(bot.get_team_names())
         return
-    get_near_names = [n for n in list(bot.teams) if n.lower().startswith(name.lower())]
+    get_near_names = [
+        n for n in list(bot.all_teams) if n.lower().startswith(name.lower())
+    ]
     await interaction.response.send_autocomplete(get_near_names[:25])
 
 
