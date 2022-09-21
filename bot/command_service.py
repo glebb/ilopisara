@@ -13,7 +13,7 @@ CLUB_ID = os.getenv("CLUB_ID")
 async def results(clubId=None, game_type=None):
     matches = await db_mongo.find_matches_by_club_id(clubId, game_type)
     result_string = ""
-    for i in range(0, len(matches))[-10:]:
+    for i in range(0, len(matches))[-20:]:
         result_string += data_service.format_result(matches[i]) + "\n"
     return result_string
 
