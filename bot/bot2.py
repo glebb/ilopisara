@@ -174,6 +174,7 @@ async def select_teams(interaction: Interaction, name: str):
     get_near_names = [
         n for n in list(bot.all_teams) if n.lower().startswith(name.lower())
     ]
+    await interaction.response.defer()
     await interaction.response.send_autocomplete(get_near_names[:25])
 
 
