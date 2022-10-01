@@ -1,13 +1,5 @@
-import json
-import os
-
 import requests
-from dotenv import load_dotenv
-
-load_dotenv("../.env")
-CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
-OAUTH = os.getenv("TWITCH_OAUTH")
-STREAMERS = os.getenv("TWITCH_STREAMERS")
+from helpers import CLIENT_ID, OAUTH, STREAMERS
 
 headers = {
     "Client-Id": CLIENT_ID,
@@ -36,7 +28,7 @@ def get_live_stream():
     if (
         "data" in data
         and len(data["data"]) > 0
-        and data["data"][0]["game_name"].lower() == "nhl 22"
+        and data["data"][0]["game_name"].lower().startswith("nhl")
     ):
         url = "https://www.twitch.tv/" + data["data"][0]["user_login"]
         if not live or live != data["data"][0]["started_at"]:
@@ -49,11 +41,6 @@ def get_live_stream():
 
 
 if __name__ == "__main__":
-    f = open(
-        "twitch.json",
-    )
-    data = json.load(f)
-    f.close()
-    print(data)
-    if data["data"][0]["game_name"].lower() == "nhl 22":
+    data = get_live_stream()
+    if data and data["data"][0]["game_name"].lower().startswith("nhl"):
         print("https://www.twitch.tv/" + data["data"][0]["user_login"])

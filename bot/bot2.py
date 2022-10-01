@@ -6,19 +6,12 @@ import db_mongo
 import helpers
 import jsonmap
 from data import api
-from dotenv import load_dotenv
 from nextcord import Interaction, SlashOption
 from nextcord.ext import commands, tasks
 
-load_dotenv("../.env")
-DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
-GUILD_ID = int(os.getenv("GUILD_ID"))
-TOKEN = os.getenv("DISCORD_TOKEN")
-CLUB_ID = os.getenv("CLUB_ID")
-
 members = list(map(lambda x: x["name"], api.get_members()))
 members = tuple(sorted(members, key=str.casefold))
-team_name = api.get_team_info(CLUB_ID)[CLUB_ID]["name"]
+team_name = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
 
 
 class Bot(commands.Bot):
@@ -33,7 +26,7 @@ class Bot(commands.Bot):
         await db_mongo.watch(self.report_results)
 
     async def report_results(self, match):
-        channel = self.get_channel(int(DISCORD_CHANNEL))
+        channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
         result_string = data_service.match_result(match)
         if result_string:
             await channel.send(result_string)
@@ -54,7 +47,7 @@ class Bot(commands.Bot):
 bot = Bot()
 
 
-@bot.slash_command(guild_ids=[GUILD_ID], description="Display team overview")
+@bot.slash_command(guild_ids=[helpers.GUILD_ID], description="Display team overview")
 async def team(
     interaction: Interaction,
     name: str = SlashOption(
@@ -68,7 +61,7 @@ async def team(
 
 
 @bot.slash_command(
-    guild_ids=[GUILD_ID], description="Display results for most rececnt matches"
+    guild_ids=[helpers.GUILD_ID], description="Display results for most rececnt matches"
 )
 async def results(
     interaction: Interaction,
@@ -84,7 +77,7 @@ async def results(
     await interaction.response.send_message(response[:1999])
 
 
-@bot.slash_command(guild_ids=[GUILD_ID], description="Display match details")
+@bot.slash_command(guild_ids=[helpers.GUILD_ID], description="Display match details")
 async def match(
     interaction: Interaction,
     match_id: str = SlashOption(
@@ -97,7 +90,7 @@ async def match(
     await interaction.response.send_message(response[:1999])
 
 
-@bot.slash_command(guild_ids=[GUILD_ID], description="Rank players by stat")
+@bot.slash_command(guild_ids=[helpers.GUILD_ID], description="Rank players by stat")
 async def top(
     interaction: Interaction,
     stats_name: str = SlashOption(
@@ -111,7 +104,9 @@ async def top(
     await interaction.response.send_message(response[:1999])
 
 
-@bot.slash_command(guild_ids=[GUILD_ID], description="Display single player stats")
+@bot.slash_command(
+    guild_ids=[helpers.GUILD_ID], description="Display single player stats"
+)
 async def player(
     interaction: Interaction,
     name: str = SlashOption(name="name", choices={name: name for name in members}),
@@ -127,7 +122,9 @@ async def player(
     await interaction.response.send_message(public)
 
 
-@bot.slash_command(guild_ids=[GUILD_ID], description="Display game record for a stat")
+@bot.slash_command(
+    guild_ids=[helpers.GUILD_ID], description="Display game record for a stat"
+)
 async def record(
     interaction: Interaction,
     stats_name: str = SlashOption(
@@ -178,4 +175,4 @@ async def select_teams(interaction: Interaction, name: str):
     await interaction.response.send_autocomplete(get_near_names[:25])
 
 
-bot.run(TOKEN)
+bot.run(helpers.TOKEN)

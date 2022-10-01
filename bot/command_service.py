@@ -4,10 +4,6 @@ import data_service
 import db_mongo
 import helpers
 from data import api
-from dotenv import load_dotenv
-
-load_dotenv("../.env")
-CLUB_ID = os.getenv("CLUB_ID")
 
 
 async def results(clubId=None, game_type=None):
@@ -60,9 +56,14 @@ async def game_record(stats_filter):
         result = f"Single game record for {temp}:\n"
         for record in records[:10]:
             result += data_service.format_result(record[1]) + "\n"
-            result += record[1]["players"][CLUB_ID][record[0]]["playername"] + ": "
             result += (
-                record[1]["players"][CLUB_ID][record[0]][record[2]] + " " + temp + "\n"
+                record[1]["players"][helpers.CLUB_ID][record[0]]["playername"] + ": "
+            )
+            result += (
+                record[1]["players"][helpers.CLUB_ID][record[0]][record[2]]
+                + " "
+                + temp
+                + "\n"
             )
     return result
 
@@ -87,7 +88,7 @@ async def team_record(name):
         result_string += record + "\n"
         club_id = list(temp.keys())[0]
         members = api.get_members(club_id)
-        if club_id != CLUB_ID:
+        if club_id != helpers.CLUB_ID:
             matches = await db_mongo.find_matches_by_club_id(club_id, None)
         else:
             matches = None

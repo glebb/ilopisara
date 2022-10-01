@@ -1,13 +1,8 @@
-import os
 from datetime import datetime
 
 import helpers
 import jsonmap
 import pytz
-from dotenv import load_dotenv
-
-load_dotenv("../.env")
-CLUB_ID = os.getenv("CLUB_ID")
 
 filters = {
     1: "goalie",
@@ -29,16 +24,16 @@ def format_result(match):
     score_time = score_time.astimezone(pytz.timezone("Europe/Helsinki")).strftime(
         "%d.%m. %H:%M"
     )
-    opponentId = match["clubs"][os.getenv("CLUB_ID")]["opponentClubId"]
+    opponentId = match["clubs"][helpers.CLUB_ID]["opponentClubId"]
     opponentName = (
         match["clubs"][opponentId]["details"]["name"]
         if match["clubs"][opponentId]["details"] != None
         else "???"
     )
     score_teams = (
-        match["clubs"][os.getenv("CLUB_ID")]["details"]["name"] + " - " + opponentName
+        match["clubs"][helpers.CLUB_ID]["details"]["name"] + " - " + opponentName
     )
-    score_result = match["clubs"][os.getenv("CLUB_ID")]["scoreString"]
+    score_result = match["clubs"][helpers.CLUB_ID]["scoreString"]
     score_string = score_time + " " + score_teams + " " + score_result + " "
     return (
         helpers.get_match_mark(match)
@@ -74,7 +69,7 @@ def format_stats(stats, stats_filter=None):
 def _match_details(match):
     players = ""
     for _, p in sorted(
-        match["players"][os.getenv("CLUB_ID")].items(),
+        match["players"][helpers.CLUB_ID].items(),
         key=lambda p: int(p[1]["skgoals"]) + int(p[1]["skassists"]),
         reverse=True,
     ):
@@ -118,18 +113,22 @@ def game_record(matches, stats_filter):
     key = jsonmap.get_key(stats_filter, jsonmap.match)
     ref_matches = []
     for match in matches:
-        for playerid, data in match["players"][CLUB_ID].items():
+        for playerid, data in match["players"][helpers.CLUB_ID].items():
             if key == "points" or key == "skpoints":
                 data[key] = str(int(float(data["skgoals"]) + float(data["skassists"])))
-                match["players"][CLUB_ID][playerid] = data
+                match["players"][helpers.CLUB_ID][playerid] = data
             try:
                 if (not ref_matches and key in data) or float(data[key]) > float(
-                    ref_matches[0][1]["players"][CLUB_ID][ref_matches[0][0]][key]
+                    ref_matches[0][1]["players"][helpers.CLUB_ID][ref_matches[0][0]][
+                        key
+                    ]
                 ):
                     ref_matches.clear()
                     ref_matches.append([playerid, match, key])
                 elif float(data[key]) == float(
-                    ref_matches[0][1]["players"][CLUB_ID][ref_matches[0][0]][key]
+                    ref_matches[0][1]["players"][helpers.CLUB_ID][ref_matches[0][0]][
+                        key
+                    ]
                 ):
                     ref_matches.append([playerid, match, key])
             except (TypeError, ValueError):

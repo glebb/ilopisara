@@ -6,15 +6,10 @@ import helpers
 from base_logger import logger
 from cachetools import TTLCache, cached
 from data import direct
-from dotenv import load_dotenv
-
-load_dotenv("../.env")
-CLUB_ID = os.getenv("CLUB_ID")
-PLATFORM = os.getenv("PLATFORM")
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_members(club_id=CLUB_ID, platform=PLATFORM):
+def get_members(club_id=helpers.CLUB_ID, platform=helpers.PLATFORM):
     data = {}
     try:
         data = direct.get_members(club_id, platform)
@@ -27,8 +22,8 @@ def get_members(club_id=CLUB_ID, platform=PLATFORM):
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_matches(
-    club_id=CLUB_ID,
-    platform=PLATFORM,
+    club_id=helpers.CLUB_ID,
+    platform=helpers.PLATFORM,
     count=10,
     game_type=helpers.GAMETYPE.REGULARSEASON.value,
 ):
@@ -41,7 +36,7 @@ def get_matches(
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_team_record(team, platform=PLATFORM):
+def get_team_record(team, platform=helpers.PLATFORM):
     try:
         team_record = direct.get_team_record(team, platform)
     except JSONDecodeError as err:
@@ -50,7 +45,7 @@ def get_team_record(team, platform=PLATFORM):
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_team_info(team, platform=PLATFORM):
+def get_team_info(team, platform=helpers.PLATFORM):
     try:
         team_info = direct.get_team_info(team, platform)
     except JSONDecodeError as err:
@@ -59,7 +54,7 @@ def get_team_info(team, platform=PLATFORM):
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_seasonal_stats(team, platform=PLATFORM):
+def get_seasonal_stats(team, platform=helpers.PLATFORM):
     try:
         stats = direct.get_seasonal_stats(team, platform)
     except JSONDecodeError as err:
@@ -68,7 +63,7 @@ def get_seasonal_stats(team, platform=PLATFORM):
 
 
 @cache
-def get_member(member_name, platform=PLATFORM):
+def get_member(member_name, platform=helpers.PLATFORM):
     data = {}
     try:
         data = direct.get_member(member_name, platform)

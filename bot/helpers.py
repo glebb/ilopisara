@@ -3,7 +3,19 @@ import random
 from dataclasses import dataclass
 from enum import Enum
 
+from dotenv import load_dotenv
 from extra import giphy
+
+load_dotenv("../.env")
+CLUB_ID = os.getenv("CLUB_ID")
+PLATFORM = os.getenv("PLATFORM")
+DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
+GUILD_ID = int(os.getenv("GUILD_ID"))
+TOKEN = os.getenv("DISCORD_TOKEN")
+DEBUG = int(os.getenv("DEBUG"))
+CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
+OAUTH = os.getenv("TWITCH_OAUTH")
+STREAMERS = os.getenv("TWITCH_STREAMERS")
 
 
 class GAMETYPE(Enum):
