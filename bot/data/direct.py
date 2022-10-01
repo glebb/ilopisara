@@ -35,7 +35,7 @@ def get_matches(club_id, platform, count, game_type):
     try:
         url = f"https://proclubs.ea.com/api/nhl/clubs/matches?matchType={str(game_type)}&platform={platform}&clubIds={club_id}&maxResultCount={count}"
         logger.info(f"Fetching url: {url}")
-        data = http.get(url, timeout=4, headers=headers).json()
+        data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
         logger.error(err)
     return data
@@ -47,7 +47,7 @@ def get_team_record(team, platform):
         team_quoted = urllib.parse.quote(team)
         url = f"https://proclubs.ea.com/api/nhl/clubs/search?platform={platform}&clubName={team_quoted}"
         logger.info(f"Fetching url: {url}")
-        data = http.get(url, timeout=10, headers=headers).json()
+        data = http.get(url, timeout=4, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
         logger.error(err)
     return data
