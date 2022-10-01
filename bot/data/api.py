@@ -1,4 +1,5 @@
 import os
+from functools import cache
 from json.decoder import JSONDecodeError
 
 import helpers
@@ -14,12 +15,14 @@ PLATFORM = os.getenv("PLATFORM")
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_members(club_id=CLUB_ID, platform=PLATFORM):
-    members = {}
+    data = {}
     try:
-        members = direct.get_members(club_id, platform)
+        data = direct.get_members(club_id, platform)
     except JSONDecodeError as err:
         logger.error(err)
-    return members
+    if data:
+        return data["members"]
+    return []
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
@@ -62,3 +65,15 @@ def get_seasonal_stats(team, platform=PLATFORM):
     except JSONDecodeError as err:
         logger.error(err)
     return stats
+
+
+@cache
+def get_member(member_name, platform=PLATFORM):
+    data = {}
+    try:
+        data = direct.get_member(member_name, platform)
+    except JSONDecodeError as err:
+        logger.error(err)
+    if data:
+        return data["members"][0]
+    return None

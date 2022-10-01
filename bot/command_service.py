@@ -27,18 +27,27 @@ async def match(match_id):
 
 
 async def member_stats(name, stats_filter=None):
-    members = api.get_members()["members"]
+    members = api.get_members()
     reply = ""
-    public_reply = ""
+    public_reply = "No game history available."
     index = data_service.find(members, "name", name)
     if index:
         stats = members[index]
-        reply = data_service.format_stats(stats, stats_filter)
+        reply = f"Stats for {name}:\n" + data_service.format_stats(stats, stats_filter)
         public_reply = (
-            "Record: "
+            f"{name}\n"
+            + "Record: "
             + members[index]["record"]
             + "\nRest of the stats delivered by DM."
         )
+    member = api.get_member(name)
+    if member:
+        matches = await db_mongo.find_matches_for_player(member["blazeId"])
+        if matches:
+            public_reply += "\n\nLatest games: \n"
+            for i in range(0, len(matches))[-10:]:
+                public_reply += data_service.format_result(matches[i]) + "\n"
+
     return reply, public_reply
 
 
@@ -82,7 +91,7 @@ async def team_record(name):
             matches = await db_mongo.find_matches_by_club_id(club_id, None)
         else:
             matches = None
-        top_stats = data_service.top_stats(members["members"], "points per game")
+        top_stats = data_service.top_stats(members, "points per game")
         if top_stats:
             top_reply = "---\n" + top_stats
         else:

@@ -16,7 +16,7 @@ GUILD_ID = int(os.getenv("GUILD_ID"))
 TOKEN = os.getenv("DISCORD_TOKEN")
 CLUB_ID = os.getenv("CLUB_ID")
 
-members = list(map(lambda x: x["name"], api.get_members()["members"]))
+members = list(map(lambda x: x["name"], api.get_members()))
 members = tuple(sorted(members, key=str.casefold))
 team_name = api.get_team_info(CLUB_ID)[CLUB_ID]["name"]
 
@@ -105,7 +105,7 @@ async def top(
         description="Stats name (e.g. points)",
     ),
 ):
-    online_members = api.get_members()["members"]
+    online_members = api.get_members()
     response = data_service.top_stats(online_members, stats_name)
     response = "No results found" if not response else response
     await interaction.response.send_message(response[:1999])

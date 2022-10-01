@@ -73,3 +73,14 @@ def get_seasonal_stats(team_id, platform):
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
         logger.error(err)
     return data
+
+
+def get_member(member_name, platform):
+    data = {}
+    try:
+        url = f"https://proclubs.ea.com/api/nhl/members/search?platform={platform}&memberName={member_name}"
+        logger.info(f"Fetching url: {url}")
+        data = http.get(url, timeout=4, headers=headers).json()
+    except (requests.exceptions.Timeout, JSONDecodeError) as err:
+        logger.error(err)
+    return data

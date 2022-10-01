@@ -32,14 +32,14 @@ def test_get_matches_wrong_id(clubId):
 def test_get_members():
     members = api.get_members(CLUB_ID, PLATFORM)
     assert len(members) > 1
-    assert type(members) == type({})
+    assert type(members) == type([])
 
 
 @pytest.mark.parametrize("clubId", [(""), ("00006660000"), ("cxvcxvcxvc"), None])
 def test_get_members_wrong_id(clubId):
     members = api.get_members(clubId, PLATFORM)
     assert len(members) == 0
-    assert type(members) == type({})
+    assert type(members) == type([])
 
 
 def test_get_team_record():
@@ -65,3 +65,8 @@ def test_seasonal_stats():
     print(stats)
     assert len(stats) == 1
     assert type(stats) == type([])
+
+
+def test_get_member():
+    member = api.get_member("bodhi-FIN", PLATFORM)
+    assert member["name"] == "bodhi-FIN"

@@ -6,6 +6,7 @@ import pymongo.errors
 from base_logger import logger
 from cachetools import TTLCache, cached
 from data import api
+from data.api import CLUB_ID
 
 client = motor.motor_asyncio.AsyncIOMotorClient()
 db = client.ilo
@@ -77,6 +78,13 @@ async def get_known_team_names():
 
     data = await temp.to_list(length=10000)
     return data[0]["allNames"]
+
+
+async def find_matches_for_player(player_id):
+    matches = db.matches.find(
+        {f"players.{CLUB_ID}.{player_id}": {"$exists": True}}
+    ).sort("timestamp", 1)
+    return await matches.to_list(length=10000)
 
 
 if __name__ == "__main__":
