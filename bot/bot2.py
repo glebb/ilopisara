@@ -3,6 +3,7 @@ import data_service
 import db_mongo
 import helpers
 import jsonmap
+from base_logger import logger
 from data import api
 from nextcord import Interaction, SlashOption
 from nextcord.ext import commands, tasks
@@ -46,10 +47,13 @@ class Bot(commands.Bot):
 
     @tasks.loop(minutes=2)
     async def twitch_check(self):
-        if self.twitcher.update() == TwitchStatus.STOPPED:
+        await self.wait_until_ready()
+        status = self.twitcher.update()
+        if status == TwitchStatus.STOPPED:
             return
-        channel = self.get_channel(int(helpers.TWITCH_CHANNEL))
-        if self.twitcher.update() == TwitchStatus.STARTED:
+        if status == TwitchStatus.STARTED:
+            channel = self.get_channel(int(helpers.TWITCH_CHANNEL))
+            logger.info(f"Stream activated {self.twitcher.stream_url}")
             await channel.send("Stream started: " + self.twitcher.stream_url)
 
 
