@@ -48,9 +48,9 @@ class Bot(commands.Bot):
     async def twitch_check(self):
         if self.twitcher.update() == TwitchStatus.STOPPED:
             return
-        channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
+        channel = self.get_channel(int(helpers.TWITCH_CHANNEL))
         if self.twitcher.update() == TwitchStatus.STARTED:
-            await channel.send(self.twitcher.stream_url)
+            await channel.send("Stream started: " + self.twitcher.stream_url)
 
 
 bot = Bot()

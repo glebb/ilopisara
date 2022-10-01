@@ -16,6 +16,7 @@ DEBUG = int(os.getenv("DEBUG"))
 CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
 OAUTH = os.getenv("TWITCH_OAUTH")
 STREAMERS = os.getenv("TWITCH_STREAMERS")
+TWITCH_CHANNEL = os.getenv("TWITCH_CHANNEL")
 
 
 class GAMETYPE(Enum):
