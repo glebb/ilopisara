@@ -1,5 +1,3 @@
-import os
-
 import command_service
 import data_service
 import db_mongo
@@ -8,6 +6,7 @@ import jsonmap
 from data import api
 from nextcord import Interaction, SlashOption
 from nextcord.ext import commands, tasks
+from twitch import Twitcher, TwitchStatus
 
 members = list(map(lambda x: x["name"], api.get_members()))
 members = tuple(sorted(members, key=str.casefold))
@@ -20,6 +19,8 @@ class Bot(commands.Bot):
         self.loop.create_task(self.watch_db())
         self.all_teams = ()
         self.fetch_team_names.start()
+        self.twitcher = Twitcher()
+        self.twitch_check.start()
 
     async def watch_db(self):
         await self.wait_until_ready()
@@ -42,6 +43,14 @@ class Bot(commands.Bot):
     @tasks.loop(minutes=10)
     async def fetch_team_names(self):
         self.all_teams = tuple(await db_mongo.get_known_team_names())
+
+    @tasks.loop(minutes=2)
+    async def twitch_check(self):
+        if self.twitcher.update() == TwitchStatus.STOPPED:
+            return
+        channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
+        if self.twitcher.update() == TwitchStatus.STARTED:
+            await channel.send(self.twitcher.stream_url)
 
 
 bot = Bot()
