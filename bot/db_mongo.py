@@ -70,21 +70,9 @@ async def find_match_by_id(matchId):
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 async def get_known_team_names():
-    temp = db.matches.aggregate(
-        [
-            {"$project": {"arrayofkeyvalue": {"$objectToArray": "$$ROOT.clubs"}}},
-            {"$unwind": "$arrayofkeyvalue"},
-            {
-                "$group": {
-                    "_id": None,
-                    "allNames": {"$addToSet": "$arrayofkeyvalue.v.details.name"},
-                }
-            },
-        ]
-    )
-
+    temp = db.opponents.find({}, {"name": 1})
     data = await temp.to_list(length=10000)
-    return data[0]["allNames"]
+    return map(lambda x: x["name"], data)
 
 
 async def find_matches_for_player(player_id):
