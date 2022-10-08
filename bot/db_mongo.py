@@ -1,5 +1,6 @@
 import asyncio
 
+import db_utils
 import helpers
 import motor.motor_asyncio
 import pymongo.errors
@@ -29,17 +30,24 @@ async def watch(result_handler):
 
 
 async def update_matches():
-    new_matches = []
     for game_type in helpers.GAMETYPE:
         matches = api.get_matches(count=50, game_type=game_type.value)
         for match in matches:
-            match["gameType"] = game_type.value
-            update_result = await db.matches.update_one(
+            await db.replica.update_one(
                 {"matchId": match["matchId"]}, {"$setOnInsert": match}, upsert=True
             )
-            if update_result.matched_count == 0:
-                new_matches.append(match)
-    return new_matches
+            enriched_match = db_utils.enrich_match(match, game_type)
+            await db.matches.update_one(
+                {"matchId": match["matchId"]},
+                {"$setOnInsert": enriched_match},
+                upsert=True,
+            )
+            await db.opponents.update_one(
+                {"name": enriched_match["opponent"]["name"]},
+                {"$setOnInsert": enriched_match["opponent"]},
+                upsert=True,
+            )
+            # if update_result.matched_count == 0:
 
 
 async def find_matches_by_club_id(versusClubId=None, game_type=None):
