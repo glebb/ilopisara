@@ -57,7 +57,7 @@ async def find_matches_by_club_id(versusClubId=None, game_type=None, player_name
     if player_name:
         query["player_names"] = {"$elemMatch": {"name": player_name}}
     if versusClubId:
-        query["clubs.{versusClubId}"] = {"$exists": True}
+        query["opponent.id"] = versusClubId
     matches = db.matches.find(query).sort("timestamp", 1)
     return await matches.to_list(length=10000)
 

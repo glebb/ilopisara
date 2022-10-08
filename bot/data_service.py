@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 import helpers
@@ -9,6 +10,28 @@ filters = {
     2: "skater",
     3: "xfactor",
 }
+
+
+@dataclass
+class Result:
+    mark: str
+    date_and_time: str
+    score: str
+    game_type: str
+    match_id: str
+
+    def __str__(self):
+        return (
+            self.mark
+            + " "
+            + self.date_and_time
+            + " "
+            + self.score
+            + " "
+            + self.game_type
+            + " // "
+            + self.match_id
+        )
 
 
 def find(lst, key, value):
@@ -34,13 +57,12 @@ def format_result(match):
         match["clubs"][helpers.CLUB_ID]["details"]["name"] + " - " + opponentName
     )
     score_result = match["clubs"][helpers.CLUB_ID]["scoreString"]
-    score_string = score_time + " " + score_teams + " " + score_result + " "
-    return (
-        helpers.get_match_mark(match)
-        + score_string
-        + helpers.get_match_type_mark(match)
-        + " // "
-        + match["matchId"]
+    return Result(
+        mark=helpers.get_match_mark(match),
+        date_and_time=score_time,
+        score=score_teams + " " + score_result,
+        game_type=helpers.get_match_type_mark(match),
+        match_id=match["matchId"],
     )
 
 
@@ -89,9 +111,7 @@ def _match_details(match):
 
 
 def match_result(match):
-    result_string = format_result(match) + "\n"
-    result_string += _match_details(match) + "\n"
-    return result_string
+    return format_result(match), _match_details(match)
 
 
 def top_stats(members, stats_filter):
