@@ -105,6 +105,9 @@ def _match_details(match):
             players += "shots:" + p["skshots"] + ", "
             players += "hits:" + p["skhits"] + ", "
             players += "blocked shots:" + p["skbs"] + ", "
+            players += "giweaways:" + p["skgiveaways"] + ", "
+            players += "takeaways:" + p["sktakeaways"] + ", "
+            players += "pass%:" + p["skpasspct"] + ", "
             players += "p/m:" + p["skplusmin"] + ", "
             players += "penalties:" + p["skpim"] + "m\n"
     return players
