@@ -60,7 +60,7 @@ async def game_record(stats_filter):
                 record[1]["players"][helpers.CLUB_ID][record[0]]["playername"] + ": "
             )
             result += (
-                record[1]["players"][helpers.CLUB_ID][record[0]][record[2]]
+                str(record[1]["players"][helpers.CLUB_ID][record[0]][record[2]])
                 + " "
                 + temp
                 + "\n"

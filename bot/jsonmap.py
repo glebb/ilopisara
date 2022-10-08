@@ -197,7 +197,7 @@ def get_key(name, data):
 
 
 match = {
-    "points": "points",
+    "skpoints": "points",
     "skgoals": "skater goals",
     "skassists": "skater assists",
     "skshots": "skater shots",
