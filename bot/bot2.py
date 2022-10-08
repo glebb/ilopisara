@@ -151,8 +151,14 @@ async def record(
         name="stats_name",
         description="Game specific record for a stat (e.g. goals)",
     ),
+    player_name: str = SlashOption(
+        name="player_name",
+        choices={name: name for name in members},
+        required=False,
+        description="Optionally check record for specific player",
+    ),
 ):
-    response = await command_service.game_record([stats_name])
+    response = await command_service.game_record([stats_name], player_name)
     response = "No results found" if not response else response
     await interaction.response.send_message(response[:1999])
 

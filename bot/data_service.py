@@ -109,20 +109,24 @@ def top_stats(members, stats_filter):
         return reply
 
 
-def game_record(matches, stats_filter):
+def game_record(matches, stats_filter, player_name=None):
     key = jsonmap.get_key(stats_filter, jsonmap.match)
     ref_matches = []
     for match in matches:
-        for playerid, data in match["players"][helpers.CLUB_ID].items():
+        for playerid, player_data in match["players"][helpers.CLUB_ID].items():
+            if player_name and player_data["playername"] != player_name:
+                continue
             try:
-                if (not ref_matches and key in data) or float(data[key]) > float(
+                if (not ref_matches and key in player_data) or float(
+                    player_data[key]
+                ) > float(
                     ref_matches[0][1]["players"][helpers.CLUB_ID][ref_matches[0][0]][
                         key
                     ]
                 ):
                     ref_matches.clear()
                     ref_matches.append([playerid, match, key])
-                elif float(data[key]) == float(
+                elif float(player_data[key]) == float(
                     ref_matches[0][1]["players"][helpers.CLUB_ID][ref_matches[0][0]][
                         key
                     ]
