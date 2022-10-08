@@ -67,8 +67,15 @@ async def team(
         name="name",
         description="Team name",
     ),
+    platform: str = SlashOption(
+        name="platform",
+        choices=helpers.PLATFORMS,
+        required=False,
+        description="Optionally select platform",
+    ),
 ):
-    response = await command_service.team_record(name)
+    platform = platform if platform is not None else helpers.PLATFORM
+    response = await command_service.team_record(name, platform)
     response = "No results found" if not response else response
     await interaction.response.send_message(response[:1999])
 

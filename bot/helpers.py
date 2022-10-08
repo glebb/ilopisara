@@ -18,6 +18,13 @@ OAUTH = os.getenv("TWITCH_OAUTH")
 STREAMERS = os.getenv("TWITCH_STREAMERS")
 TWITCH_CHANNEL = os.getenv("TWITCH_CHANNEL")
 
+PLATFORMS = {
+    "ps5": "ps5",
+    "xbox-series-xs": "xbox-series-xs",
+    "ps4": "ps4",
+    "xboxone": "xboxone",
+}
+
 
 class GAMETYPE(Enum):
     REGULARSEASON = "gameType5"

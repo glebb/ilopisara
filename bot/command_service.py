@@ -80,9 +80,9 @@ def match_results2(matches):
             return match_results_string
 
 
-async def team_record(name):
+async def team_record(name, platform):
     result_string = ""
-    temp = api.get_team_record(name)
+    temp = api.get_team_record(name, platform)
     record = data_service.team_record(temp)
     if record:
         result_string += record + "\n"
