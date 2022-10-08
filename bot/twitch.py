@@ -48,7 +48,7 @@ class Twitcher:
             self.status = TwitchStatus.STOPPED
             return self.status
         if self._nhl_stream_found(data):
-            logger.info(f"Twitch NHL stream found")
+            logger.info("Twitch NHL stream found")
             self.stream_url = "https://www.twitch.tv/" + data["data"][0]["user_login"]
             if self.stream_started != data["data"][0]["started_at"]:
                 self.stream_started = data["data"][0]["started_at"]

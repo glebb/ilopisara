@@ -1,0 +1,10 @@
+[tool.vulture]
+ignore_decorators = ["@app.route", "@require_*"]
+make_whitelist = true
+min_confidence = 80
+paths = ["bot"]
+sort_by_size = true
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 120
+disable = "missing-class-docstring,no-member,missing-function-docstring,missing-module-docstring"

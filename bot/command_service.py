@@ -1,14 +1,11 @@
-import os
-
 import data_service
 import db_mongo
 import helpers
-from base_logger import logger
 from data import api
 
 
-async def results(clubId=None, game_type=None):
-    matches = await db_mongo.find_matches_by_club_id(clubId, game_type)
+async def results(club_id=None, game_type=None):
+    matches = await db_mongo.find_matches_by_club_id(club_id, game_type)
     results = []
     for i in range(0, len(matches))[-20:]:
         results.append(data_service.format_result(matches[i]))
