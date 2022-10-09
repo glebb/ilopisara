@@ -47,7 +47,7 @@ class Bot(commands.Bot):
         channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
         result, details = data_service.match_result(match)
         if result:
-            await channel.send(str(result + "\n" + details))
+            await channel.send(str(result) + "\n" + details)
 
     def get_team_names(self):
         short_list = list(self.all_teams[-24:])
