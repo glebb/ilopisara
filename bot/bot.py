@@ -18,7 +18,9 @@ class GameDetails(nextcord.ui.Select):
     def __init__(self, options, bot, cog):
         self.cog = cog
         self.bot = bot
-        super().__init__(placeholder="Choose game to show details", options=options)
+        super().__init__(
+            placeholder="Choose game to show details", options=options.copy()
+        )
 
     async def callback(self, interaction: nextcord.Interaction):
         await self.cog.match(interaction, self.values[0])

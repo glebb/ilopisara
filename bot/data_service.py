@@ -95,13 +95,13 @@ def _match_details(match):
         key=lambda p: int(p[1]["skgoals"]) + int(p[1]["skassists"]),
         reverse=True,
     ):
-        players += p["position"][0].upper() + " " + p["playername"] + ", "
+        players += p["position"][0].upper() + ": " + p["playername"] + " "
         if p["position"] == "goalie":
             players += "save %:" + p["glsavepct"] + ", "
             players += "saves:" + p["glsaves"] + ", "
             players += "shots:" + p["glshots"] + "\n"
         else:
-            players += p["skgoals"] + "+" + p["skassists"] + ", "
+            players += p["skgoals"] + "+" + p["skassists"] + "\n> "
             players += "shots:" + p["skshots"] + ", "
             players += "hits:" + p["skhits"] + ", "
             players += "blocked shots:" + p["skbs"] + ", "

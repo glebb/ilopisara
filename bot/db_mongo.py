@@ -43,7 +43,11 @@ async def update_matches(club_id, platform):
             await db["replica" + postfix].update_one(
                 {"matchId": match["matchId"]}, {"$setOnInsert": match}, upsert=True
             )
-            enriched_match = db_utils.enrich_match(match, game_type)
+            try:
+                enriched_match = db_utils.enrich_match(match, game_type)
+            except TypeError:
+                logger.error(f"Could not enrich matchId {match['matchId']}")
+                continue
             await db["matches" + postfix].update_one(
                 {"matchId": match["matchId"]},
                 {"$setOnInsert": enriched_match},
