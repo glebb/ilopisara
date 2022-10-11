@@ -51,8 +51,7 @@ def chunk_using_generators(lst, n):
 
 
 def is_win(match):
-    scores = match["clubs"][os.getenv("CLUB_ID")]["scoreString"].split(" - ")
-    return int(scores[0]) > int(scores[1])
+    return match["win"]
 
 
 def get_match_mark(match):
@@ -75,14 +74,14 @@ def get_match_type_mark(match):
 
 
 def teppo_scores(match):
-    for _, p in match["players"][os.getenv("CLUB_ID")].items():
+    for _, p in match["players"][CLUB_ID].items():
         if p["playername"] == "bodhi-FIN" and int(p["skgoals"]) > 0:
             return True
     return False
 
 
 def is_goalie(match):
-    for _, p in match["players"][os.getenv("CLUB_ID")].items():
+    for _, p in match["players"][CLUB_ID].items():
         if p["position"] == "goalie":
             return True
     return False

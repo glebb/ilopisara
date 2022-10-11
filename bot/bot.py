@@ -19,7 +19,8 @@ class GameDetails(nextcord.ui.Select):
         self.cog = cog
         self.bot = bot
         super().__init__(
-            placeholder="Choose game to show details", options=options.copy()
+            placeholder="Choose game to show details",
+            options=options,
         )
 
     async def callback(self, interaction: nextcord.Interaction):
@@ -43,9 +44,11 @@ class Bot(commands.Bot):
 
     async def watch_db(self):
         await self.wait_until_ready()
+        logger.info("Watching db...")
         await db_mongo.watch(self.report_results)
 
     async def report_results(self, match):
+        logger.info("Report results to channel")
         channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
         result, details = data_service.match_result(match)
         if result:

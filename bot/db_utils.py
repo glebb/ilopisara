@@ -3,9 +3,15 @@ import copy
 import helpers
 
 
+def _is_win(match):
+    scores = match["clubs"][helpers.CLUB_ID]["scoreString"].split(" - ")
+    return int(scores[0]) > int(scores[1])
+
+
 def enrich_match(original_match, game_type):
     match = copy.deepcopy(original_match)
     match["gameType"] = game_type.value
+    match["win"] = _is_win(match)
     clubs = list(match["clubs"].keys())
     match["player_names"] = []
     match["opponent"] = {}

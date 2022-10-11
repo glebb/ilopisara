@@ -20,6 +20,7 @@ async def watch(result_handler):
     try:
         async with db.matches.watch(pipeline) as stream:
             async for insert_change in stream:
+                logger.info("Db insert")
                 await result_handler((insert_change["fullDocument"]))
                 resume_token = stream.resume_token
     except pymongo.errors.PyMongoError:
@@ -28,6 +29,7 @@ async def watch(result_handler):
         else:
             async with db.matches.watch(pipeline, resume_after=resume_token) as stream:
                 async for insert_change in stream:
+                    logger.info("Db insert")
                     await result_handler((insert_change["fullDocument"]))
 
 

@@ -33,19 +33,22 @@ async def member_stats(name, stats_filter=None):
             + "\nRest of the stats delivered by DM."
         )
     member = api.get_member(name)
+    return_matches = []
     if member:
         matches = await db_mongo.find_matches_for_player(member["blazeId"])
         if matches:
             public_reply += "\n\nLatest games: \n"
             for i in range(0, len(matches))[-10:]:
                 public_reply += str(data_service.format_result(matches[i])) + "\n"
+                return_matches.append(matches[i])
 
-    return reply, public_reply, [data_service.format_result(x) for x in matches]
+    return reply, public_reply, [data_service.format_result(x) for x in return_matches]
 
 
 async def game_record(stats_filter, player_name=None):
     result = ""
     matches = await db_mongo.find_matches_by_club_id(player_name=player_name)
+    return_matches = []
     temp = " ".join(stats_filter)
     records = data_service.game_record(matches, temp, player_name=player_name)
     if records:
@@ -67,7 +70,8 @@ async def game_record(stats_filter, player_name=None):
                 + temp
                 + "\n"
             )
-    return result, [data_service.format_result(x) for x in matches]
+            return_matches.append(record[1])
+    return result, [data_service.format_result(x) for x in return_matches]
 
 
 async def team_record(name, platform):
