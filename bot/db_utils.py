@@ -1,6 +1,7 @@
 import copy
 
 import helpers
+from base_logger import logger
 
 
 def _is_win(match):
@@ -16,7 +17,14 @@ def enrich_match(original_match, game_type):
     match["player_names"] = []
     match["opponent"] = {}
     for club in clubs:
-        team_name = match["clubs"][club]["details"]["name"]
+        if (
+            "details" in match["clubs"][club]
+            and "name" in match["clubs"][club]["details"]
+        ):
+            team_name = match["clubs"][club]["details"]["name"]
+        else:
+            team_name = "UNKNOWN"
+            logger.error(f"Team name not found for {club} in match {match['matchId']}")
         player_ids = list(match["players"][club].keys())
         for player in player_ids:
             match["players"][club][player]["skpoints"] = int(
