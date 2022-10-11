@@ -41,7 +41,7 @@ async def update_matches(club_id, platform):
         matches = api.get_matches(
             club_id=club_id, platform=platform, count=10, game_type=game_type.value
         )
-        for match in matches:
+        for match in reversed(matches):
             await db["replica" + postfix].update_one(
                 {"matchId": match["matchId"]}, {"$setOnInsert": match}, upsert=True
             )
