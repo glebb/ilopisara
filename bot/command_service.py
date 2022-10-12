@@ -81,7 +81,7 @@ async def team_record(name, platform):
         if club_id != helpers.CLUB_ID:
             db_matches = await db_mongo.find_matches_by_club_id(versusClubId=club_id)
             if db_matches:
-                matches = list(map(lambda x: data_service.format_result(x), db_matches))
+                matches = [data_service.format_result(x) for x in db_matches]
         top_stats = data_service.top_stats(members, "points per game")
         if top_stats:
             top_reply = "---\n" + top_stats
