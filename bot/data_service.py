@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import List
 
 import helpers
 import jsonmap
@@ -132,36 +133,42 @@ def top_stats(members, stats_filter):
         return reply
 
 
-def game_record(matches, stats_filter, player_name=None):
-    key = jsonmap.get_key(stats_filter, jsonmap.match)
-    ref_matches = []
+@dataclass
+class Record:
+    player: dict
+    match: dict
+    stats_key: str
+    stats_value: str
+
+
+def _should_update_record(existing_record, new_record):
+    return (not existing_record) or float(new_record.stats_value) > float(
+        existing_record.stats_value
+    )
+
+
+def _matches_existing_record(new_record: Record, existing_record):
+    return float(new_record.stats_value) == float(existing_record.stats_value)
+
+
+def game_record(matches, stats_filter, player_name=None) -> List[Record]:
+    stats_key = jsonmap.get_key(stats_filter, jsonmap.match)
+    records = []
     for match in matches:
-        for playerid, player_data in match["players"][helpers.CLUB_ID].items():
+        for _, player_data in match["players"][helpers.CLUB_ID].items():
+            # if we are looking for a specific player records...
             if player_name and player_data["playername"] != player_name:
                 continue
-            try:
-                if (not ref_matches and key in player_data) or float(
-                    player_data[key]
-                ) > float(
-                    ref_matches[0][1]["players"][helpers.CLUB_ID][ref_matches[0][0]][
-                        key
-                    ]
-                ):
-                    ref_matches.clear()
-                    ref_matches.append([playerid, match, key])
-                elif float(player_data[key]) == float(
-                    ref_matches[0][1]["players"][helpers.CLUB_ID][ref_matches[0][0]][
-                        key
-                    ]
-                ):
-                    ref_matches.append([playerid, match, key])
-            except (TypeError, ValueError):
-                pass
-            except KeyError:
-                pass
+            current_record = records[0] if len(records) > 0 else None
+            new_record = Record(player_data, match, stats_key, player_data[stats_key])
+            if _should_update_record(current_record, new_record):
+                records.clear()
+                records.append(new_record)
+            elif _matches_existing_record(new_record, current_record):
+                records.append(new_record)
 
-    if ref_matches:
-        return ref_matches
+    if records:
+        return records
 
 
 def team_record(team):

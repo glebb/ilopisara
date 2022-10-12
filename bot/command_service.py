@@ -57,20 +57,15 @@ async def game_record(stats_filter, player_name=None):
             result += f" for {player_name}"
         result += "\n"
         for record in records[:10]:
-            result += str(data_service.format_result(record[1])) + "\n"
+            result += str(data_service.format_result(record.match)) + "\n"
             result += (
-                record[1]["players"][helpers.CLUB_ID][record[0]]["position"][0].upper()
-                + " "
-                + record[1]["players"][helpers.CLUB_ID][record[0]]["playername"]
+                record.player["position"][0].upper()
+                + ": "
+                + record.player["playername"]
                 + ": "
             )
-            result += (
-                str(record[1]["players"][helpers.CLUB_ID][record[0]][record[2]])
-                + " "
-                + temp
-                + "\n"
-            )
-            return_matches.append(record[1])
+            result += str(record.stats_value) + " " + temp + "\n"
+            return_matches.append(record.match)
     return result, [data_service.format_result(x) for x in return_matches]
 
 
