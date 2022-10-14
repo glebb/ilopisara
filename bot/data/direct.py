@@ -24,7 +24,7 @@ def get_members(club_id, platform):
     try:
         url = f"https://proclubs.ea.com/api/nhl/members/career/stats?platform={platform}&clubId={club_id}"
         logger.info(f"Fetching url: {url}")
-        data = http.get(url, timeout=4, headers=headers).json()
+        data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
         logger.error(err)
     return data
@@ -47,7 +47,7 @@ def get_team_record(team, platform):
         team_quoted = urllib.parse.quote(team)
         url = f"https://proclubs.ea.com/api/nhl/clubs/search?platform={platform}&clubName={team_quoted}"
         logger.info(f"Fetching url: {url}")
-        data = http.get(url, timeout=4, headers=headers).json()
+        data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
         logger.error(err)
     return data
@@ -69,7 +69,7 @@ def get_seasonal_stats(team_id, platform):
     try:
         url = f"https://proclubs.ea.com/api/nhl/clubs/seasonalStats?platform={platform}&clubIds={team_id}"
         logger.info(f"Fetching url: {url}")
-        data = http.get(url, timeout=4, headers=headers).json()
+        data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
         logger.error(err)
     return data
@@ -80,7 +80,7 @@ def get_member(member_name, platform):
     try:
         url = f"https://proclubs.ea.com/api/nhl/members/search?platform={platform}&memberName={member_name}"
         logger.info(f"Fetching url: {url}")
-        data = http.get(url, timeout=4, headers=headers).json()
+        data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
         logger.error(err)
     return data
