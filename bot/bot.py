@@ -28,8 +28,8 @@ class GameDetails(nextcord.ui.Select):
 
 
 class DropdownView(nextcord.ui.View):
-    def __init__(self, details):
-        super().__init__()
+    def __init__(self, details, timeout):
+        super().__init__(timeout=timeout)
         self.add_item(details)
 
 
@@ -87,7 +87,7 @@ class ApplicationCommandCog(commands.Cog):
         for line in matches:
             label = line.date_and_time + " " + line.score
             options.append(nextcord.SelectOption(label=label, value=line.match_id))
-        view = DropdownView(GameDetails(options, self.bot, self))
+        view = DropdownView(GameDetails(options, self.bot, self), None)
         await interaction.response.send_message(response[:1999], view=view)
 
     @nextcord.slash_command(
