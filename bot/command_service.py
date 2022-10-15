@@ -25,9 +25,9 @@ async def member_stats(name, stats_filter=None, send_dm=False):
     members = api.get_members()
     member = api.get_member(name)
     reply = ""
-    public_reply = "No game history available."
+    public_reply = "No stats available."
     index = data_service.find(members, "name", name)
-    if index:
+    if index is not None:
         stats = members[index]
         reply = (
             f"Stats for {name} / {member['skplayername']}:\n"
