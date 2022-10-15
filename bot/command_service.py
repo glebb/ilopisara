@@ -1,10 +1,12 @@
+from typing import List
+
 import data_service
 import db_mongo
 import helpers
 from data import api
 
 
-async def results(club_id=None, game_type=None):
+async def results(club_id=None, game_type=None) -> List[data_service.Result]:
     matches = await db_mongo.find_matches_by_club_id(club_id, game_type)
     results = []
     for i in range(0, len(matches))[-20:]:
@@ -27,11 +29,11 @@ async def member_stats(name, stats_filter=None):
     if index:
         stats = members[index]
         reply = (
-            f"Stats for {name / member['skplayername']}:\n"
+            f"Stats for {name} / {member['skplayername']}:\n"
             + data_service.format_stats(stats, stats_filter)
         )
         public_reply = (
-            f"{name / member['skplayername']}\n"
+            f"**{name} / {member['skplayername']}**\n"
             + "Record: "
             + members[index]["record"]
             + "\nRest of the stats delivered by DM."
@@ -42,7 +44,9 @@ async def member_stats(name, stats_filter=None):
         if matches:
             public_reply += "\n\nLatest games: \n"
             for i in range(0, len(matches))[-10:]:
-                public_reply += str(data_service.format_result(matches[i])) + "\n"
+                public_reply += (
+                    data_service.format_result(matches[i]).discord_print() + "\n"
+                )
                 return_matches.append(matches[i])
 
     return reply, public_reply, [data_service.format_result(x) for x in return_matches]
@@ -60,7 +64,7 @@ async def game_record(stats_filter, player_name=None):
             result += f" for {player_name}"
         result += "\n"
         for record in records[:10]:
-            result += str(data_service.format_result(record.match)) + "\n"
+            result += data_service.format_result(record.match).discord_print() + "\n"
             result += (
                 record.player["position"][0].upper()
                 + ": "
@@ -87,8 +91,8 @@ async def team_record(name, platform):
                 matches = [data_service.format_result(x) for x in db_matches]
         top_stats = data_service.top_stats(members, "points per game")
         if top_stats:
-            top_reply = "---\n" + top_stats
+            top_reply = top_stats
         else:
-            top_reply = "---\n" + "No top stats available"
+            top_reply = "\n" + "No top stats available"
         result_string += top_reply
     return result_string, matches

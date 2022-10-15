@@ -112,8 +112,8 @@ class ApplicationCommandCog(commands.Cog):
         response, matches = await command_service.team_record(name, platform)
         response = "No results found" if not response else response
         if len(matches) > 0:
-            response += "---\nMatch history:\n"
-            response += "\n".join([str(line) for line in matches])
+            response += "\nMatch history:\n"
+            response += "\n".join([line.discord_print() for line in matches])
             await self.matches_dropdown(response, matches, interaction)
         else:
             await interaction.followup.send(response[:1999])
@@ -135,7 +135,7 @@ class ApplicationCommandCog(commands.Cog):
         await interaction.response.defer()
         matches = await command_service.results(None, game_type)
         if len(matches) > 0:
-            response = "\n".join([str(line) for line in matches])
+            response = "\n".join([line.discord_print() for line in matches])
             await self.matches_dropdown(response, matches, interaction)
         else:
             await interaction.followup.send("No results found")
@@ -154,7 +154,7 @@ class ApplicationCommandCog(commands.Cog):
         await interaction.response.defer()
         response, details = await command_service.match(match_id)
         if response:
-            response = str(response) + "\n" + details
+            response = response.discord_print() + "\n" + details
         response = "No results found" if not response else response
         await interaction.followup.send(response[:1999])
 

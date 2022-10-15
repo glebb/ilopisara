@@ -34,6 +34,19 @@ class Result:
             + self.match_id
         )
 
+    def discord_print(self):
+        return (
+            self.mark
+            + " **"
+            + self.date_and_time
+            + " "
+            + self.score
+            + "** "
+            + self.game_type
+            + " // "
+            + self.match_id
+        )
+
 
 def find(lst, key, value):
     for i, dic in enumerate(lst):
@@ -96,21 +109,26 @@ def _match_details(match):
         key=lambda p: int(p[1]["skgoals"]) + int(p[1]["skassists"]),
         reverse=True,
     ):
-        players += p["position"][0].upper() + ": " + p["playername"] + " "
+        players += "**" + p["playername"] + ": "
         if p["position"] == "goalie":
+            players += "**\n> `"
+            players += p["position"][0].upper() + ": "
             players += "save %:" + p["glsavepct"] + ", "
             players += "saves:" + p["glsaves"] + ", "
-            players += "shots:" + p["glshots"] + "\n"
+            players += "breakaway saves:" + p["glbrksaves"] + ", "
+            players += "penaltyshot save %:" + p["glpensavepct"] + ", "
+            players += "shots:" + p["glshots"] + "`\n"
         else:
-            players += p["skgoals"] + "+" + p["skassists"] + "\n> "
+            players += p["skgoals"] + "+" + p["skassists"] + "**\n> `"
+            players += p["position"][0].upper() + ": "
             players += "shots:" + p["skshots"] + ", "
             players += "hits:" + p["skhits"] + ", "
             players += "blocked shots:" + p["skbs"] + ", "
             players += "giweaways:" + p["skgiveaways"] + ", "
             players += "takeaways:" + p["sktakeaways"] + ", "
-            players += "pass%:" + p["skpasspct"] + ", "
-            players += "p/m:" + p["skplusmin"] + ", "
-            players += "penalties:" + p["skpim"] + "m\n"
+            players += "pass %:" + p["skpasspct"] + ", "
+            players += "+/-:" + p["skplusmin"] + ", "
+            players += "penalties:" + p["skpim"] + "m`\n"
     return players
 
 
@@ -120,16 +138,17 @@ def match_result(match):
 
 def top_stats(members, stats_filter):
     key = jsonmap.get_key(stats_filter, jsonmap.names)
-    reply = f"Top {stats_filter}\n"
+    reply = f"Top {stats_filter}\n```"
     try:
         for member in sorted(members, key=lambda m: float(m[key]), reverse=True):
-            reply += member["name"] + " " + member[key] + "\n"
+            reply += "" + member["name"] + " " + member[key] + "\n"
     except (TypeError, ValueError):
         for member in sorted(members, key=lambda m: m[key], reverse=True):
             reply += member["name"] + " " + member[key] + "\n"
     except KeyError:
         reply = ""
     if reply:
+        reply += "```"
         return reply
 
 
@@ -177,7 +196,7 @@ def team_record(team):
     key = list(team.keys())[0]
     reply = ""
     if key:
-        reply += "Team: " + team[key]["name"] + "\n"
+        reply += "Team: " + team[key]["name"] + "\n```"
         reply += "points: " + team[key]["rankingPoints"] + "\n"
         reply += "star level: " + team[key]["starLevel"] + "\n"
         reply += "record: " + team[key]["record"] + "\n"
@@ -196,6 +215,7 @@ def team_record(team):
             goals_against_per_game = 0
         reply += "goals per game: " + "{:.2f}".format(goals_per_game) + "\n"
         reply += "goals against per game: " + "{:.2f}".format(goals_against_per_game)
+        reply += "```"
     if reply:
         return reply
 
