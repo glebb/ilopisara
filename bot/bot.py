@@ -88,7 +88,7 @@ class ApplicationCommandCog(commands.Cog):
             label = line.date_and_time + " " + line.score
             options.append(nextcord.SelectOption(label=label, value=line.match_id))
         view = DropdownView(GameDetails(options, self.bot, self), None)
-        await interaction.response.send_message(response[:1999], view=view)
+        await interaction.followup.send(response[:1999], view=view)
 
     @nextcord.slash_command(
         guild_ids=[helpers.GUILD_ID], description="Display team overview"
@@ -107,6 +107,7 @@ class ApplicationCommandCog(commands.Cog):
             description="Optionally select platform",
         ),
     ):
+        await interaction.response.defer()
         platform = platform if platform is not None else helpers.PLATFORM
         response, matches = await command_service.team_record(name, platform)
         response = "No results found" if not response else response
@@ -115,7 +116,7 @@ class ApplicationCommandCog(commands.Cog):
             response += "\n".join([str(line) for line in matches])
             await self.matches_dropdown(response, matches, interaction)
         else:
-            await interaction.response.send_message(response[:1999])
+            await interaction.followup.send(response[:1999])
 
     @nextcord.slash_command(
         guild_ids=[helpers.GUILD_ID],
@@ -131,12 +132,13 @@ class ApplicationCommandCog(commands.Cog):
             description="Optionally limit matches by game type",
         ),
     ):
+        await interaction.response.defer()
         matches = await command_service.results(None, game_type)
         if len(matches) > 0:
             response = "\n".join([str(line) for line in matches])
             await self.matches_dropdown(response, matches, interaction)
         else:
-            await interaction.response.send_message("No results found")
+            await interaction.followup.send("No results found")
 
     @nextcord.slash_command(
         guild_ids=[helpers.GUILD_ID], description="Display match details"
@@ -149,11 +151,12 @@ class ApplicationCommandCog(commands.Cog):
             description="Match id",
         ),
     ):
+        await interaction.response.defer()
         response, details = await command_service.match(match_id)
         if response:
             response = str(response) + "\n" + details
         response = "No results found" if not response else response
-        await interaction.response.send_message(response[:1999])
+        await interaction.followup.send(response[:1999])
 
     @nextcord.slash_command(
         guild_ids=[helpers.GUILD_ID], description="Rank players by stat"
@@ -166,10 +169,11 @@ class ApplicationCommandCog(commands.Cog):
             description="Stats name (e.g. points)",
         ),
     ):
+        await interaction.response.defer()
         online_members = api.get_members()
         response = data_service.top_stats(online_members, stats_name)
         response = "No results found" if not response else response
-        await interaction.response.send_message(response[:1999])
+        await interaction.followup.send(response[:1999])
 
     @nextcord.slash_command(
         guild_ids=[helpers.GUILD_ID], description="Display single player stats"
@@ -186,6 +190,7 @@ class ApplicationCommandCog(commands.Cog):
             required=False,
         ),
     ):
+        await interaction.response.defer()
         response, public, matches = await command_service.member_stats(
             name, stats_filter
         )
@@ -193,7 +198,7 @@ class ApplicationCommandCog(commands.Cog):
         if len(matches) > 0:
             await self.matches_dropdown(public, matches, interaction)
         else:
-            await interaction.response.send_message(public[:1999])
+            await interaction.followup.send(public[:1999])
         await interaction.user.send(response[:1999])
 
     @nextcord.slash_command(
@@ -213,12 +218,13 @@ class ApplicationCommandCog(commands.Cog):
             description="Optionally check record for specific player",
         ),
     ):
+        await interaction.response.defer()
         response, matches = await command_service.game_record([stats_name], player_name)
         response = "No results found" if not response else response
         if len(matches) > 0:
             await self.matches_dropdown(response, matches, interaction)
         else:
-            await interaction.response.send_message(response[:1999])
+            await interaction.followup.send(response[:1999])
 
     @top.on_autocomplete("stats_name")
     async def select_stats(self, interaction: nextcord.Interaction, stats_name: str):

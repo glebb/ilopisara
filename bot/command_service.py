@@ -20,19 +20,22 @@ async def match(match_id):
 
 async def member_stats(name, stats_filter=None):
     members = api.get_members()
+    member = api.get_member(name)
     reply = ""
     public_reply = "No game history available."
     index = data_service.find(members, "name", name)
     if index:
         stats = members[index]
-        reply = f"Stats for {name}:\n" + data_service.format_stats(stats, stats_filter)
+        reply = (
+            f"Stats for {name / member['skplayername']}:\n"
+            + data_service.format_stats(stats, stats_filter)
+        )
         public_reply = (
-            f"{name}\n"
+            f"{name / member['skplayername']}\n"
             + "Record: "
             + members[index]["record"]
             + "\nRest of the stats delivered by DM."
         )
-    member = api.get_member(name)
     return_matches = []
     if member:
         matches = await db_mongo.find_matches_for_player(member["blazeId"])
