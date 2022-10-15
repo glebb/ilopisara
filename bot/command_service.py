@@ -3,6 +3,7 @@ from typing import List
 import data_service
 import db_mongo
 import helpers
+from base_logger import logger
 from data import api
 
 
@@ -20,7 +21,7 @@ async def match(match_id):
         return data_service.match_result(matches[0])
 
 
-async def member_stats(name, stats_filter=None):
+async def member_stats(name, stats_filter=None, send_dm=False):
     members = api.get_members()
     member = api.get_member(name)
     reply = ""
@@ -34,15 +35,30 @@ async def member_stats(name, stats_filter=None):
         )
         public_reply = (
             f"**{name} / {member['skplayername']}**\n"
-            + "Record: "
+            + "```Record: "
             + members[index]["record"]
-            + "\nRest of the stats delivered by DM."
+            + "\nPoints: "
+            + members[index]["points"]
+            + "\nSkater win percentage: "
+            + members[index]["skwinpct"]
+            + "\nPoints per game: "
+            + members[index]["skpointspg"]
+            + "\nPass percentage: "
+            + members[index]["skpasspct"]
+            + "\nPenaltyshot percentage: "
+            + members[index]["skpenaltyshotpct"]
+            + "\nHits per game: "
+            + members[index]["skhitspg"]
+            + "```"
         )
+    logger.info(send_dm)
+    if send_dm:
+        public_reply += "Rest of the stats delivered by DM.\n"
     return_matches = []
     if member:
         matches = await db_mongo.find_matches_for_player(member["blazeId"])
         if matches:
-            public_reply += "\n\nLatest games: \n"
+            public_reply += "\nLatest games: \n"
             for i in range(0, len(matches))[-10:]:
                 public_reply += (
                     data_service.format_result(matches[i]).discord_print() + "\n"

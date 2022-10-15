@@ -117,6 +117,7 @@ def _match_details(match):
             players += "saves:" + p["glsaves"] + ", "
             players += "breakaway saves:" + p["glbrksaves"] + ", "
             players += "penaltyshot save %:" + p["glpensavepct"] + ", "
+            players += "penaltyshots:" + p["glpenshots"] + ", "
             players += "shots:" + p["glshots"] + "`\n"
         else:
             players += p["skgoals"] + "+" + p["skassists"] + "**\n> `"
@@ -197,9 +198,9 @@ def team_record(team):
     reply = ""
     if key:
         reply += "Team: " + team[key]["name"] + "\n```"
+        reply += "record: " + team[key]["record"] + "\n"
         reply += "points: " + team[key]["rankingPoints"] + "\n"
         reply += "star level: " + team[key]["starLevel"] + "\n"
-        reply += "record: " + team[key]["record"] + "\n"
         reply += "current division: " + str(team[key]["currentDivision"]) + "\n"
         games = (
             int(team[key]["wins"])

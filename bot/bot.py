@@ -189,17 +189,22 @@ class ApplicationCommandCog(commands.Cog):
             choices={"goalie": 1, "skater": 2, "xfactor": 3},
             required=False,
         ),
+        send_dm: bool = nextcord.SlashOption(
+            name="send_dm",
+            required=False,
+        ),
     ):
         await interaction.response.defer()
         response, public, matches = await command_service.member_stats(
-            name, stats_filter
+            name, stats_filter, send_dm
         )
         response = "No results found" if not response else response
         if len(matches) > 0:
             await self.matches_dropdown(public, matches, interaction)
         else:
             await interaction.followup.send(public[:1999])
-        await interaction.user.send(response[:1999])
+        if send_dm:
+            await interaction.user.send(response[:1999])
 
     @nextcord.slash_command(
         guild_ids=[helpers.GUILD_ID], description="Display game record for a stat"
