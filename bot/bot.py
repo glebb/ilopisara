@@ -1,3 +1,5 @@
+from cProfile import label
+
 import command_service
 import data_service
 import db_mongo
@@ -168,10 +170,15 @@ class ApplicationCommandCog(commands.Cog):
             name="stats_name",
             description="Stats name (e.g. points)",
         ),
+        per_game: bool = nextcord.SlashOption(
+            name="per_game",
+            required=False,
+            description="Calcluate value per game?",
+        ),
     ):
         await interaction.response.defer()
         online_members = api.get_members()
-        response = data_service.top_stats(online_members, stats_name)
+        response = data_service.top_stats(online_members, stats_name, per_game)
         response = "No results found" if not response else response
         await interaction.followup.send(response[:1999])
 
