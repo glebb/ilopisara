@@ -151,7 +151,11 @@ def top_stats(members, stats_filter, per_game=False):
             value = member[key]
             if per_game:
                 value = str(round(float(member[key]) / float(member["skgp"]), 1))
-            reply += "" + member["name"] + " " + value + "\n"
+            reply += (
+                "" + member["name"] + " " + value + "per game"
+                if per_game
+                else "" + "\n"
+            )
     except (TypeError, ValueError):
         for member in sorted(members, key=lambda m: m[key], reverse=True):
             value = member[key]
