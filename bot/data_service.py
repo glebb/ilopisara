@@ -138,6 +138,7 @@ def match_result(match):
 
 
 def top_stats(members, stats_filter, per_game=False):
+    per_game_text = " per game" if per_game else ""
     key = jsonmap.get_key(stats_filter, jsonmap.names)
     reply = f"Top {stats_filter}\n```"
     try:
@@ -151,11 +152,7 @@ def top_stats(members, stats_filter, per_game=False):
             value = member[key]
             if per_game:
                 value = str(round(float(member[key]) / float(member["skgp"]), 1))
-            reply += (
-                "" + member["name"] + " " + value + "per game"
-                if per_game
-                else "" + "\n"
-            )
+            reply += "" + member["name"] + " " + value + per_game_text + "\n"
     except (TypeError, ValueError):
         for member in sorted(members, key=lambda m: m[key], reverse=True):
             value = member[key]
