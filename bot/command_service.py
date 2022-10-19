@@ -49,8 +49,19 @@ async def member_stats(name, stats_filter=None, send_dm=False):
             + members[index]["skpenaltyshotpct"]
             + "\nHits per game: "
             + members[index]["skhitspg"]
-            + "```"
         )
+        if int(members[index]["glgp"]) > 0:
+            public_reply += (
+                "\nGoalie games: "
+                + members[index]["glgp"]
+                + "\nGoal against average: "
+                + members[index]["glgaa"]
+                + "\nSave percentage: "
+                + members[index]["glsavepct"]
+            )
+
+        public_reply += "```"
+
     logger.info(send_dm)
     if send_dm:
         public_reply += "Rest of the stats delivered by DM.\n"
