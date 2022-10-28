@@ -129,6 +129,7 @@ def _match_details(match):
             players += "takeaways:" + p["sktakeaways"] + ", "
             players += "pass %:" + p["skpasspct"] + ", "
             players += "+/-:" + p["skplusmin"] + ", "
+            players += "possession:" + p["skpossession"] + ", "
             players += "penalties:" + p["skpim"] + "m`\n"
     return players
 
