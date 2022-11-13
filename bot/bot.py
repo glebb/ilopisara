@@ -1,5 +1,3 @@
-from cProfile import label
-
 import command_service
 import data_service
 import db_mongo
@@ -14,6 +12,7 @@ from twitch import Twitcher, TwitchStatus
 members = list(map(lambda x: x["name"], api.get_members()))
 members = tuple(sorted(members, key=str.casefold))
 team_name = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
+intents = nextcord.Intents.all()
 
 
 class GameDetails(nextcord.ui.Select):
@@ -37,7 +36,7 @@ class DropdownView(nextcord.ui.View):
 
 class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs, intents=intents)
         self.loop.create_task(self.watch_db())
         self.all_teams = ()
         self.fetch_team_names.start()
@@ -237,6 +236,12 @@ class ApplicationCommandCog(commands.Cog):
             await self.matches_dropdown(response, matches, interaction)
         else:
             await interaction.followup.send(response[:1999])
+
+    @commands.Cog.listener()
+    async def on_message(self, message: nextcord.Message):
+        if self.bot.user != message.author and self.bot.user.mentioned_in(message):
+            logger.info("udpate")
+            await db_mongo.update_matches(helpers.CLUB_ID, helpers.PLATFORM)
 
     @top.on_autocomplete("stats_name")
     async def select_stats(self, interaction: nextcord.Interaction, stats_name: str):
