@@ -85,9 +85,13 @@ class ApplicationCommandCog(commands.Cog):
 
     async def matches_dropdown(self, response, matches, interaction):
         options = []
-        for line in matches:
-            label = line.date_and_time + " " + line.score
-            options.append(nextcord.SelectOption(label=label, value=line.match_id))
+        cleaned = {}
+        for match in matches:
+            if match.match_id not in cleaned:
+                cleaned[match.match_id] = match
+        for match in cleaned.values():
+            label = match.date_and_time + " " + match.score
+            options.append(nextcord.SelectOption(label=label, value=match.match_id))
         view = DropdownView(GameDetails(options, self.bot, self), None)
         await interaction.followup.send(response[:1999], view=view)
 
