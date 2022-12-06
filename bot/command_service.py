@@ -79,16 +79,21 @@ async def member_stats(name, stats_filter=None, send_dm=False):
     return reply, public_reply, [data_service.format_result(x) for x in return_matches]
 
 
-async def game_record(stats_filter, player_name=None):
+async def game_record(stats_filter, player_name=None, position=None):
     result = ""
     matches = await db_mongo.find_matches_by_club_id(player_name=player_name)
     return_matches = []
     temp = " ".join(stats_filter)
-    records = data_service.game_record(matches, temp, player_name=player_name)
+    records = data_service.game_record(
+        matches, temp, player_name=player_name, position=position
+    )
     if records:
         result = f"Single game record for {temp}"
         if player_name:
             result += f" for {player_name}"
+        if position:
+            result += f" as a {position}"
+
         result += "\n"
         for record in records[:10]:
             result += data_service.format_result(record.match).discord_print() + "\n"

@@ -184,13 +184,15 @@ def _matches_existing_record(new_record: Record, existing_record):
     return float(new_record.stats_value) == float(existing_record.stats_value)
 
 
-def game_record(matches, stats_filter, player_name=None) -> List[Record]:
+def game_record(matches, stats_filter, player_name=None, position=None) -> List[Record]:
     stats_key = jsonmap.get_key(stats_filter, jsonmap.match)
     records = []
     for match in matches:
         for _, player_data in match["players"][helpers.CLUB_ID].items():
             # if we are looking for a specific player records...
             if player_name and player_data["playername"] != player_name:
+                continue
+            if position and player_data["position"] != position:
                 continue
             current_record = records[0] if len(records) > 0 else None
             new_record = Record(player_data, match, stats_key, player_data[stats_key])

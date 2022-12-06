@@ -232,9 +232,17 @@ class ApplicationCommandCog(commands.Cog):
             required=False,
             description="Optionally check record for specific player",
         ),
+        position: str = nextcord.SlashOption(
+            name="position",
+            choices=["center", "leftWing", "rightWing", "defenseMen", "goalie"],
+            required=False,
+            description="Optionally choose player position",
+        ),
     ):
         await interaction.response.defer()
-        response, matches = await command_service.game_record([stats_name], player_name)
+        response, matches = await command_service.game_record(
+            [stats_name], player_name, position
+        )
         response = "No results found" if not response else response
         if len(matches) > 0:
             await self.matches_dropdown(response, matches, interaction)
