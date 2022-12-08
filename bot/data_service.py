@@ -189,18 +189,21 @@ def game_record(matches, stats_filter, player_name=None, position=None) -> List[
     records = []
     for match in matches:
         for _, player_data in match["players"][helpers.CLUB_ID].items():
-            # if we are looking for a specific player records...
-            if player_name and player_data["playername"] != player_name:
-                continue
-            if position and player_data["position"] != position:
-                continue
-            current_record = records[0] if len(records) > 0 else None
-            new_record = Record(player_data, match, stats_key, player_data[stats_key])
-            if _should_update_record(current_record, new_record):
-                records.clear()
-                records.append(new_record)
-            elif _matches_existing_record(new_record, current_record):
-                records.append(new_record)
+            if stats_key in player_data:
+                # if we are looking for a specific player records...
+                if player_name and player_data["playername"] != player_name:
+                    continue
+                if position and player_data["position"] != position:
+                    continue
+                current_record = records[0] if len(records) > 0 else None
+                new_record = Record(
+                    player_data, match, stats_key, player_data[stats_key]
+                )
+                if _should_update_record(current_record, new_record):
+                    records.clear()
+                    records.append(new_record)
+                elif _matches_existing_record(new_record, current_record):
+                    records.append(new_record)
 
     if records:
         return records
