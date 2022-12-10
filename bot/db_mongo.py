@@ -2,12 +2,13 @@ import asyncio
 import getopt
 import sys
 
-import db_utils
-import helpers
 import motor.motor_asyncio
 import pymongo.errors
-from base_logger import logger
 from cachetools import TTLCache, cached
+
+import db_utils
+import helpers
+from base_logger import logger
 from data import api
 
 client = motor.motor_asyncio.AsyncIOMotorClient()
@@ -85,6 +86,11 @@ async def get_known_team_names():
     temp = db.opponents.find({}, {"name": 1})
     data = await temp.to_list(length=10000)
     return map(lambda x: x["name"], data)
+
+
+async def get_sorted_matches(sort_key):
+    matches = db.matches.find().sort(sort_key, -1)
+    return await matches.to_list(length=10000)
 
 
 async def find_matches_for_player(player_id):

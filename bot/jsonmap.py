@@ -1,3 +1,5 @@
+club_stats = {"goals": "goals", "goals against": "goalsAgainst"}
+
 names = {
     "points": "points",
     "pointspg": "points per game",

@@ -184,7 +184,9 @@ def _matches_existing_record(new_record: Record, existing_record):
     return float(new_record.stats_value) == float(existing_record.stats_value)
 
 
-def game_record(matches, stats_filter, player_name=None, position=None) -> List[Record]:
+def game_record(
+    matches, stats_filter, player_name=None, position=None, team_stats=None
+) -> List[Record]:
     stats_key = jsonmap.get_key(stats_filter, jsonmap.match)
     records = []
     for match in matches:

@@ -3,6 +3,7 @@ from typing import List
 import data_service
 import db_mongo
 import helpers
+import jsonmap
 from base_logger import logger
 from data import api
 
@@ -79,13 +80,37 @@ async def member_stats(name, stats_filter=None, send_dm=False):
     return reply, public_reply, [data_service.format_result(x) for x in return_matches]
 
 
-async def game_record(stats_filter, player_name=None, position=None):
+async def game_record(stats_filter, player_name=None, position=None, team_stats=None):
     result = ""
+    if team_stats:
+        if team_stats in jsonmap.club_stats.keys():
+            data_set = "clubs"
+            key = jsonmap.club_stats.get(team_stats)
+        else:
+            data_set = "aggregate"
+            key = jsonmap.get_key(team_stats, jsonmap.match)
+        query = f"{data_set}.{helpers.CLUB_ID}.{key}"
+        matches = await db_mongo.get_sorted_matches(query)
+        index = 0
+        for match in matches:
+            if (
+                match[data_set][helpers.CLUB_ID][key]
+                < matches[0][data_set][helpers.CLUB_ID][key]
+            ):
+                break
+            index += 1
+        result = (
+            f"Team {team_stats} record: {matches[0][data_set][helpers.CLUB_ID][key]}\n"
+        )
+        for match in matches[:index]:
+            result += data_service.format_result(match).discord_print() + "\n"
+        return result, [data_service.format_result(x) for x in matches[:index]]
+
     matches = await db_mongo.find_matches_by_club_id(player_name=player_name)
     return_matches = []
     temp = " ".join(stats_filter)
     records = data_service.game_record(
-        matches, temp, player_name=player_name, position=position
+        matches, temp, player_name=player_name, position=position, team_stats=team_stats
     )
     if records:
         result = f"Single game record for {temp}"

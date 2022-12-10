@@ -6,6 +6,7 @@ import jsonmap
 import nextcord
 from base_logger import logger
 from data import api
+from jsonmap import club_stats
 from nextcord.ext import commands, tasks
 from twitch import Twitcher, TwitchStatus
 
@@ -217,14 +218,36 @@ class ApplicationCommandCog(commands.Cog):
             await interaction.user.send(response[:1999])
 
     @nextcord.slash_command(
-        guild_ids=[helpers.GUILD_ID], description="Display game record for a stat"
+        guild_ids=[helpers.GUILD_ID],
+        description="Display single game record for a stat",
     )
     async def record(
         self,
         interaction: nextcord.Interaction,
         stats_name: str = nextcord.SlashOption(
             name="stats_name",
-            description="Game specific record for a stat (e.g. goals)",
+            required=False,
+            description="Game specific record for a stat (e.g. goals) in a single game",
+        ),
+        team_stats: str = nextcord.SlashOption(
+            name="team_stats",
+            choices=list(club_stats.keys())
+            + [
+                "skater shots",
+                "skater hits",
+                "skater blocked shots",
+                "skater giweaways",
+                "skater takeaways",
+                "skater pass attempts",
+                "skater penalty minutes",
+                "goalie saves",
+                "goalie breakaway saves",
+                "goalie penalty shot saves",
+                "goalie penalty shots",
+                "goalie shots",
+            ],
+            required=False,
+            description="Team record for single game",
         ),
         player_name: str = nextcord.SlashOption(
             name="player_name",
@@ -241,7 +264,7 @@ class ApplicationCommandCog(commands.Cog):
     ):
         await interaction.response.defer()
         response, matches = await command_service.game_record(
-            [stats_name], player_name, position
+            [stats_name], player_name, position, team_stats
         )
         response = "No results found" if not response else response
         if len(matches) > 0:
