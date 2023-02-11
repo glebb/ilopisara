@@ -5,7 +5,6 @@ import db_mongo
 import helpers
 import jsonmap
 from base_logger import logger
-from dacite import from_dict
 from data import api
 
 
@@ -110,7 +109,7 @@ async def game_record(stats_filter, player_name=None, position=None, team_stats=
     return_matches = []
     temp = " ".join(stats_filter)
     records = data_service.game_record(
-        matches, temp, player_name=player_name, position=position, team_stats=team_stats
+        matches, temp, player_name=player_name, position=position
     )
     if records:
         result = f"Single game record for {temp}"
@@ -143,7 +142,7 @@ async def team_record(name, platform):
         club_id = list(temp.keys())[0]
         members = api.get_members(club_id)
         if club_id != helpers.CLUB_ID:
-            db_matches = await db_mongo.find_matches_by_club_id(versusClubId=club_id)
+            db_matches = await db_mongo.find_matches_by_club_id(versus_club_id=club_id)
             if db_matches:
                 matches = [data_service.format_result(x) for x in db_matches]
         top_stats = data_service.top_stats(members, "points per game")

@@ -35,9 +35,9 @@ def test_get_members():
     assert type(members) == type([])
 
 
-@pytest.mark.parametrize("clubId", [(""), ("00006660000"), ("cxvcxvcxvc"), None])
-def test_get_members_wrong_id(clubId):
-    members = api.get_members(clubId, PLATFORM)
+@pytest.mark.parametrize("club_id", [(""), ("00006660000"), ("cxvcxvcxvc"), None])
+def test_get_members_wrong_id(club_id):
+    members = api.get_members(club_id, PLATFORM)
     assert len(members) == 0
     assert type(members) == type([])
 

@@ -5,7 +5,6 @@ from typing import List, Tuple
 import helpers
 import jsonmap
 import pytz
-from base_logger import logger
 from dacite import from_dict
 from models import Match, MemberRecord, Record, Result
 
@@ -149,11 +148,7 @@ def _matches_existing_record(new_record: Record, existing_record: Record):
 
 
 def game_record(
-    matches: List[dict],
-    stats_filter: str,
-    player_name=None,
-    position=None,
-    team_stats=None,
+    matches: List[dict], stats_filter: str, player_name=None, position=None
 ) -> List[Record]:
     stats_key = jsonmap.get_key(stats_filter, jsonmap.match)
     records = []

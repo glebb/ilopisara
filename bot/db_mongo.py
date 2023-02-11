@@ -63,20 +63,22 @@ async def update_matches(club_id, platform):
             # if update_result.matched_count == 0:
 
 
-async def find_matches_by_club_id(versusClubId=None, game_type=None, player_name=None):
+async def find_matches_by_club_id(
+    versus_club_id=None, game_type=None, player_name=None
+):
     query = {}
     if game_type:
         query["gameType"] = game_type
     if player_name:
         query["player_names"] = {"$elemMatch": {"name": player_name}}
-    if versusClubId:
-        query["opponent.id"] = versusClubId
+    if versus_club_id:
+        query["opponent.id"] = versus_club_id
     matches = db.matches.find(query).sort("timestamp", 1)
     return await matches.to_list(length=10000)
 
 
-async def find_match_by_id(matchId):
-    matches = db.matches.find({"matchId": matchId})
+async def find_match_by_id(match_id):
+    matches = db.matches.find({"matchId": match_id})
     return await matches.to_list(length=1)
 
 
