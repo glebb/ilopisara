@@ -1,51 +1,18 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 import helpers
 import jsonmap
 import pytz
+from dacite import from_dict
+from models import Match, Result
 
 filters = {
     1: "goalie",
     2: "skater",
     3: "xfactor",
 }
-
-
-@dataclass
-class Result:
-    mark: str
-    date_and_time: str
-    score: str
-    game_type: str
-    match_id: str
-
-    def __str__(self):
-        return (
-            self.mark
-            + " "
-            + self.date_and_time
-            + " "
-            + self.score
-            + " "
-            + self.game_type
-            + " // "
-            + self.match_id
-        )
-
-    def discord_print(self):
-        return (
-            self.mark
-            + " **"
-            + self.date_and_time
-            + " "
-            + self.score
-            + "** "
-            + self.game_type
-            + " // "
-            + self.match_id
-        )
 
 
 def find(lst, key, value):
@@ -55,28 +22,27 @@ def find(lst, key, value):
     return None
 
 
-def format_result(match):
-    ts = int(match["timestamp"])
-    score_time = datetime.fromtimestamp(ts)
+def format_result(match_dict: dict) -> Result:
+    match = from_dict(data_class=Match, data=match_dict)
+    timestamp = int(match.timestamp)
+    score_time = datetime.fromtimestamp(timestamp)
     score_time = score_time.astimezone(pytz.timezone("Europe/Helsinki")).strftime(
         "%d.%m. %H:%M"
     )
-    opponentId = match["clubs"][helpers.CLUB_ID]["opponentClubId"]
-    opponentName = (
-        match["clubs"][opponentId]["details"]["name"]
-        if match["clubs"][opponentId]["details"] != None
+    opponent_id = match.clubs[helpers.CLUB_ID].opponentClubId
+    opponent_name = (
+        match.clubs[opponent_id].details.name
+        if match.clubs[opponent_id].details
         else "???"
     )
-    score_teams = (
-        match["clubs"][helpers.CLUB_ID]["details"]["name"] + " - " + opponentName
-    )
-    score_result = match["clubs"][helpers.CLUB_ID]["scoreString"]
+    score_teams = match.clubs[helpers.CLUB_ID].details.name + " - " + opponent_name
+    score_result = match.clubs[helpers.CLUB_ID].scoreString
     return Result(
         mark=helpers.get_match_mark(match),
         date_and_time=score_time,
         score=score_teams + " " + score_result,
         game_type=helpers.get_match_type_mark(match),
-        match_id=match["matchId"],
+        match_id=match.matchId,
     )
 
 
@@ -84,58 +50,59 @@ def format_stats(stats, stats_filter=None):
     message = ""
     if stats_filter:
         stats_filter = filters[stats_filter]
-    for k, v in sorted(stats.items()):
+    for key, value in sorted(stats.items()):
         stat = None
-        key = jsonmap.get_name(k)
+        key = jsonmap.get_name(key)
         if stats_filter and key.startswith(stats_filter.lower()):
-            stat = key + ": " + v
+            stat = key + ": " + value
         elif not stats_filter:
             if (
                 not key.startswith("skater")
                 and not key.startswith("goalie")
                 and not key.startswith("xfactor")
             ):
-                stat = key + ": " + v
+                stat = key + ": " + value
         if stat:
             message += stat + "\n"
     if message:
         return message
 
 
-def _match_details(match):
+def _match_details(match_dict: dict):
+    match = from_dict(data_class=Match, data=match_dict)
     players = ""
     for _, p in sorted(
-        match["players"][helpers.CLUB_ID].items(),
-        key=lambda p: int(p[1]["skgoals"]) + int(p[1]["skassists"]),
+        match.players[helpers.CLUB_ID].items(),
+        key=lambda p: int(p[1].skgoals) + int(p[1].skassists),
         reverse=True,
     ):
-        players += "**" + p["playername"] + ": "
-        if p["position"] == "goalie":
+        players += "**" + p.playername + ": "
+        if p.position == "goalie":
             players += "**\n> `"
-            players += p["position"][0].upper() + ": "
-            players += "save %:" + p["glsavepct"] + ", "
-            players += "saves:" + p["glsaves"] + ", "
-            players += "breakaway saves:" + p["glbrksaves"] + ", "
-            players += "penaltyshot save %:" + p["glpensavepct"] + ", "
-            players += "penaltyshots:" + p["glpenshots"] + ", "
-            players += "shots:" + p["glshots"] + "`\n"
+            players += p.position[0].upper() + ": "
+            players += "save %:" + p.glsavepct + ", "
+            players += "saves:" + p.glsaves + ", "
+            players += "breakaway saves:" + p.glbrksaves + ", "
+            players += "penaltyshot save %:" + p.glpensavepct + ", "
+            players += "penaltyshots:" + p.glpenshots + ", "
+            players += "shots:" + p.glshots + "`\n"
         else:
-            players += p["skgoals"] + "+" + p["skassists"] + "**\n> `"
-            players += p["position"][0].upper() + ": "
-            players += "shots:" + p["skshots"] + ", "
-            players += "hits:" + p["skhits"] + ", "
-            players += "blocked shots:" + p["skbs"] + ", "
-            players += "giweaways:" + p["skgiveaways"] + ", "
-            players += "takeaways:" + p["sktakeaways"] + ", "
-            players += "pass attempts:" + p["skpassattempts"] + ", "
-            players += "pass %:" + p["skpasspct"] + ", "
-            players += "+/-:" + p["skplusmin"] + ", "
-            players += "possession:" + p["skpossession"] + ", "
-            players += "penalties:" + p["skpim"] + "m`\n"
+            players += p.skgoals + "+" + p.skassists + "**\n> `"
+            players += p.position[0].upper() + ": "
+            players += "shots:" + p.skshots + ", "
+            players += "hits:" + p.skhits + ", "
+            players += "blocked shots:" + p.skbs + ", "
+            players += "giweaways:" + p.skgiveaways + ", "
+            players += "takeaways:" + p.sktakeaways + ", "
+            players += "pass attempts:" + p.skpassattempts + ", "
+            players += "pass %:" + p.skpasspct + ", "
+            players += "+/-:" + p.skplusmin + ", "
+            players += "possession:" + p.skpossession + ", "
+            players += "penalties:" + p.skpim + "m`\n"
     return players
 
 
-def match_result(match):
+def match_result(match: Match) -> Tuple[str, str]:
     return format_result(match), _match_details(match)
 
 
@@ -180,22 +147,22 @@ def _should_update_record(existing_record, new_record):
     )
 
 
-def _matches_existing_record(new_record: Record, existing_record):
+def _matches_existing_record(new_record: Record, existing_record: Record):
     return float(new_record.stats_value) == float(existing_record.stats_value)
 
 
 def game_record(
-    matches, stats_filter, player_name=None, position=None, team_stats=None
+    matches: List[Match], stats_filter, player_name=None, position=None, team_stats=None
 ) -> List[Record]:
     stats_key = jsonmap.get_key(stats_filter, jsonmap.match)
     records = []
     for match in matches:
-        for _, player_data in match["players"][helpers.CLUB_ID].items():
+        for _, player_data in match.players[helpers.CLUB_ID].items():
             if stats_key in player_data:
                 # if we are looking for a specific player records...
-                if player_name and player_data["playername"] != player_name:
+                if player_name and player_data.playername != player_name:
                     continue
-                if position and player_data["position"] != position:
+                if position and player_data.position != position:
                     continue
                 current_record = records[0] if len(records) > 0 else None
                 new_record = Record(
@@ -246,18 +213,21 @@ if __name__ == "__main__":
 
     f = open(
         "tests/members.json",
+        encoding="utf-8",
     )
     _members = json.load(f)
     f.close()
 
     f = open(
         "tests/matches.json",
+        encoding="utf-8",
     )
     _matches = json.load(f)
     f.close()
 
     f = open(
         "tests/team.json",
+        encoding="utf-8",
     )
     _team = json.load(f)
     f.close()

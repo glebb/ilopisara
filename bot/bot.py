@@ -7,6 +7,7 @@ import nextcord
 from base_logger import logger
 from data import api
 from jsonmap import club_stats
+from models import Match
 from nextcord.ext import commands, tasks
 from twitch import Twitcher, TwitchStatus
 
@@ -49,7 +50,7 @@ class Bot(commands.Bot):
         logger.info("Watching db...")
         await db_mongo.watch(self.report_results)
 
-    async def report_results(self, match):
+    async def report_results(self, match: Match):
         logger.info("Report results to channel")
         channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
         result, details = data_service.match_result(match)

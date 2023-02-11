@@ -5,6 +5,7 @@ from enum import Enum
 
 from dotenv import load_dotenv
 from extra import giphy
+from models import Match
 
 load_dotenv("../.env")
 CLUB_ID = os.getenv("CLUB_ID")
@@ -50,8 +51,8 @@ def chunk_using_generators(lst, n):
         yield lst[i : i + n]
 
 
-def is_win(match):
-    return match["win"]
+def is_win(match: Match):
+    return match.win
 
 
 def get_match_mark(match):
@@ -62,13 +63,13 @@ def get_match_mark(match):
     return mark
 
 
-def get_match_type_mark(match):
+def get_match_type_mark(match: Match):
     mark = ""
-    if match["gameType"] == GAMETYPE.REGULARSEASON.value:
+    if match.gameType == GAMETYPE.REGULARSEASON.value:
         mark = " :hockey: "
-    if match["gameType"] == GAMETYPE.PLAYOFFS.value:
+    if match.gameType == GAMETYPE.PLAYOFFS.value:
         mark = " :trophy: "
-    if match["gameType"] == GAMETYPE.PRIVATE.value:
+    if match.gameType == GAMETYPE.PRIVATE.value:
         mark = " :handshake: "
     return mark
 
