@@ -1,3 +1,6 @@
+import sys
+from typing import List
+
 import command_service
 import data_service
 import db_mongo
@@ -7,7 +10,7 @@ import nextcord
 from base_logger import logger
 from data import api
 from jsonmap import club_stats
-from models import Match
+from models import Result
 from nextcord.ext import commands, tasks
 from twitch import Twitcher, TwitchStatus
 
@@ -50,7 +53,7 @@ class Bot(commands.Bot):
         logger.info("Watching db...")
         await db_mongo.watch(self.report_results)
 
-    async def report_results(self, match: Match):
+    async def report_results(self, match: dict):
         logger.info("Report results to channel")
         channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
         result, details = data_service.match_result(match)
@@ -61,8 +64,11 @@ class Bot(commands.Bot):
         short_list = list(self.all_teams[-24:])
         try:
             short_list.insert(0, short_list.pop(short_list.index(team_name)))
-        except:
+        except ValueError:
             short_list.insert(0, team_name)
+        except:
+            logger.error("Unexpected error:", sys.exc_info()[0])
+            raise
         return tuple(short_list)
 
     @tasks.loop(minutes=10)
@@ -85,12 +91,15 @@ class ApplicationCommandCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    async def matches_dropdown(self, response, matches, interaction):
+    async def matches_dropdown(
+        self, response, matches: List[Result], interaction: nextcord.Interaction
+    ):
         options = []
         cleaned = {}
         for match in matches:
             if match.match_id not in cleaned:
                 cleaned[match.match_id] = match
+        match: Result
         for match in cleaned.values():
             label = match.date_and_time + " " + match.score
             options.append(nextcord.SelectOption(label=label, value=match.match_id))

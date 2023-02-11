@@ -1,12 +1,13 @@
-from dataclasses import dataclass
+from dataclasses import fields
 from datetime import datetime
 from typing import List, Tuple
 
 import helpers
 import jsonmap
 import pytz
+from base_logger import logger
 from dacite import from_dict
-from models import Match, Result
+from models import Match, MemberRecord, Record, Result
 
 filters = {
     1: "goalie",
@@ -22,8 +23,11 @@ def find(lst, key, value):
     return None
 
 
-def format_result(match_dict: dict) -> Result:
-    match = from_dict(data_class=Match, data=match_dict)
+def format_result(match_raw: dict) -> Result:
+    if isinstance(match_raw, dict):
+        match = from_dict(data_class=Match, data=match_raw)
+    else:
+        match = match_raw
     timestamp = int(match.timestamp)
     score_time = datetime.fromtimestamp(timestamp)
     score_time = score_time.astimezone(pytz.timezone("Europe/Helsinki")).strftime(
@@ -71,74 +75,67 @@ def format_stats(stats, stats_filter=None):
 def _match_details(match_dict: dict):
     match = from_dict(data_class=Match, data=match_dict)
     players = ""
-    for _, p in sorted(
+    for _, player in sorted(
         match.players[helpers.CLUB_ID].items(),
         key=lambda p: int(p[1].skgoals) + int(p[1].skassists),
         reverse=True,
     ):
-        players += "**" + p.playername + ": "
-        if p.position == "goalie":
+        players += "**" + player.playername + ": "
+        if player.position == "goalie":
             players += "**\n> `"
-            players += p.position[0].upper() + ": "
-            players += "save %:" + p.glsavepct + ", "
-            players += "saves:" + p.glsaves + ", "
-            players += "breakaway saves:" + p.glbrksaves + ", "
-            players += "penaltyshot save %:" + p.glpensavepct + ", "
-            players += "penaltyshots:" + p.glpenshots + ", "
-            players += "shots:" + p.glshots + "`\n"
+            players += player.position[0].upper() + ": "
+            players += "save %:" + player.glsavepct + ", "
+            players += "saves:" + player.glsaves + ", "
+            players += "breakaway saves:" + player.glbrksaves + ", "
+            players += "penaltyshot save %:" + player.glpensavepct + ", "
+            players += "penaltyshots:" + player.glpenshots + ", "
+            players += "shots:" + player.glshots + "`\n"
         else:
-            players += p.skgoals + "+" + p.skassists + "**\n> `"
-            players += p.position[0].upper() + ": "
-            players += "shots:" + p.skshots + ", "
-            players += "hits:" + p.skhits + ", "
-            players += "blocked shots:" + p.skbs + ", "
-            players += "giweaways:" + p.skgiveaways + ", "
-            players += "takeaways:" + p.sktakeaways + ", "
-            players += "pass attempts:" + p.skpassattempts + ", "
-            players += "pass %:" + p.skpasspct + ", "
-            players += "+/-:" + p.skplusmin + ", "
-            players += "possession:" + p.skpossession + ", "
-            players += "penalties:" + p.skpim + "m`\n"
+            players += player.skgoals + "+" + player.skassists + "**\n> `"
+            players += player.position[0].upper() + ": "
+            players += "shots:" + player.skshots + ", "
+            players += "hits:" + player.skhits + ", "
+            players += "blocked shots:" + player.skbs + ", "
+            players += "giweaways:" + player.skgiveaways + ", "
+            players += "takeaways:" + player.sktakeaways + ", "
+            players += "pass attempts:" + player.skpassattempts + ", "
+            players += "pass %:" + player.skpasspct + ", "
+            players += "+/-:" + player.skplusmin + ", "
+            players += "possession:" + player.skpossession + ", "
+            players += "penalties:" + player.skpim + "m`\n"
     return players
 
 
-def match_result(match: Match) -> Tuple[str, str]:
+def match_result(match: dict) -> Tuple[Result, str]:
     return format_result(match), _match_details(match)
 
 
-def top_stats(members, stats_filter, per_game=False):
+def top_stats(members_raw: List[dict], stats_filter: str, per_game=False):
+    members = map(lambda m: from_dict(data_class=MemberRecord, data=m), members_raw)
     per_game_text = " per game" if per_game else ""
     key = jsonmap.get_key(stats_filter, jsonmap.names)
     reply = f"Top {stats_filter}\n```"
     try:
         for member in sorted(
             members,
-            key=lambda m: float(m[key])
+            key=lambda m: float(getattr(m, key))
             if not per_game
-            else float(m[key]) / float(m["skgp"]),
+            else float(getattr(m, key)) / float(m.skgp),
             reverse=True,
         ):
-            value = member[key]
+            value = getattr(member, key)
             if per_game:
-                value = str(round(float(member[key]) / float(member["skgp"]), 1))
-            reply += "" + member["name"] + " " + value + per_game_text + "\n"
+                value = str(round(float(getattr(member, key)) / float(member.skgp), 1))
+            reply += "" + member.name + " " + value + per_game_text + "\n"
     except (TypeError, ValueError):
         for member in sorted(members, key=lambda m: m[key], reverse=True):
-            value = member[key]
-            reply += member["name"] + " " + value + "\n"
+            value = getattr(member, key)
+            reply += member.name + " " + value + "\n"
     except KeyError:
         reply = ""
     if reply:
         reply += "```"
         return reply
-
-
-@dataclass
-class Record:
-    player: dict
-    match: dict
-    stats_key: str
-    stats_value: str
 
 
 def _should_update_record(existing_record, new_record):
@@ -152,21 +149,27 @@ def _matches_existing_record(new_record: Record, existing_record: Record):
 
 
 def game_record(
-    matches: List[Match], stats_filter, player_name=None, position=None, team_stats=None
+    matches: List[dict],
+    stats_filter: str,
+    player_name=None,
+    position=None,
+    team_stats=None,
 ) -> List[Record]:
     stats_key = jsonmap.get_key(stats_filter, jsonmap.match)
     records = []
     for match in matches:
+        match = from_dict(data_class=Match, data=match)
         for _, player_data in match.players[helpers.CLUB_ID].items():
-            if stats_key in player_data:
+            if stats_key in [field.name for field in fields(player_data)]:
                 # if we are looking for a specific player records...
                 if player_name and player_data.playername != player_name:
                     continue
                 if position and player_data.position != position:
                     continue
                 current_record = records[0] if len(records) > 0 else None
+
                 new_record = Record(
-                    player_data, match, stats_key, player_data[stats_key]
+                    player_data, match, stats_key, getattr(player_data, stats_key)
                 )
                 if _should_update_record(current_record, new_record):
                     records.clear()

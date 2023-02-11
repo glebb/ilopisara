@@ -5,6 +5,7 @@ import db_mongo
 import helpers
 import jsonmap
 from base_logger import logger
+from dacite import from_dict
 from data import api
 
 
@@ -93,9 +94,8 @@ async def game_record(stats_filter, player_name=None, position=None, team_stats=
         matches = await db_mongo.get_sorted_matches(query)
         index = 0
         for match in matches:
-            if (
-                match[data_set][helpers.CLUB_ID][key]
-                < matches[0][data_set][helpers.CLUB_ID][key]
+            if float(match[data_set][helpers.CLUB_ID][key]) < float(
+                matches[0][data_set][helpers.CLUB_ID][key]
             ):
                 break
             index += 1
@@ -123,9 +123,9 @@ async def game_record(stats_filter, player_name=None, position=None, team_stats=
         for record in records[:10]:
             result += data_service.format_result(record.match).discord_print() + "\n"
             result += (
-                record.player["position"][0].upper()
+                record.player.position[0].upper()
                 + ": "
-                + record.player["playername"]
+                + record.player.playername
                 + ": "
             )
             result += str(record.stats_value) + " " + temp + "\n"

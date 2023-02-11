@@ -2,13 +2,12 @@ import asyncio
 import getopt
 import sys
 
-import motor.motor_asyncio
-import pymongo.errors
-from cachetools import TTLCache, cached
-
 import db_utils
 import helpers
+import motor.motor_asyncio
+import pymongo.errors
 from base_logger import logger
+from cachetools import TTLCache, cached
 from data import api
 
 client = motor.motor_asyncio.AsyncIOMotorClient()
@@ -89,7 +88,11 @@ async def get_known_team_names():
 
 
 async def get_sorted_matches(sort_key):
-    matches = db.matches.find().sort(sort_key, -1)
+    matches = (
+        db.matches.find()
+        .sort(sort_key, -1)
+        .collation({"locale": "en", "numericOrdering": True})
+    )
     return await matches.to_list(length=10000)
 
 
