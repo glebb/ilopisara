@@ -8,3 +8,4 @@ nextcord
 pymongo
 asyncio
 motor
+dacite

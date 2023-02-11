@@ -44,7 +44,7 @@ def test_get_members_wrong_id(clubId):
 
 def test_get_team_record():
     record = api.get_team_record("Nighthawks", PLATFORM)
-    assert len(record) == 1
+    assert len(record) == 2
     assert type(record) == type({})
 
 
