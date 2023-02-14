@@ -80,7 +80,7 @@ class Bot(commands.Bot):
         await self.wait_until_ready()
         if not (18 <= datetime.datetime.now().hour < 23):
             return
-        if self.now and self.now + 3600 * 24 < datetime.datetime.now().timestamp():
+        if self.now and self.now + 3600 * 24 > datetime.datetime.now().timestamp():
             return
         channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
         logger.info("Checking latest game timestamp")
