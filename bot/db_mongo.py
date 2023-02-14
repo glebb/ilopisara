@@ -105,6 +105,11 @@ async def find_matches_for_player(player_id):
     return await matches.to_list(length=10000)
 
 
+async def get_latest_match():
+    matches = db.matches.find().sort("timestamp", -1)
+    return await matches.to_list(length=1)
+
+
 if __name__ == "__main__":
     club_id = helpers.CLUB_ID
     platform = helpers.PLATFORM

@@ -1,3 +1,4 @@
+import datetime
 import sys
 from typing import List
 
@@ -8,9 +9,10 @@ import helpers
 import jsonmap
 import nextcord
 from base_logger import logger
+from dacite import from_dict
 from data import api
 from jsonmap import club_stats
-from models import Result
+from models import Match, Result
 from nextcord.ext import commands, tasks
 from twitch import Twitcher, TwitchStatus
 
@@ -47,6 +49,8 @@ class Bot(commands.Bot):
         self.fetch_team_names.start()
         self.twitcher = Twitcher()
         self.twitch_check.start()
+        self.check_latest_game.start()
+        self.now = None
 
     async def watch_db(self):
         await self.wait_until_ready()
@@ -72,12 +76,35 @@ class Bot(commands.Bot):
         return tuple(short_list)
 
     @tasks.loop(minutes=10)
+    async def check_latest_game(self):
+        await self.wait_until_ready()
+        if not (18 <= datetime.datetime.now().hour < 23):
+            return
+        if self.now and self.now + 3600 * 24 < datetime.datetime.now().timestamp():
+            return
+        channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
+        logger.info("Checking latest game timestamp")
+        latest_game = await db_mongo.get_latest_match()
+        if latest_game is None:
+            logger.info("No latest game found")
+            return
+        latest_game_timestamp = int(
+            from_dict(data_class=Match, data=latest_game[0]).timestamp
+        )
+        if latest_game_timestamp + 3600 * 24 < datetime.datetime.now().timestamp():
+            self.now = datetime.datetime.now().timestamp()
+            await channel.send(
+                f"It's been {round((self.now - latest_game_timestamp) / 3600) } hours since the last game, time to play @here?"
+            )
+
+    @tasks.loop(minutes=10)
     async def fetch_team_names(self):
         self.all_teams = tuple(await db_mongo.get_known_team_names())
 
     @tasks.loop(minutes=2)
     async def twitch_check(self):
         await self.wait_until_ready()
+
         status = self.twitcher.update()
         if status == TwitchStatus.STOPPED:
             return
