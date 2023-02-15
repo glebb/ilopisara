@@ -78,9 +78,12 @@ class Bot(commands.Bot):
     @tasks.loop(minutes=10)
     async def check_latest_game(self):
         await self.wait_until_ready()
-        if not (18 <= datetime.datetime.now().hour < 23):
+        if not self.now:
+            self.now = datetime.datetime.now().timestamp()
             return
-        if self.now and self.now + 3600 * 24 > datetime.datetime.now().timestamp():
+        if not (19 <= datetime.datetime.now().hour < 22):
+            return
+        if self.now + 3600 * 36 > datetime.datetime.now().timestamp():
             return
         channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
         logger.info("Checking latest game timestamp")
@@ -91,7 +94,7 @@ class Bot(commands.Bot):
         latest_game_timestamp = int(
             from_dict(data_class=Match, data=latest_game[0]).timestamp
         )
-        if latest_game_timestamp + 3600 * 24 < datetime.datetime.now().timestamp():
+        if latest_game_timestamp + 3600 * 36 < datetime.datetime.now().timestamp():
             self.now = datetime.datetime.now().timestamp()
             await channel.send(
                 f"It's been {round((self.now - latest_game_timestamp) / 3600) } hours since the last game, time to play @here?"
