@@ -38,6 +38,7 @@ def format_result(match_raw: dict) -> Result:
         if match.clubs[opponent_id].details
         else "???"
     )
+    opponent_name += f" ({helpers.get_platform(match)})"
     score_teams = match.clubs[helpers.CLUB_ID].details.name + " - " + opponent_name
     score_result = match.clubs[helpers.CLUB_ID].scoreString
     return Result(
@@ -46,6 +47,7 @@ def format_result(match_raw: dict) -> Result:
         score=score_teams + " " + score_result,
         game_type=helpers.get_match_type_mark(match),
         match_id=match.matchId,
+        match_type=match.clubs[helpers.CLUB_ID].get_match_type(),
     )
 
 

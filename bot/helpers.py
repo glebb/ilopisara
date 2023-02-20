@@ -21,7 +21,7 @@ TWITCH_CHANNEL = os.getenv("TWITCH_CHANNEL")
 
 PLATFORMS = {
     "ps5": "ps5",
-    "xbox-series-xs": "xbox-series-xs",
+    "xbsx": "xbox-series-xs",
     "ps4": "ps4",
     "xboxone": "xboxone",
 }
@@ -100,3 +100,8 @@ def get_result_marks(match):
         mark = ":x:"
         gif = random.choice(goalie_fails) if is_goalie(match) else giphy.get_fail()
     return ResultMark(mark, gif)
+
+
+def get_platform(match: Match):
+    opponent_id = match.clubs[CLUB_ID].opponentClubId
+    return list(match.players[opponent_id].values())[0].clientPlatform

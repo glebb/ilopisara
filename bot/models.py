@@ -1,7 +1,14 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Dict
 
 # pylint: disable=C0103
+
+
+@dataclass
+class MatchType(Enum):
+    SIX_ON_SIX = "6vs6"
+    THREE_ON_THREE = "3vs3"
 
 
 @dataclass
@@ -11,6 +18,7 @@ class Result:
     score: str
     game_type: str
     match_id: str
+    match_type: MatchType
 
     def __str__(self):
         return (
@@ -22,7 +30,7 @@ class Result:
             + " "
             + self.game_type
             + " // "
-            + self.match_id
+            + self.match_type.value
         )
 
     def discord_print(self):
@@ -35,7 +43,7 @@ class Result:
             + "** "
             + self.game_type
             + " // "
-            + self.match_id
+            + self.match_type.value
         )
 
 
@@ -157,9 +165,17 @@ class MatchClubData:
     goals: str
     goalsAgainst: str
 
+    def get_match_type(self):
+        return (
+            MatchType.THREE_ON_THREE
+            if int(self.cNhlOnlineGameType) >= 200
+            else MatchType.SIX_ON_SIX
+        )
+
 
 @dataclass
 class MatchPlayerData:
+    clientPlatform: str
     glbrksavepct: str
     glbrksaves: str
     glbrkshots: str
