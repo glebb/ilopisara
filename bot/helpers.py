@@ -104,9 +104,7 @@ def get_result_marks(match):
 
 def get_platform(match: Match):
     opponent_id = match.clubs[CLUB_ID].opponentClubId
-    if "clientPlatform" in list(match.players[opponent_id].values())[0]:
-        return list(match.players[opponent_id].values())[0]["clientPlatform"]
-    return ""
+    return list(match.players[opponent_id].values())[0].clientPlatform or ""
 
 
 def get_vs_players(match: Match):

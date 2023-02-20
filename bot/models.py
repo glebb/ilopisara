@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict
+from typing import Dict, Optional
 
 # pylint: disable=C0103
 
@@ -175,6 +175,7 @@ class MatchClubData:
 
 @dataclass
 class MatchPlayerData:
+    clientPlatform: Optional[str]
     glbrksavepct: str
     glbrksaves: str
     glbrkshots: str
