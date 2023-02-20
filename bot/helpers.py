@@ -105,3 +105,9 @@ def get_result_marks(match):
 def get_platform(match: Match):
     opponent_id = match.clubs[CLUB_ID].opponentClubId
     return list(match.players[opponent_id].values())[0].clientPlatform
+
+
+def get_vs_players(match: Match):
+    opponent_id = match.clubs[CLUB_ID].opponentClubId
+    players = map(lambda x: x.playername, match.players[opponent_id].values())
+    return ", ".join(list(players))

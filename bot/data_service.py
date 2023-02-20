@@ -75,6 +75,7 @@ def format_stats(stats, stats_filter=None):
 
 def _match_details(match_dict: dict):
     match = from_dict(data_class=Match, data=match_dict)
+    vs_players = helpers.get_vs_players(match) + "\n\n"
     players = ""
     for _, player in sorted(
         match.players[helpers.CLUB_ID].items(),
@@ -104,7 +105,7 @@ def _match_details(match_dict: dict):
             players += "+/-:" + player.skplusmin + ", "
             players += "possession:" + player.skpossession + ", "
             players += "penalties:" + player.skpim + "m`\n"
-    return players
+    return vs_players + players
 
 
 def match_result(match: dict) -> Tuple[Result, str]:
