@@ -245,6 +245,12 @@ class MatchPlayerData:
 
 
 @dataclass
+class Opponent:
+    name: str
+    id: str
+
+
+@dataclass
 class Match:
     matchId: str
     timestamp: int
@@ -253,6 +259,7 @@ class Match:
     players: Dict[str, Dict[str, MatchPlayerData]]
     aggregate: Dict[str, MatchClubAggregate]
     win: bool
+    opponent: Opponent
     gameType: str
 
 

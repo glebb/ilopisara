@@ -6,7 +6,7 @@ import helpers
 import jsonmap
 import pytz
 from dacite import from_dict
-from models import Match, MemberRecord, Record, Result
+from models import Match, MemberRecord, Opponent, Record, Result
 
 filters = {
     1: "goalie",
@@ -75,41 +75,42 @@ def format_stats(stats, stats_filter=None):
 
 def _match_details(match_dict: dict):
     match = from_dict(data_class=Match, data=match_dict)
-    vs_players = helpers.get_vs_players(match) + "\n\n"
     players = ""
-    for _, player in sorted(
-        match.players[helpers.CLUB_ID].items(),
-        key=lambda p: int(p[1].skgoals) + int(p[1].skassists),
-        reverse=True,
-    ):
-        players += "**" + player.playername + ": "
-        if player.position == "goalie":
-            players += "**\n> `"
-            players += player.position[0].upper() + ": "
-            players += "save %:" + player.glsavepct + ", "
-            players += "saves:" + player.glsaves + ", "
-            players += "breakaway saves:" + player.glbrksaves + ", "
-            players += "penaltyshot save %:" + player.glpensavepct + ", "
-            players += "penaltyshots:" + player.glpenshots + ", "
-            players += "shots:" + player.glshots + "`\n"
-        else:
-            players += player.skgoals + "+" + player.skassists + "**\n> `"
-            players += player.position[0].upper() + ": "
-            players += "shots:" + player.skshots + ", "
-            players += "hits:" + player.skhits + ", "
-            players += "blocked shots:" + player.skbs + ", "
-            players += "giweaways:" + player.skgiveaways + ", "
-            players += "takeaways:" + player.sktakeaways + ", "
-            players += "pass attempts:" + player.skpassattempts + ", "
-            players += "pass %:" + player.skpasspct + ", "
-            players += "possession:" + player.skpossession + ", "
-            players += "penalties:" + player.skpim + "m"
-        if player.position.upper() == "CENTER":
-            players += (
-                f", fow:{player.skfow}, fol:{player.skfol}, fopct: {player.skfopct}"
-            )
-        players += "`\n"
-    return vs_players + players
+    for team_id in (match.opponent.id, helpers.CLUB_ID):
+        players += f"\n{match.clubs[team_id].details.name}\n"
+        for _, player in sorted(
+            match.players[team_id].items(),
+            key=lambda p: int(p[1].skgoals) + int(p[1].skassists),
+            reverse=True,
+        ):
+            players += "**" + player.playername + ": "
+            if player.position == "goalie":
+                players += "**\n> `"
+                players += player.position[0].upper() + ": "
+                players += "save %:" + player.glsavepct + ", "
+                players += "saves:" + player.glsaves + ", "
+                players += "breakaway saves:" + player.glbrksaves + ", "
+                players += "penaltyshot save %:" + player.glpensavepct + ", "
+                players += "penaltyshots:" + player.glpenshots + ", "
+                players += "shots:" + player.glshots + "`\n"
+            else:
+                players += player.skgoals + "+" + player.skassists + "**\n> `"
+                players += player.position[0].upper() + ": "
+                players += "shots:" + player.skshots + ", "
+                players += "hits:" + player.skhits + ", "
+                players += "blocked shots:" + player.skbs + ", "
+                players += "giweaways:" + player.skgiveaways + ", "
+                players += "takeaways:" + player.sktakeaways + ", "
+                players += "pass attempts:" + player.skpassattempts + ", "
+                players += "pass %:" + player.skpasspct + ", "
+                players += "possession:" + player.skpossession + ", "
+                players += "penalties:" + player.skpim + "m"
+            if player.position.upper() == "CENTER":
+                players += (
+                    f", fow:{player.skfow}, fol:{player.skfol}, fopct: {player.skfopct}"
+                )
+            players += "`\n"
+    return players
 
 
 def match_result(match: dict) -> Tuple[Result, str]:
