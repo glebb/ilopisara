@@ -102,9 +102,13 @@ def _match_details(match_dict: dict):
             players += "takeaways:" + player.sktakeaways + ", "
             players += "pass attempts:" + player.skpassattempts + ", "
             players += "pass %:" + player.skpasspct + ", "
-            players += "+/-:" + player.skplusmin + ", "
             players += "possession:" + player.skpossession + ", "
-            players += "penalties:" + player.skpim + "m`\n"
+            players += "penalties:" + player.skpim + "m"
+        if player.position.upper() == "CENTER":
+            players += (
+                f", fow:{player.skfow}, fol:{player.skfol}, fopct: {player.skfopct}"
+            )
+        players += "`\n"
     return vs_players + players
 
 
