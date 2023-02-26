@@ -77,7 +77,7 @@ def _match_details(match_dict: dict):
     match = from_dict(data_class=Match, data=match_dict)
     players = ""
     for team_id in (match.opponent.id, helpers.CLUB_ID):
-        players += f"\n{match.clubs[team_id].details.name}\n"
+        players += f"{match.clubs[team_id].details.name}\n"
         for _, player in sorted(
             match.players[team_id].items(),
             key=lambda p: int(p[1].skgoals) + int(p[1].skassists),
@@ -110,7 +110,7 @@ def _match_details(match_dict: dict):
                     f", fow:{player.skfow}, fol:{player.skfol}, fopct: {player.skfopct}"
                 )
             players += "`\n"
-        players += "`"
+        players += "`\n"
     return players
 
 
