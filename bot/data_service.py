@@ -110,6 +110,7 @@ def _match_details(match_dict: dict):
                     f", fow:{player.skfow}, fol:{player.skfol}, fopct: {player.skfopct}"
                 )
             players += "`\n"
+        players += "`"
     return players
 
 
