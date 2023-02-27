@@ -77,25 +77,39 @@ def _match_details(match_dict: dict):
     match = from_dict(data_class=Match, data=match_dict)
     players = ""
     for team_id in (match.opponent.id, helpers.CLUB_ID):
-        players += f"{match.clubs[team_id].details.name}\n"
+        players += f"\n**{match.clubs[team_id].details.name}**\n"
         for _, player in sorted(
             match.players[team_id].items(),
             key=lambda p: int(p[1].skgoals) + int(p[1].skassists),
             reverse=True,
         ):
-            players += "**" + player.playername + ": "
+            points = (
+                f" {float(player.glsavepct) * 100:5.2f}%"
+                if player.position == "goalie"
+                else f" {player.skgoals} + {player.skassists}"
+            )
+            players += (
+                f"** {player.position[0].upper()} {player.playername}: {points} **"
+            )
+            players += "\n> ```"
             if player.position == "goalie":
-                players += "**\n> `"
-                players += player.position[0].upper() + ": "
-                players += "save %:" + player.glsavepct + ", "
                 players += "saves:" + player.glsaves + ", "
-                players += "breakaway saves:" + player.glbrksaves + ", "
-                players += "penaltyshot save %:" + player.glpensavepct + ", "
+                players += "breakaway save %:"
+                players += (
+                    f"{float(player.glbrksavepct) * 100:5.2f}%, "
+                    if player.glbrkshots != "0"
+                    else "100.00, "
+                )
+                players += "breakaways:" + player.glbrkshots + ", "
+                players += "penaltyshot save %:"
+                players += (
+                    f"{float(player.glpensavepct) * 100:5.2f}%, "
+                    if player.glpenshots != "0"
+                    else "100.00, "
+                )
                 players += "penaltyshots:" + player.glpenshots + ", "
-                players += "shots:" + player.glshots + "`\n"
+                players += "shots:" + player.glshots + ", "
             else:
-                players += player.skgoals + "+" + player.skassists + "**\n> `"
-                players += player.position[0].upper() + ": "
                 players += "shots:" + player.skshots + ", "
                 players += "hits:" + player.skhits + ", "
                 players += "blocked shots:" + player.skbs + ", "
@@ -104,13 +118,14 @@ def _match_details(match_dict: dict):
                 players += "pass attempts:" + player.skpassattempts + ", "
                 players += "pass %:" + player.skpasspct + ", "
                 players += "possession:" + player.skpossession + ", "
+                players += "deflections:" + player.skdeflections + ", "
+                players += "interceptions:" + player.skinterceptions + ", "
                 players += "penalties:" + player.skpim + "m"
             if player.position.upper() == "CENTER":
                 players += (
                     f", fow:{player.skfow}, fol:{player.skfol}, fopct: {player.skfopct}"
                 )
-            players += "`\n"
-        players += "\n"
+            players += "```\n"
     return players
 
 
