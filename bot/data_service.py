@@ -212,7 +212,7 @@ def team_record(team):
         reply += (
             "record: "
             + team[key]["record"]
-            + f" | {'% / '.join(list(map(str, percentages)))}\n"
+            + f" | {'% / '.join(list(map(str, percentages)))}%\n"
         )
         reply += "points: " + team[key]["rankingPoints"] + "\n"
         reply += "star level: " + team[key]["starLevel"] + "\n"
