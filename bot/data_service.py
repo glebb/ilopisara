@@ -6,7 +6,7 @@ import helpers
 import jsonmap
 import pytz
 from dacite import from_dict
-from models import Match, MemberRecord, Opponent, Record, Result
+from models import Match, MemberRecord, Record, Result
 
 filters = {
     1: "goalie",
@@ -206,8 +206,14 @@ def team_record(team):
     key = list(team.keys())[0]
     reply = ""
     if key:
+        record = list(map(int, team[key]["record"].split("-")))
+        percentages = [round(x / sum(record) * 100, 1) for x in record]
         reply += "Team: " + team[key]["name"] + "\n```"
-        reply += "record: " + team[key]["record"] + "\n"
+        reply += (
+            "record: "
+            + team[key]["record"]
+            + f" | {'% / '.join(list(map(str, percentages)))}\n"
+        )
         reply += "points: " + team[key]["rankingPoints"] + "\n"
         reply += "star level: " + team[key]["starLevel"] + "\n"
         reply += "current division: " + str(team[key]["currentDivision"]) + "\n"
