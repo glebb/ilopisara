@@ -91,6 +91,9 @@ def _match_details(match_dict: dict):
             players += (
                 f"** {player.position[0].upper()} {player.playername}: {points} **"
             )
+            if team_id != helpers.CLUB_ID:
+                players += "\n"
+                continue
             players += "\n> ```"
             if player.position == "goalie":
                 players += "saves:" + player.glsaves + ", "
