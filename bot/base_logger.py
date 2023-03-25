@@ -11,4 +11,8 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+rootLogger = logging.getLogger()
+fileHandler = logging.FileHandler("{0}/{1}.log".format("./", "log"))
+rootLogger.addHandler(fileHandler)
+
 logger = logging
