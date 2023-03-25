@@ -74,7 +74,13 @@ class ApplicationCommandCog(commands.Cog):
     ):
         await interaction.response.defer()
         platform = platform if platform is not None else helpers.PLATFORM
-        response, matches = await command_service.team_record(name, platform)
+        try:
+            response, matches = await command_service.team_record(name, platform)
+        except:
+            logger.error(f"Error in team command for {name} {platform}")
+            response = "Error"
+            await interaction.followup.send(response[:1999])
+            raise
         response = "No results found" if not response else response
         if len(matches) > 0:
             response += "\nMatch history:\n"
