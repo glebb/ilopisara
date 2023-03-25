@@ -210,7 +210,11 @@ def team_record(team):
     reply = ""
     if key:
         record = list(map(int, team[key]["record"].split("-")))
-        percentages = [round(x / sum(record) * 100, 1) for x in record]
+        number_of_games = sum(record)
+        if number_of_games == 0:
+            percentages = [0, 0, 0]
+        else:
+            percentages = [round(x / number_of_games * 100, 1) for x in record]
         reply += "Team: " + team[key]["name"] + "\n```"
         reply += (
             "record: "
