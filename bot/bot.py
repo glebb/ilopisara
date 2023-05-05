@@ -25,7 +25,7 @@ class Bot(commands.Bot):
         self.fetch_team_names.start()
         self.twitcher = Twitcher()
         self.twitch_check.start()
-        self.check_latest_game.start()
+        # self.check_latest_game.start()
         self.now = None
 
     async def watch_db(self):
