@@ -42,6 +42,8 @@ async def update_matches(club_id, platform):
             club_id=club_id, platform=platform, count=10, game_type=game_type.value
         )
         for match in reversed(matches):
+            if len(match["aggregate"]) != 2:
+                continue
             await db["replica" + postfix].update_one(
                 {"matchId": match["matchId"]}, {"$setOnInsert": match}, upsert=True
             )
