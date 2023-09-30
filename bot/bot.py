@@ -9,6 +9,7 @@ from ApplicationCommandCog import ApplicationCommandCog
 from base_logger import logger
 from dacite import from_dict
 from data import api
+from extra import chatgpt
 from models import Match
 from nextcord.ext import commands, tasks
 from twitch import Twitcher, TwitchStatus
@@ -39,6 +40,9 @@ class Bot(commands.Bot):
         result, details = data_service.match_result(match)
         if result:
             await channel.send((result.discord_print() + "\n" + details)[:1999])
+            del match["_id"]
+            summary = chatgpt.write_gpt_summary(match)
+            await channel.send(summary[:1999])
 
     def get_team_names(self):
         short_list = list(self.all_teams[-24:])
