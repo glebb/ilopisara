@@ -29,7 +29,7 @@ PLATFORMS = {
 class GAMETYPE(Enum):
     REGULARSEASON = "gameType5"
     PLAYOFFS = "gameType10"
-    PRIVATE = "club_private"
+    # PRIVATE = "club_private"
 
 
 goalie_fails = (
@@ -68,8 +68,8 @@ def get_match_type_mark(match: Match):
         mark = " :hockey: "
     if match.gameType == GAMETYPE.PLAYOFFS.value:
         mark = " :trophy: "
-    if match.gameType == GAMETYPE.PRIVATE.value:
-        mark = " :handshake: "
+    # if match.gameType == GAMETYPE.PRIVATE.value:
+    #    mark = " :handshake: "
     return mark
 
 

@@ -8,10 +8,12 @@ import motor.motor_asyncio
 import pymongo.errors
 from base_logger import logger
 from cachetools import TTLCache, cached
+from dacite import MissingValueError, from_dict
 from data import api
+from models import Match
 
 client = motor.motor_asyncio.AsyncIOMotorClient()
-db = client.ilo
+db = client.nighthawks24
 
 
 async def watch(result_handler):
@@ -50,7 +52,13 @@ async def update_matches(club_id, platform):
             try:
                 enriched_match = db_utils.enrich_match(match, game_type)
             except TypeError:
-                logger.error(f"Could not enrich matchId {match['matchId']}")
+                logger.exception(f"Could not enrich matchId {match['matchId']}")
+                continue
+            try:
+                from_dict(data_class=Match, data=enriched_match)
+                logger.info(f"Successfully parsed match {enriched_match['matchId']}")
+            except MissingValueError as e:
+                logger.exception(f"Error parsing match {enriched_match['matchId']}")
                 continue
             await db["matches" + postfix].update_one(
                 {"matchId": match["matchId"]},
