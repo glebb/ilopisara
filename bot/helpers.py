@@ -19,6 +19,7 @@ STREAMERS = os.getenv("TWITCH_STREAMERS")
 TWITCH_CHANNEL = os.getenv("TWITCH_CHANNEL")
 
 PLATFORMS = {
+    "common-gen5": "common-gen5",
     "ps5": "ps5",
     "xbsx": "xbox-series-xs",
     "ps4": "ps4",
