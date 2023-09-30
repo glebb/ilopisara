@@ -1,5 +1,6 @@
 import asyncio
 import getopt
+import os
 import sys
 
 import db_utils
@@ -10,10 +11,16 @@ from base_logger import logger
 from cachetools import TTLCache, cached
 from dacite import MissingValueError, from_dict
 from data import api
+from dotenv import load_dotenv
+from extra import giphy
 from models import Match
 
+load_dotenv("../.env")
+DB_NAME = os.getenv("DB_NAME")
+
+
 client = motor.motor_asyncio.AsyncIOMotorClient()
-db = client.nighthawks24
+db = client[DB_NAME]
 
 
 async def watch(result_handler):
