@@ -77,7 +77,7 @@ def write_gpt_summary(game: dict):
     messages = [
         {
             "role": "user",
-            "content": "Write a text of max. 1900 characters describing made up events of a hockey game, based on following data:",
+            "content": "Write a text describing made up events of a hockey game, based on following data. Limit the text to 1900 characters.",
         }
     ]
     messages.append({"role": "user", "content": json_output})
