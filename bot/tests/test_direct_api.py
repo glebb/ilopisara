@@ -6,8 +6,8 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from data import api
 
-PLATFORM = "xbox-series-xs"
-CLUB_ID = "3"
+PLATFORM = "common-gen5"
+CLUB_ID = "2"
 
 
 @pytest.mark.parametrize("count", [(1), (1)])
@@ -44,7 +44,7 @@ def test_get_members_wrong_id(club_id):
 
 def test_get_team_record():
     record = api.get_team_record("Nighthawks", PLATFORM)
-    assert len(record) == 2
+    assert len(record) == 1
     assert type(record) == type({})
 
 

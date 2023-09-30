@@ -8,3 +8,6 @@ sort_by_size = true
 [tool.pylint.'MESSAGES CONTROL']
 max-line-length = 120
 disable = "missing-class-docstring,no-member,missing-function-docstring,missing-module-docstring"
+
+[tool.pytest.ini_options]
+log_cli = 1 
