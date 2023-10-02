@@ -3,6 +3,7 @@ import json
 import openai
 
 from ilobot.helpers import OPEN_API
+from ilobot.jsonmap import match
 
 openai.api_key = OPEN_API
 
@@ -43,11 +44,9 @@ def convert_keys(temp):
         if key.startswith("sk"):
             if temp["position"] == "goalie":
                 continue
-            xxx = key.replace("sk", "skater_")
         if key.startswith("gl"):
             if temp["position"] != "goalie":
                 continue
-            xxx = key.replace("gl", "goalie_")
 
         if isinstance(value, dict):
             # Recursively process nested dictionaries
@@ -55,8 +54,11 @@ def convert_keys(temp):
         elif key in key_mappings:
             # If key is in the mappings, replace it with the full name
             converted_data[key_mappings[key]] = value
+        elif key in match:
+            # If key is in the mappings, replace it with the full name
+            converted_data[match[key]] = value
         else:
-            converted_data[xxx] = value
+            converted_data[key] = value
     return converted_data
 
 
@@ -71,7 +73,7 @@ def write_gpt_summary(game: dict):
     messages = [
         {
             "role": "user",
-            "content": "Write a text describing made up events of a hockey game, based on following data. Limit the text to 1900 characters.",
+            "content": "Write a text describing made up events of a hockey game, based on following data. Limit the response to 290 words.",
         }
     ]
     messages.append({"role": "user", "content": json_output})
