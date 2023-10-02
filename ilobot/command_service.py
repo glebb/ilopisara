@@ -1,11 +1,8 @@
 from typing import List
 
-import data_service
-import db_mongo
-import helpers
-import jsonmap
-from base_logger import logger
-from data import api
+from ilobot import data_service, db_mongo, helpers, jsonmap
+from ilobot.base_logger import logger
+from ilobot.data import api
 
 
 async def results(club_id=None, game_type=None) -> List[data_service.Result]:

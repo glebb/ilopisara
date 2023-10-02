@@ -1,13 +1,17 @@
 import os
-import random
 from dataclasses import dataclass
 from enum import Enum
 
 from dotenv import load_dotenv
-from extra import giphy
-from models import Match
 
-load_dotenv("../.env")
+from ilobot.models import Match
+
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+load_dotenv(f"{__location__}/../.env")
+DB_NAME = os.getenv("DB_NAME")
+API_KEY = os.getenv('GIPHY_API_KEY')
+OPEN_API = os.getenv("OPEN_API")
+DEBUG = int(os.getenv("DEBUG"))
 CLUB_ID = os.getenv("CLUB_ID")
 PLATFORM = os.getenv("PLATFORM")
 DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
@@ -31,13 +35,6 @@ class GAMETYPE(Enum):
     REGULARSEASON = "gameType5"
     PLAYOFFS = "gameType10"
     # PRIVATE = "club_private"
-
-
-goalie_fails = (
-    "https://youtu.be/fR-_q9XeYZo?t=11",
-    "https://www.youtube.com/watch?v=KFQnIFN1pYo",
-    "https://youtu.be/e9civjk7z_M?t=179",
-)
 
 
 @dataclass
@@ -72,34 +69,6 @@ def get_match_type_mark(match: Match):
     # if match.gameType == GAMETYPE.PRIVATE.value:
     #    mark = " :handshake: "
     return mark
-
-
-def teppo_scores(match):
-    for _, p in match["players"][CLUB_ID].items():
-        if p["playername"] == "bodhi-FIN" and int(p["skgoals"]) > 0:
-            return True
-    return False
-
-
-def is_goalie(match):
-    for _, p in match["players"][CLUB_ID].items():
-        if p["position"] == "goalie":
-            return True
-    return False
-
-
-def get_result_marks(match):
-    if is_win(match):
-        mark = ":white_check_mark: "
-        gif = (
-            "https://www.youtube.com/watch?v=IIlQgcTeHUE"
-            if teppo_scores(match)
-            else giphy.get_win()
-        )
-    else:
-        mark = ":x:"
-        gif = random.choice(goalie_fails) if is_goalie(match) else giphy.get_fail()
-    return ResultMark(mark, gif)
 
 
 def get_platform(match: Match):

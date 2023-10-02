@@ -1,7 +1,7 @@
 import copy
 
-import helpers
-from base_logger import logger
+from ilobot import helpers
+from ilobot.base_logger import logger
 
 
 def _is_win(match):

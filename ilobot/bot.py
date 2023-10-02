@@ -1,18 +1,18 @@
 import datetime
 import sys
 
-import data_service
-import db_mongo
-import helpers
 import nextcord
-from ApplicationCommandCog import ApplicationCommandCog
-from base_logger import logger
 from dacite import from_dict
-from data import api
-from extra import chatgpt
-from models import Match
 from nextcord.ext import commands, tasks
-from twitch import Twitcher, TwitchStatus
+
+from ilobot import data_service, db_mongo, helpers
+from ilobot.ApplicationCommandCog import ApplicationCommandCog
+from ilobot.base_logger import logger
+from ilobot.data import api
+from ilobot.extra import chatgpt
+from ilobot.twitch import Twitcher, TwitchStatus
+
+from .models import Match
 
 team_name = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
 intents = nextcord.Intents.all()

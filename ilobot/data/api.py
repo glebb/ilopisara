@@ -1,10 +1,11 @@
 from functools import cache
 from json.decoder import JSONDecodeError
 
-import helpers
-from base_logger import logger
 from cachetools import TTLCache, cached
-from data import direct
+
+import ilobot.helpers as helpers
+from ilobot.base_logger import logger
+from ilobot.data import direct
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))

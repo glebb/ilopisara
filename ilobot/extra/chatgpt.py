@@ -1,15 +1,9 @@
 import json
-import os
 
 import openai
-from dacite import from_dict
-from db_utils import enrich_match
-from dotenv import load_dotenv
-from helpers import GAMETYPE
-from models import Match
 
-load_dotenv("../../.env")
-OPEN_API = os.getenv("OPEN_API")
+from ilobot.helpers import OPEN_API
+
 openai.api_key = OPEN_API
 
 skip_keys = [

@@ -1,23 +1,21 @@
+# pylint: disable=C0413
+
 import asyncio
 import getopt
 import os
 import sys
 
-import db_utils
-import helpers
 import motor.motor_asyncio
 import pymongo.errors
-from base_logger import logger
 from cachetools import TTLCache, cached
 from dacite import MissingValueError, from_dict
-from data import api
-from dotenv import load_dotenv
-from extra import giphy
-from models import Match
 
-load_dotenv("../.env")
-DB_NAME = os.getenv("DB_NAME")
-
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from ilobot import db_utils, helpers
+from ilobot.base_logger import logger
+from ilobot.data import api
+from ilobot.helpers import DB_NAME
+from ilobot.models import Match
 
 client = motor.motor_asyncio.AsyncIOMotorClient()
 db = client[DB_NAME]

@@ -1,10 +1,7 @@
 import logging
-import os
 
-from dotenv import load_dotenv
+from ilobot.helpers import DEBUG
 
-load_dotenv("../.env")
-DEBUG = int(os.getenv("DEBUG"))
 rootLogger = logging.getLogger()
 logFormatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")
 logging.basicConfig(

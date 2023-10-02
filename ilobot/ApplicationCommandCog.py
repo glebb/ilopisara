@@ -1,16 +1,13 @@
 from typing import List
 
-import command_service
-import data_service
-import db_mongo
-import helpers
-import jsonmap
 import nextcord
-from base_logger import logger
-from data import api
-from jsonmap import club_stats
-from models import Result
 from nextcord.ext import commands
+
+from ilobot import command_service, data_service, db_mongo, helpers, jsonmap
+from ilobot.base_logger import logger
+from ilobot.data import api
+from ilobot.jsonmap import club_stats
+from ilobot.models import Result
 
 
 class GameDetails(nextcord.ui.Select):

@@ -2,11 +2,11 @@ from dataclasses import fields
 from datetime import datetime
 from typing import List, Tuple
 
-import helpers
-import jsonmap
 import pytz
 from dacite import from_dict
-from models import Match, MemberRecord, Record, Result
+
+from ilobot import helpers, jsonmap
+from ilobot.models import Match, MemberRecord, Record, Result
 
 filters = {
     1: "goalie",
