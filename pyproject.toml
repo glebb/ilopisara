@@ -2,7 +2,7 @@
 ignore_decorators = ["@app.route", "@require_*"]
 make_whitelist = true
 min_confidence = 80
-paths = ["bot"]
+paths = ["ilobot"]
 sort_by_size = true
 
 [tool.pylint.'MESSAGES CONTROL']
