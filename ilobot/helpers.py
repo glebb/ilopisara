@@ -26,6 +26,7 @@ PLATFORMS = {
     "common-gen5": "common-gen5",
     "ps5": "ps5",
     "xbsx": "xbox-series-xs",
+    "common-gen4": "common-gen4",
     "ps4": "ps4",
     "xboxone": "xboxone",
 }
