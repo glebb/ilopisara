@@ -15,7 +15,7 @@ from ilobot.helpers import GAMETYPE
 from ilobot.models import Match
 
 PLATFORM = "common-gen5"
-CLUB_ID = "2"
+CLUB_ID = "2380"
 
 
 @pytest.mark.parametrize("count", [(1)])
@@ -53,7 +53,7 @@ def test_get_members_wrong_id(club_id: Literal['', '00006660000', 'cxvcxvcxvc'] 
 
 
 def test_get_team_record():
-    record = api.get_team_record("Nighthawks", PLATFORM)
+    record = api.get_team_record("Ilo Pisara", PLATFORM)
     assert len(record) == 1
     assert isinstance(record, dict) is True
 

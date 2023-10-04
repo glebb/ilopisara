@@ -1,8 +1,9 @@
 import json
+import random
 
 import openai
 
-from ilobot.helpers import OPEN_API
+from ilobot.helpers import CLUB_ID, OPEN_API
 from ilobot.jsonmap import match
 
 openai.api_key = OPEN_API
@@ -14,20 +15,34 @@ skip_keys = [
     "player_names",
     "toi",
     "toa",
-    "Raw",
+    "raw",
     "teamArtAbbr",
     "opponentTeamArtAbbr",
     "toiseconds",
-    "rating",
     "dnf",
     "passc",
     "passa",
+    "customKit",
+    "teamId",
+    "opponentTeamId",
+    "OnlineGameType",
+    "asset",
+    "rank",
+    "class",
+    "gameType",
+    "clubDivision",
+    "memberString",
+    "posSorted",
+    "timestamp",
+    
 ]
 
 # Fixed mappings for key name conversions
 key_mappings = {
     "opponentClubId": "Opponent Club ID",
-    "opponentTeamId": "Opponent Team ID",
+    "opponentTeamArtAbbr": "Opponent Team abbreviation",
+    "teamArtAbbr": "Team abbreviation",
+    "name": "Club name",
 }
 
 
@@ -61,23 +76,42 @@ def convert_keys(temp):
             converted_data[key] = value
     return converted_data
 
-
-def write_gpt_summary(game: dict):
+def clean_up_data(game: dict):
     converted_data = convert_keys(game)
     for key in converted_data["clubs"].keys():
         converted_data["clubs"][key]["players"] = converted_data["players"][key]
-    del converted_data["players"]
+    
+    renamed_clubs = {}
+    for club_id, club_data in converted_data["clubs"].items():
+        club_name = club_data["details"]["Club name"]
+        renamed_clubs[club_name] = club_data
+        renamed_clubs[club_name]["clubId"] = club_id
+        del renamed_clubs[club_name]["details"]
+        renamed_clubs[club_name]["players"] = {
+            player_data["playername"]: player_data
+            for player_id, player_data in club_data["players"].items()
+    }                
+    return renamed_clubs
 
-    # Convert the converted data to JSON
-    json_output = json.dumps(converted_data)
+
+def write_gpt_summary(game: dict):
+    our_team = game["clubs"][CLUB_ID]["details"]["name"]
+    json_output = json.dumps(clean_up_data(game))
     messages = [
         {
             "role": "user",
-            "content": "Write a text describing made up events of a hockey game, based on following data. Limit the response to 290 words.",
+            "content": "Write a text describing made up events of a hockey game, based on following json data."
         }
     ]
+
     messages.append({"role": "user", "content": json_output})
+    
+    if random.choice([True, False]):
+        messages.append({"role": "user", "content": f"Include a comment from a fan of club {our_team}, with a made up name."})
+    
+    messages.append({"role": "user", "content": "Limit the response to 290 words."})
+    
     chat_completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=messages, temperature=0.8
+        model="gpt-3.5-turbo", messages=messages, temperature=0.7
     )
     return chat_completion["choices"][0]["message"]["content"]
