@@ -66,10 +66,10 @@ Technical requirements:
       replSetName: "rs0"
    mongosh: rs.initiate()
 * Cronjob to execute db_mongo.py to fetch game results periodically
-   0 * * * * cd /home/<user>/ilopisara/bot && /home/<user>/ilopisara/.venv/bin/python db_mongo.py
+   0 * * * * cd /home/<user>/ilopisara/ilobotbot && /home/<user>/ilopisara/.venv/bin/python db_mongo.py
 * IP that allows access for NHL apis. (test by running py.test)
 
 Copy sample.env as .env and fill all values
 Install python requirements: pip install -m requirements.txt
 
-run: python bot2.py
+run: python -m ilobot.bot

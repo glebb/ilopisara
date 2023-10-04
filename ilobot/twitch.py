@@ -26,7 +26,7 @@ class Twitcher:
             param = ("user_login", streamer)
             self.params.append(param)
 
-    def _nhl_stream_found(self, data):
+    def __nhl_stream_found(self, data):
         return (
             "data" in data
             and len(data["data"]) > 0
@@ -39,6 +39,7 @@ class Twitcher:
                 "https://api.twitch.tv/helix/streams",
                 headers=self.headers,
                 params=self.params,
+                timeout=5,
             )
             data = response.json()
             logger.info(f"Twitch checked {self.params}")
@@ -48,7 +49,11 @@ class Twitcher:
             )
             self.status = TwitchStatus.STOPPED
             return self.status
-        if self._nhl_stream_found(data):
+        if  response.status_code != 200:
+            logger.error(f"Error - twitch request returned {response.status_code}")
+            logger.error(response.content)
+            self.status = TwitchStatus.STOPPED
+        elif self.__nhl_stream_found(data):
             logger.info("Twitch NHL stream found")
             self.stream_url = "https://www.twitch.tv/" + data["data"][0]["user_login"]
             if self.stream_started != data["data"][0]["started_at"]:
@@ -65,6 +70,4 @@ class Twitcher:
 if __name__ == "__main__":
     twitcher = Twitcher()
     data = twitcher.update()
-    if data == TwitchStatus.STARTED:
-        print(twitcher.stream_url)
-        print(twitcher.stream_started)
+    print(data)

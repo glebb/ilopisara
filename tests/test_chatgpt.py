@@ -11,7 +11,7 @@ from ilobot.helpers import GAMETYPE
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-with open(f"{__location__}/matches.json", "r") as f:
+with open(f"{__location__}/matches.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
 
