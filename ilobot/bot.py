@@ -41,7 +41,7 @@ class Bot(commands.Bot):
         if result:
             await channel.send((result.discord_print() + "\n" + details)[:1999])
             del match["_id"]
-            summary = chatgpt.write_gpt_summary(match)
+            summary = await chatgpt.write_gpt_summary(match)
             await channel.send(summary[:1999])
 
     def get_team_names(self):

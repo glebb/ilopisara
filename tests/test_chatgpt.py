@@ -3,6 +3,8 @@ import json
 import os
 import sys
 
+import pytest
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from ilobot.base_logger import logger
 from ilobot.db_utils import enrich_match
@@ -20,7 +22,8 @@ def test_clean_up_data():
     logger.info(json.dumps(game))
 
 
-def test_chat_is_generated():
-    summary = chatgpt.write_gpt_summary(enriched_match)
+@pytest.mark.asyncio
+async def test_chat_is_generated():
+    summary = await chatgpt.write_gpt_summary(enriched_match)
     logger.info(summary)
     assert len(summary) > 1000

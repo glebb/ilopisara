@@ -100,7 +100,7 @@ def clean_up_data(game: dict):
 
 hockey_journalists = ["Bob McKenzie", "Elliotte Friedman", "Pierre LeBrun", "Darren Dreger", "Katie Strang"]
 
-def write_gpt_summary(game: dict):
+async def write_gpt_summary(game: dict):
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
     json_output = json.dumps(clean_up_data(game))
     messages = [
@@ -123,7 +123,7 @@ def write_gpt_summary(game: dict):
         messages.append({"role": "user", "content": f"Include a comment from a fan of club {our_team}, with a made up name."})
     messages.append({"role": "user", "content": "Limit the text to 290 words."})
     
-    chat_completion = openai.ChatCompletion.create(
+    chat_completion = await openai.ChatCompletion.acreate(
         model="gpt-3.5-turbo", messages=messages, temperature=0.85
     )
     return chat_completion["choices"][0]["message"]["content"]

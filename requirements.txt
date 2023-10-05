@@ -10,3 +10,4 @@ asyncio
 motor
 dacite
 openai
+pytest-asyncio
