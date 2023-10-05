@@ -98,15 +98,22 @@ def clean_up_data(game: dict):
     converted_data['clubs'] = clubs                     
     return converted_data
 
+def check_dnf(game: dict):
+    for club in game["clubs"]:
+        if game["clubs"][club]["winnerByDnf"] != "0" or game["clubs"][club]["winnerByGoalieDnf"] != "0":
+            return True
+    return False
+
 hockey_journalists = ["Bob McKenzie", "Elliotte Friedman", "Pierre LeBrun", "Darren Dreger", "Katie Strang"]
 
 async def write_gpt_summary(game: dict):
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
-    json_output = json.dumps(clean_up_data(game))
+    cleaned_game = clean_up_data(game)
+    json_output = json.dumps(cleaned_game)
     messages = [
         {
             "role": "system",
-            "content": f"You are a hockey journalist. Mimic the style of the writer {random.choice(hockey_journalists)}. You are writing for the fans of club {our_team}"
+            "content": f"You are a crtical hockey journalist. Mimic the style of the writer {random.choice(hockey_journalists)}. You are writing for the fans of club {our_team}"
             
         },
         {
@@ -119,8 +126,11 @@ async def write_gpt_summary(game: dict):
     
     
     messages.append({"role": "user", "content": "Critique the performance of the players. Give praise to those who deserve it, and point out the mistakes of those who don't."})
-    if random.choice([True, False]):
-        messages.append({"role": "user", "content": f"Include a comment from a fan of club {our_team}, with a made up name."})
+    if random.choice([True, False, True]):
+        messages.append({"role": "system", "content": f"Fans are extremely critical of the performance of the team. They are very passionate about the team and the game. They are very knowledgeable about the game."})
+        messages.append({"role": "user", "content": f"Include a comment from a fan of club {our_team}, mention his made-up first name."})
+    if check_dnf(cleaned_game):
+        messages.append({"role": "user", "content": "If the data idicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about opponent chickening out by not finishing the game properly."})
     messages.append({"role": "user", "content": "Limit the text to 290 words."})
     
     chat_completion = await openai.ChatCompletion.acreate(
