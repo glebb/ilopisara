@@ -34,6 +34,8 @@ skip_keys = [
     "memberString",
     "posSorted",
     "timestamp",
+    "opponent",
+    "playerLevel",
     
 ]
 
@@ -81,37 +83,47 @@ def clean_up_data(game: dict):
     for key in converted_data["clubs"].keys():
         converted_data["clubs"][key]["players"] = converted_data["players"][key]
     
-    renamed_clubs = {}
+    clubs = {}    
     for club_id, club_data in converted_data["clubs"].items():
         club_name = club_data["details"]["Club name"]
-        renamed_clubs[club_name] = club_data
-        renamed_clubs[club_name]["clubId"] = club_id
-        del renamed_clubs[club_name]["details"]
-        renamed_clubs[club_name]["players"] = {
+        clubs[club_name] = club_data
+        clubs[club_name]["clubId"] = club_id
+        del clubs[club_name]["details"]
+        clubs[club_name]["players"] = {
             player_data["playername"]: player_data
             for player_id, player_data in club_data["players"].items()
-    }                
-    return renamed_clubs
+        
+    }
+    del converted_data["players"]
+    converted_data['clubs'] = clubs                     
+    return converted_data
 
+hockey_journalists = ["Bob McKenzie", "Elliotte Friedman", "Pierre LeBrun", "Darren Dreger", "Katie Strang"]
 
 def write_gpt_summary(game: dict):
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
     json_output = json.dumps(clean_up_data(game))
     messages = [
         {
+            "role": "system",
+            "content": f"You are a hockey journalist. Mimic the style of the writer {random.choice(hockey_journalists)}. You are writing for the fans of club {our_team}"
+            
+        },
+        {
             "role": "user",
-            "content": "Write a text describing made up events of a hockey game, based on following json data."
+            "content": "Describe events of a hockey game, that likely took place, based on following json data."
         }
     ]
 
     messages.append({"role": "user", "content": json_output})
     
+    
+    messages.append({"role": "user", "content": "Critique the performance of the players. Give praise to those who deserve it, and point out the mistakes of those who don't."})
     if random.choice([True, False]):
         messages.append({"role": "user", "content": f"Include a comment from a fan of club {our_team}, with a made up name."})
-    
-    messages.append({"role": "user", "content": "Limit the response to 290 words."})
+    messages.append({"role": "user", "content": "Limit the text to 290 words."})
     
     chat_completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=messages, temperature=0.7
+        model="gpt-3.5-turbo", messages=messages, temperature=0.85
     )
     return chat_completion["choices"][0]["message"]["content"]
