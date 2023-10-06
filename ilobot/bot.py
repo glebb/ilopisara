@@ -39,9 +39,9 @@ class Bot(commands.Bot):
         channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
         result, details = data_service.match_result(match)
         if result:
-            await channel.send((result.discord_print() + "\n" + details)[:1999])
             del match["_id"]
             summary = await chatgpt.write_gpt_summary(match)
+            await channel.send((result.discord_print() + "\n" + details)[:1999])
             await channel.send(summary[:1999])
 
     def get_team_names(self):
