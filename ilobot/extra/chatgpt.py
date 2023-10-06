@@ -137,7 +137,7 @@ async def write_gpt_summary(game: dict):
         },
         {
             "role": "user",
-            "content": "Describe events of a hockey game, that likely took place, based on following json data. Use at least one direct quote from imaginary spectator 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players"
+            "content": "Describe events of a hockey game, that likely took place, based on following json data. Take heavy use of provided analysis and direct quotes from imaginary spectator 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players. Make sure exactly one of Yoosef's quotes starts or ends with 'VETOJA HYVÄT HERRAT!' when talking about shots statistics. He always concentrates on several other aspects of the game in addition."
         }
     ]
 
