@@ -134,6 +134,6 @@ async def write_gpt_summary(game: dict):
     messages.append({"role": "user", "content": "Limit the text to 290 words."})
     
     chat_completion = await openai.ChatCompletion.acreate(
-        model="gpt-3.5-turbo", messages=messages, temperature=0.85
+        model="gpt-3.5-turbo", messages=messages, temperature=0.0
     )
     return chat_completion["choices"][0]["message"]["content"]
