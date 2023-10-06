@@ -3,6 +3,7 @@ import random
 
 import openai
 
+from ilobot.base_logger import logger
 from ilobot.helpers import CLUB_ID, OPEN_API
 from ilobot.jsonmap import match
 
@@ -39,12 +40,22 @@ skip_keys = [
     
 ]
 
+skip_just_player_keys = [
+    "removedReason",
+    "result",
+    "score",
+    "scoreRaw",
+    "scoreString",
+    
+]
+
 # Fixed mappings for key name conversions
 key_mappings = {
     "opponentClubId": "Opponent Club ID",
     "opponentTeamArtAbbr": "Opponent Team abbreviation",
     "teamArtAbbr": "Team abbreviation",
     "name": "Club name",
+    "ppo": "Power-play opportunities"
 }
 
 
@@ -61,10 +72,15 @@ def convert_keys(temp):
         if key.startswith("sk"):
             if temp["position"] == "goalie":
                 continue
+        if key.startswith("skfo") and temp["position"] != "center":
+            continue
         if key.startswith("gl"):
             if temp["position"] != "goalie":
                 continue
-
+        if "position" in temp:
+            if key in skip_just_player_keys:
+                continue
+        
         if isinstance(value, dict):
             # Recursively process nested dictionaries
             converted_data[xxx] = convert_keys(value)
@@ -81,7 +97,10 @@ def convert_keys(temp):
 def clean_up_data(game: dict):
     converted_data = convert_keys(game)
     for key in converted_data["clubs"].keys():
-        converted_data["clubs"][key]["players"] = converted_data["players"][key]
+        if key == str(CLUB_ID):
+            converted_data["clubs"][key]["players"] = converted_data["players"][key]
+        else:
+            converted_data["clubs"][key]["players"] = {} 
     
     clubs = {}    
     for club_id, club_data in converted_data["clubs"].items():
@@ -113,22 +132,17 @@ async def write_gpt_summary(game: dict):
     messages = [
         {
             "role": "system",
-            "content": f"You are a crtical hockey journalist. Mimic the style of the writer {random.choice(hockey_journalists)}. You are writing for the fans of club {our_team}"
+            "content": f"You are a crtical hockey journalist. Mimic the style of the writer {random.choice(hockey_journalists)}. You are writing for the fans of club {our_team}. You critique the performance of the players and give praise to those who deserve it, and point out the mistakes of those who don't."
             
         },
         {
             "role": "user",
-            "content": "Describe events of a hockey game, that likely took place, based on following json data."
+            "content": "Describe events of a hockey game, that likely took place, based on following json data. Use at least one direct quote from imaginary spectator 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players"
         }
     ]
 
     messages.append({"role": "user", "content": json_output})
-    
-    
-    messages.append({"role": "user", "content": "Critique the performance of the players. Give praise to those who deserve it, and point out the mistakes of those who don't."})
-    if random.choice([True, False, True]):
-        messages.append({"role": "system", "content": f"Fans are extremely critical of the performance of the team. They are very passionate about the team and the game. They are very knowledgeable about the game."})
-        messages.append({"role": "user", "content": f"Include a comment from a fan of club {our_team}, mention his made-up first name."})
+        
     if check_dnf(cleaned_game):
         messages.append({"role": "user", "content": "If the data idicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about opponent chickening out by not finishing the game properly."})
     messages.append({"role": "user", "content": "Limit the text to 290 words."})
