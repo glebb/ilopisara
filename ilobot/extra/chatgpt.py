@@ -137,17 +137,19 @@ async def write_gpt_summary(game: dict):
         },
         {
             "role": "user",
-            "content": "Describe events of a hockey game, that likely took place, based on following json data. Take heavy use of provided analysis and direct quotes from imaginary spectator 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players. Make sure exactly one of Yoosef's quotes starts or ends with 'VETOJA HYVÄT HERRAT!' when talking about shots statistics. He always concentrates on several other aspects of the game in addition."
+            "content": "Describe events of a hockey game, that likely took place, based on following json data. Take heavy use of provided analysis and direct quotes from imaginary former general manager 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players. Make sure exactly one of Yoosef's quotes starts or ends with 'VETOJA HYVÄT HERRAT!' when talking about poor shots statistics. He always concentrates on several aspects of the game in addition."
         }
     ]
 
     messages.append({"role": "user", "content": json_output})
         
     if check_dnf(cleaned_game):
-        messages.append({"role": "user", "content": "If the data idicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about opponent chickening out by not finishing the game properly."})
+        messages.append({"role": "user", "content": "If the data indicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about opponent chickening out by not finishing the game properly. Don't mention the data keys or values as such."})
+        messages.append({"role": "assistant", "content": "The opponent cowardly quit the game before it was finished."})
+        messages.append({"role": "assistant", "content": "The opponent demonstrated despicable attitude by quitting the match until it was finished."})
     messages.append({"role": "user", "content": "Limit the text to 290 words."})
     
     chat_completion = await openai.ChatCompletion.acreate(
-        model="gpt-3.5-turbo", messages=messages, temperature=0.0
+        model="gpt-3.5-turbo", messages=messages, temperature=0.9
     )
     return chat_completion["choices"][0]["message"]["content"]
