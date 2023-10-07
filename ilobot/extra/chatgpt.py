@@ -37,6 +37,8 @@ skip_keys = [
     "timestamp",
     "opponent",
     "playerLevel",
+    "skfow",
+    "skfol",
     
 ]
 
@@ -125,7 +127,7 @@ def check_dnf(game: dict):
 
 hockey_journalists = ["Bob McKenzie", "Elliotte Friedman", "Pierre LeBrun", "Darren Dreger", "Katie Strang"]
 
-async def write_gpt_summary(game: dict):
+async def write_gpt_summary(game: dict, history=None):
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
     cleaned_game = clean_up_data(game)
     json_output = json.dumps(cleaned_game)
@@ -137,7 +139,7 @@ async def write_gpt_summary(game: dict):
         },
         {
             "role": "user",
-            "content": "Describe events of a hockey game, that likely took place, based on following json data. Take heavy use of provided analysis and direct quotes from imaginary former general manager 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players. Make sure exactly one of Yoosef's quotes starts or ends with 'VETOJA HYVÄT HERRAT!' when talking about poor shots statistics. He always concentrates on several aspects of the game in addition."
+            "content": "Describe events of a hockey game, that likely took place, based on following json data. Take heavy use of provided analysis and direct quotes from imaginary general manager 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players. Make sure exactly one of Yoosef's quotes starts or ends with 'VETOJA HYVÄT HERRAT!' when talking about poor shots statistics. He always concentrates on several aspects of the players, not just shots."
         }
     ]
 
