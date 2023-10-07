@@ -143,7 +143,7 @@ async def write_gpt_summary(game: dict, history=None):
         }
     ]
     if random.choice([True, False]):
-        messages.append({"role": "user", "content": "Have Yoosef additionally comment shots on net, always using a phrase 'VETOJA HYVÄT HERRAT!'"})
+        messages.append({"role": "user", "content": "Have Yoosef additionally comment shots on net, using a phrase 'VETOJA HYVÄT HERRAT!'"})
         messages.append({"role": "assistant", "content": "VETOJA HYVÄT HERRAT! We can only win if we shoot!"})
          
     messages.append({"role": "user", "content": json_output})
