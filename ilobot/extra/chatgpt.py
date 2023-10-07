@@ -139,10 +139,13 @@ async def write_gpt_summary(game: dict, history=None):
         },
         {
             "role": "user",
-            "content": "Describe events of a hockey game, that likely took place, based on following json data. Take heavy use of provided analysis and direct quotes from imaginary general manager 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players. Make sure exactly one of Yoosef's quotes starts or ends with 'VETOJA HYVÄT HERRAT!' when talking about poor shots statistics. He always concentrates on several aspects of the players, not just shots."
+            "content": "Describe events of a hockey game, that likely took place, based on following json data. Take heavy use of provided analysis and direct quotes from imaginary general manager 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players. He always concentrates on several weaker aspects of individual players."
         }
     ]
-
+    if random.choice([True, False]):
+        messages.append({"role": "user", "content": "Have Yoosef additionally comment shots on net, always using a phrase 'VETOJA HYVÄT HERRAT!'"})
+        messages.append({"role": "assistant", "content": "VETOJA HYVÄT HERRAT! We can only win if we shoot!"})
+         
     messages.append({"role": "user", "content": json_output})
         
     if check_dnf(cleaned_game):
