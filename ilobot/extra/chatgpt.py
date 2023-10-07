@@ -143,9 +143,9 @@ async def write_gpt_summary(game: dict, history=None):
             "content": "Describe events of a hockey game, that likely took place, based on following json data. Take heavy use of provided analysis and direct quotes from imaginary general manager 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players. He always concentrates on several weaker aspects of individual players."
         }
     ]
-    if random.choice([True, False]):
-        messages.append({"role": "user", "content": "Have Yoosef additionally comment shots on net, using a phrase 'VETOJA HYVÄT HERRAT!'"})
-        messages.append({"role": "assistant", "content": "VETOJA HYVÄT HERRAT! We can only win if we shoot!"})
+    #if random.choice([True, False]):
+    #    messages.append({"role": "user", "content": "Have Yoosef additionally comment shots on net, using a phrase 'VETOJA HYVÄT HERRAT!'"})
+    #    messages.append({"role": "assistant", "content": "VETOJA HYVÄT HERRAT! We can only win if we shoot!"})
          
     messages.append({"role": "user", "content": json_output})
         
