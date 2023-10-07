@@ -2,6 +2,7 @@ import json
 import random
 
 import openai
+from openai.error import ServiceUnavailableError
 
 from ilobot.base_logger import logger
 from ilobot.helpers import CLUB_ID, OPEN_API
@@ -154,7 +155,11 @@ async def write_gpt_summary(game: dict, history=None):
         messages.append({"role": "assistant", "content": "The opponent demonstrated despicable attitude by quitting the match until it was finished."})
     messages.append({"role": "user", "content": "Limit the text to 290 words."})
     
-    chat_completion = await openai.ChatCompletion.acreate(
+    try:
+        chat_completion = await openai.ChatCompletion.acreate(
         model="gpt-3.5-turbo", messages=messages, temperature=0.9
     )
+    except ServiceUnavailableError:
+        logger.exception("OPENAI error")
+        return None        
     return chat_completion["choices"][0]["message"]["content"]
