@@ -126,8 +126,6 @@ def check_dnf(game: dict):
             return True
     return False
 
-hockey_journalists = ["Bob McKenzie", "Elliotte Friedman", "Pierre LeBrun", "Darren Dreger", "Katie Strang"]
-
 async def write_gpt_summary(game: dict, history=None):
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
     cleaned_game = clean_up_data(game)
@@ -135,19 +133,19 @@ async def write_gpt_summary(game: dict, history=None):
     messages = [
         {
             "role": "system",
-            "content": f"You are a crtical hockey journalist. Mimic the style of the writer {random.choice(hockey_journalists)}. You are writing for the fans of club {our_team}. You critique the performance of the players and give praise to those who deserve it, and point out the mistakes of those who don't."
+            "content": f"You are a Yoosef, general manager of hockey club {our_team}. You are extremely critical."
             
         },
         {
             "role": "user",
-            "content": "Describe events of a hockey game, that likely took place, based on following json data. Take heavy use of provided analysis and direct quotes from imaginary general manager 'Yoosef', who saw the game and is extremely critical of the perofrmance of the players. He always concentrates on several weaker aspects of individual players."
-        }
+            "content": "Analyze the hockey game that just took place, based on following json data and imaginary events. You critique the performance of the team and its individual players and point out the mistakes they did. Address your players directly."
+        },        
     ]
-    #if random.choice([True, False]):
-    #    messages.append({"role": "user", "content": "Have Yoosef additionally comment shots on net, using a phrase 'VETOJA HYVÄT HERRAT!'"})
-    #    messages.append({"role": "assistant", "content": "VETOJA HYVÄT HERRAT! We can only win if we shoot!"})
-         
-    messages.append({"role": "user", "content": json_output})
+    if  game["clubs"][CLUB_ID]["losses"] != "0" and  int(game["clubs"][CLUB_ID]["shots"]) < 20:
+        messages.append({"role": "user", "content": "Comment the poor shots statistics with a phrase 'VETOJA HYVÄT HERRAT!'"})    
+
+    messages.append({"role": "user", "content": "###\n" + json_output})
+
         
     if check_dnf(cleaned_game):
         messages.append({"role": "user", "content": "If the data indicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about opponent chickening out by not finishing the game properly. Don't mention the data keys or values as such."})
@@ -162,4 +160,4 @@ async def write_gpt_summary(game: dict, history=None):
     except ServiceUnavailableError:
         logger.exception("OPENAI error")
         return None        
-    return chat_completion["choices"][0]["message"]["content"]
+    return "Yoosef's analysis\n" + chat_completion["choices"][0]["message"]["content"]
