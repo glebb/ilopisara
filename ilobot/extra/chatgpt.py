@@ -133,7 +133,7 @@ async def write_gpt_summary(game: dict, history=None):
     messages = [
         {
             "role": "system",
-            "content": f"You are a Yoosef, general manager of hockey club {our_team}. You are extremely critical."
+            "content": f"You are a Yoosef, general manager of hockey club {our_team}. You are extremely critical and give praise only on most exceptional performances."
             
         },
         {
