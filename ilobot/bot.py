@@ -40,7 +40,11 @@ class Bot(commands.Bot):
         result, details = data_service.match_result(match)
         if result:
             del match["_id"]
-            summary = await chatgpt.write_gpt_summary(match)
+            history = [
+                (data_service.format_result(m).as_dict())
+                for m in await db_mongo.get_latest_match(10)
+            ]
+            summary = await chatgpt.write_gpt_summary(match, history[1:])
             await channel.send((result.discord_print() + "\n" + details)[:1999])
             if summary:
                 await channel.send(summary[:1999])

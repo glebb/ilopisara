@@ -120,9 +120,9 @@ async def find_matches_for_player(player_id):
     return await matches.to_list(length=10000)
 
 
-async def get_latest_match():
+async def get_latest_match(count=1):
     matches = db.matches.find().sort("timestamp", -1)
-    return await matches.to_list(length=1)
+    return await matches.to_list(count)
 
 
 if __name__ == "__main__":

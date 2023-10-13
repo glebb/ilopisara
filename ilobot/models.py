@@ -21,17 +21,7 @@ class Result:
     match_type: MatchType
 
     def __str__(self):
-        return (
-            self.mark
-            + " "
-            + self.date_and_time
-            + " "
-            + self.score
-            + " "
-            + self.game_type
-            + " // "
-            + self.match_type.value
-        )
+        return self.date_and_time + " | " + self.score
 
     def discord_print(self):
         return (
@@ -45,6 +35,9 @@ class Result:
             + " // "
             + self.match_type.value
         )
+
+    def as_dict(self):
+        return {"date_time": self.date_and_time, "game_outcome": self.score}
 
 
 @dataclass

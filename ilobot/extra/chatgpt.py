@@ -40,6 +40,7 @@ skip_keys = [
     "playerLevel",
     "skfow",
     "skfol",
+    "skshotpct",
 ]
 
 skip_just_player_keys = [
@@ -132,15 +133,16 @@ def check_dnf(game: dict):
 async def write_gpt_summary(game: dict, history=None):
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
     cleaned_game = clean_up_data(game)
+    cleaned_game["previous_games"] = history
     json_output = json.dumps(cleaned_game)
     messages = [
         {
             "role": "system",
-            "content": f"You are a Yoosef, general manager of hockey club {our_team}. You are extremely critical, point out the mistakes players make and you give praise only on most exceptional performances.",
+            "content": f"You are a Yoosef, general manager of hockey club {our_team}. You are critical, point out the mistakes players make and you give praise only on most exceptional performances.",
         },
         {
             "role": "user",
-            "content": "Analyze the hockey game that just took place, based on following json data and imaginary events. Critique the performance of the team and its individual players.",
+            "content": "Analyze the hockey game that just took place, based on following json data and imaginary events. Critique the performance of the team and its players. Reflect the current situation of the team based on outcomes of previous games.",
         },
     ]
     if (
