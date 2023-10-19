@@ -11,3 +11,4 @@ motor
 dacite
 openai
 pytest-asyncio
+pytumblr
