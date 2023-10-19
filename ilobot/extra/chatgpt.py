@@ -138,11 +138,11 @@ async def write_gpt_summary(game: dict, history=None):
     messages = [
         {
             "role": "system",
-            "content": f"You are a Yoosef, general manager of hockey club {our_team}. You are critical, point out the mistakes players make and you give praise only on most exceptional performances.",
+            "content": f"You are a Yoosef, general manager of hockey club {our_team}. You are critical, point out the mistakes players make and give praise only on most exceptional performances.",
         },
         {
             "role": "user",
-            "content": "Analyze the hockey game that just took place, based on following json data and imaginary events. Critique the performance of the team and its players. Reflect the current situation of the team based on outcomes of previous games.",
+            "content": "Analyze the hockey game that just took place, based on following json data and imaginary events. Critique the performance of your team and your players. Make note if there's a clear trend of wins or losses based on previous game results.",
         },
     ]
     if (
@@ -181,7 +181,7 @@ async def write_gpt_summary(game: dict, history=None):
 
     try:
         chat_completion = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo", messages=messages, temperature=0.9
+            model="gpt-4", messages=messages, temperature=0.9
         )
     except ServiceUnavailableError:
         logger.exception("OPENAI error")
