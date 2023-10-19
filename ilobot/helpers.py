@@ -9,7 +9,7 @@ from ilobot.models import Match
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 load_dotenv(f"{__location__}/../.env")
 DB_NAME = os.getenv("DB_NAME")
-API_KEY = os.getenv('GIPHY_API_KEY')
+API_KEY = os.getenv("GIPHY_API_KEY")
 OPEN_API = os.getenv("OPEN_API")
 DEBUG = int(os.getenv("DEBUG"))
 CLUB_ID = os.getenv("CLUB_ID")
@@ -21,6 +21,10 @@ CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
 OAUTH = os.getenv("TWITCH_OAUTH")
 STREAMERS = os.getenv("TWITCH_STREAMERS")
 TWITCH_CHANNEL = os.getenv("TWITCH_CHANNEL")
+TUMBLR_KEY = os.getenv("TUMBLR_KEY")
+TUMBLR_SECRET = os.getenv("TUMBLR_SECRET")
+TUMBLR_OAUTH_KEY = os.getenv("TUMBLR_OAUTH_KEY")
+TUMBLR_OAUTH_SECRET = os.getenv("TUMBLR_OAUTH_SECRET")
 
 PLATFORMS = {
     "common-gen5": "common-gen5",

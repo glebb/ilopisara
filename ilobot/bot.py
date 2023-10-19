@@ -10,6 +10,7 @@ from ilobot.ApplicationCommandCog import ApplicationCommandCog
 from ilobot.base_logger import logger
 from ilobot.data import api
 from ilobot.extra import chatgpt
+from ilobot.tumblrl import tumblr_client
 from ilobot.twitch import Twitcher, TwitchStatus
 
 from .models import Match
@@ -44,10 +45,18 @@ class Bot(commands.Bot):
                 (data_service.format_result(m).as_dict())
                 for m in await db_mongo.get_latest_match(10)
             ]
-            summary = await chatgpt.write_gpt_summary(match, history[1:])
+            summary: str = await chatgpt.write_gpt_summary(match, history[1:])
             await channel.send((result.discord_print() + "\n" + details)[:1999])
             if summary:
-                await channel.send(summary[:1999])
+                await channel.send(("\nYoosef's analysis\n" + summary)[:1999])
+                try:
+                    tumblr_client.create_text(
+                        "ilopisara.tumblr.com",
+                        body=summary.replace("\n", "<br />"),
+                        title=str(result),
+                    )
+                except:
+                    logger.exception("Tumblr error")
 
     def get_team_names(self):
         short_list = list(self.all_teams[-24:])

@@ -186,4 +186,4 @@ async def write_gpt_summary(game: dict, history=None):
     except ServiceUnavailableError:
         logger.exception("OPENAI error")
         return None
-    return "Yoosef's analysis\n" + chat_completion["choices"][0]["message"]["content"]
+    return chat_completion["choices"][0]["message"]["content"]
