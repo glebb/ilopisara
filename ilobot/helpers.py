@@ -25,6 +25,7 @@ TUMBLR_KEY = os.getenv("TUMBLR_KEY")
 TUMBLR_SECRET = os.getenv("TUMBLR_SECRET")
 TUMBLR_OAUTH_KEY = os.getenv("TUMBLR_OAUTH_KEY")
 TUMBLR_OAUTH_SECRET = os.getenv("TUMBLR_OAUTH_SECRET")
+TUMBLR_BLOG = os.getenv("TUMBLR_BLOG")
 
 PLATFORMS = {
     "common-gen5": "common-gen5",
