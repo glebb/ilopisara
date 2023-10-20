@@ -5,17 +5,17 @@ import nextcord
 from dacite import from_dict
 from nextcord.ext import commands, tasks
 
-from ilobot import data_service, db_mongo, helpers
+from ilobot import data_service, db_mongo, helpers, tumblrl
 from ilobot.ApplicationCommandCog import ApplicationCommandCog
 from ilobot.base_logger import logger
 from ilobot.data import api
 from ilobot.extra import chatgpt
-from ilobot.tumblrl import tumblr_client
 from ilobot.twitch import Twitcher, TwitchStatus
 
 from .models import Match
 
 team_name = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
+logger.info(team_name)
 intents = nextcord.Intents.all()
 
 
@@ -50,10 +50,10 @@ class Bot(commands.Bot):
             if summary:
                 await channel.send(("\nYoosef's analysis\n" + summary)[:1999])
                 try:
-                    tumblr_client.create_text(
-                        "ilopisara.tumblr.com",
-                        body=summary.replace("\n", "<br />"),
+                    tumblrl.post(
+                        summary,
                         title=str(result),
+                        tags=["nhl24"],
                     )
                 except:
                     logger.exception("Tumblr error")
