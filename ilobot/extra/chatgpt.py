@@ -1,10 +1,10 @@
 import json
-import random
 
 import openai
 from openai.error import ServiceUnavailableError
 
 from ilobot.base_logger import logger
+from ilobot.data import api
 from ilobot.helpers import CLUB_ID, OPEN_API
 from ilobot.jsonmap import match
 
@@ -112,9 +112,12 @@ def clean_up_data(game: dict):
         clubs[club_name]["clubId"] = club_id
         del clubs[club_name]["details"]
         clubs[club_name]["players"] = {
-            player_data["playername"]: player_data
+            api.get_member(player_data["playername"])["skplayername"]
+            or player_data["playername"]: player_data
             for player_id, player_data in club_data["players"].items()
         }
+        for player in clubs[club_name]["players"]:
+            clubs[club_name]["players"][player]["playername"] = player
     del converted_data["players"]
     converted_data["clubs"] = clubs
     return converted_data

@@ -16,6 +16,11 @@ from .models import Match
 
 team_name = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
 logger.info(team_name)
+names = {}
+for member in api.get_members():
+    names[member["name"]] = api.get_member(member["name"])["skplayername"]
+logger.info(names)
+
 intents = nextcord.Intents.all()
 
 
