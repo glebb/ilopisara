@@ -165,25 +165,19 @@ async def write_gpt_summary(game: dict, history=None):
         messages.append(
             {
                 "role": "user",
-                "content": "If the data indicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about the team chickening out by not finishing the game properly. Don't mention the data keys or values as such. If it was our team, make it even a bigger of a deal!",
+                "content": f"If the data indicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about the other chickening out by not finishing the game properly. Don't mention the data keys or values as such. If it was the opponent who won by {our_team} not finishing the team, raise hell.",
             }
         )
         messages.append(
             {
                 "role": "assistant",
-                "content": "The opponent cowardly quit the game before it was finished.",
+                "content": "The team cowardly quit the game before it was finished.",
             }
         )
         messages.append(
             {
                 "role": "assistant",
-                "content": "The opponent demonstrated despicable attitude by quitting the match until it was finished.",
-            }
-        )
-        messages.append(
-            {
-                "role": "assistant",
-                "content": "I can't believe you chose to quit the game. Shameful. Disgrace. It makes me sick.",
+                "content": "The team demonstrated despicable attitude by quitting the match until it was finished.",
             }
         )
     messages.append(
@@ -192,7 +186,7 @@ async def write_gpt_summary(game: dict, history=None):
 
     try:
         chat_completion = await openai.ChatCompletion.acreate(
-            model="gpt-4", messages=messages, temperature=0.9
+            model="gpt-", messages=messages, temperature=0.9
         )
     except (ServiceUnavailableError, RateLimitError):
         logger.exception("OPENAI error")
