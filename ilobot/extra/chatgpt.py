@@ -165,7 +165,7 @@ async def write_gpt_summary(game: dict, history=None):
         messages.append(
             {
                 "role": "user",
-                "content": "If the data indicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about opponent chickening out by not finishing the game properly. Don't mention the data keys or values as such.",
+                "content": "If the data indicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about the team chickening out by not finishing the game properly. Don't mention the data keys or values as such. If it was our team, make it even a bigger of a deal!",
             }
         )
         messages.append(
@@ -178,6 +178,12 @@ async def write_gpt_summary(game: dict, history=None):
             {
                 "role": "assistant",
                 "content": "The opponent demonstrated despicable attitude by quitting the match until it was finished.",
+            }
+        )
+        messages.append(
+            {
+                "role": "assistant",
+                "content": "I can't believe you chose to quit the game. Shameful. Disgrace. It makes me sick.",
             }
         )
     messages.append({"role": "user", "content": "Limit the text to 290 words."})

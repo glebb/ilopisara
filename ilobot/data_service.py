@@ -46,6 +46,7 @@ def format_result(match_raw: dict) -> Result:
         score=score_teams + " " + score_result,
         game_type=helpers.get_match_type_mark(match),
         match_id=match.matchId,
+        summary=match.summary,
         match_type=match.clubs[helpers.CLUB_ID].get_match_type(),
     )
 

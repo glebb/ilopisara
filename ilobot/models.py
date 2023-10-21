@@ -19,6 +19,7 @@ class Result:
     game_type: str
     match_id: str
     match_type: MatchType
+    summary: str = ""
 
     def __str__(self):
         return self.date_and_time + " | " + self.score
@@ -36,8 +37,12 @@ class Result:
             + self.match_type.value
         )
 
-    def as_dict(self):
-        return {"date_time": self.date_and_time, "game_outcome": self.score}
+    def as_chatgpt_history(self):
+        return {
+            "date_time": self.date_and_time,
+            "game_outcome": self.score,
+            "gm_recap_abstract": self.summary.split("\n")[-1],
+        }
 
 
 @dataclass
@@ -254,6 +259,7 @@ class Match:
     win: bool
     opponent: Opponent
     gameType: str
+    summary: str = ""
 
 
 @dataclass

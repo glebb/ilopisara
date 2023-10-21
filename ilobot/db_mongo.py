@@ -11,9 +11,10 @@ from cachetools import TTLCache, cached
 from dacite import MissingValueError, from_dict
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from ilobot import db_utils, helpers
+from ilobot import data_service, db_utils, helpers
 from ilobot.base_logger import logger
 from ilobot.data import api
+from ilobot.extra import chatgpt
 from ilobot.helpers import DB_NAME
 from ilobot.models import Match
 
@@ -62,9 +63,15 @@ async def update_matches(club_id, platform):
             try:
                 from_dict(data_class=Match, data=enriched_match)
                 logger.info(f"Successfully parsed match {enriched_match['matchId']}")
-            except MissingValueError as e:
+            except MissingValueError:
                 logger.exception(f"Error parsing match {enriched_match['matchId']}")
                 continue
+            history = [
+                (data_service.format_result(m).as_chatgpt_history())
+                for m in await get_latest_match(10)
+            ]
+            summary: str = await chatgpt.write_gpt_summary(match, history)
+            enriched_match["summary"] = summary
             await db["matches" + postfix].update_one(
                 {"matchId": match["matchId"]},
                 {"$setOnInsert": enriched_match},
