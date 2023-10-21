@@ -1,7 +1,7 @@
 import json
 
 import openai
-from openai.error import ServiceUnavailableError
+from openai.error import RateLimitError, ServiceUnavailableError
 
 from ilobot.base_logger import logger
 from ilobot.data import api
@@ -186,13 +186,16 @@ async def write_gpt_summary(game: dict, history=None):
                 "content": "I can't believe you chose to quit the game. Shameful. Disgrace. It makes me sick.",
             }
         )
-    messages.append({"role": "user", "content": "Limit the text to 290 words."})
+    messages.append(
+        {"role": "user", "content": "Limit the reply to 290 words maximum."}
+    )
 
     try:
         chat_completion = await openai.ChatCompletion.acreate(
-            model="gpt-4", messages=messages, temperature=0.9
+            model="gpt-3.5-turbo", messages=messages, temperature=0.9
         )
-    except ServiceUnavailableError:
+    except (ServiceUnavailableError, RateLimitError):
         logger.exception("OPENAI error")
         return None
+
     return chat_completion["choices"][0]["message"]["content"]

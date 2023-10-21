@@ -26,7 +26,7 @@ def test_clean_up_data():
 
 @pytest.mark.asyncio
 async def test_chat_is_generated():
-    history = await db_mongo.get_latest_match(20)
+    history = await db_mongo.get_latest_match(2)
     results = [(data_service.format_result(m).as_chatgpt_history()) for m in history]
     del history[0]["_id"]
     del history[0]["summary"]

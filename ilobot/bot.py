@@ -45,12 +45,27 @@ class Bot(commands.Bot):
         channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
         result, details = data_service.match_result(match)
         if result:
+            history = [
+                (data_service.format_result(m).as_chatgpt_history())
+                for m in await db_mongo.get_latest_match(4)
+            ]
+            db_id = match.pop("_id")
+            temp = []
+            for x in history[1:-1]:
+                x["gm_recap_abstract"] = ""
+                temp.append(x)
+            temp.append(history[-1])
+
+            summary: str = await chatgpt.write_gpt_summary(match, temp)
             await channel.send((result.discord_print() + "\n" + details)[:1999])
-            if match["summary"]:
-                await channel.send(("\nYoosef's analysis\n" + match["summary"])[:1999])
+            if summary:
+                db_mongo.db.matches.update_one(
+                    {"_id": db_id}, {"$set": {"summary": summary}}
+                )
+                await channel.send(("\nYoosef's analysis\n" + summary)[:1999])
                 try:
                     tumblrl.post(
-                        match["summary"],
+                        summary,
                         title=str(result),
                         tags=["nhl24"],
                     )
