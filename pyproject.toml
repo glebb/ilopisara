@@ -11,3 +11,4 @@ disable = "missing-class-docstring,no-member,missing-function-docstring,missing-
 
 [tool.pytest.ini_options]
 log_cli = 1 
+asyncio_mode = "auto"

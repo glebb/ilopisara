@@ -56,12 +56,17 @@ class Bot(commands.Bot):
                 temp.append(x)
             temp.append(history[-1])
 
-            summary: str = await chatgpt.write_gpt_summary(match, temp)
+            summary: str = (
+                await chatgpt.write_gpt_summary(match, temp)
+                if not match["summary"]
+                else match["summary"]
+            )
             await channel.send((result.discord_print() + "\n" + details)[:1999])
             if summary:
-                db_mongo.db.matches.update_one(
-                    {"_id": db_id}, {"$set": {"summary": summary}}
-                )
+                if not match["summary"]:
+                    db_mongo.db.matches.update_one(
+                        {"_id": db_id}, {"$set": {"summary": summary}}
+                    )
                 await channel.send(("\nYoosef's analysis\n" + summary)[:1999])
                 try:
                     tumblrl.post(

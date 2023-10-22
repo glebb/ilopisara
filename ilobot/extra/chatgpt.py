@@ -49,6 +49,7 @@ skip_just_player_keys = [
     "score",
     "scoreRaw",
     "scoreString",
+    "teamSide",
 ]
 
 # Fixed mappings for key name conversions
@@ -136,8 +137,8 @@ def check_dnf(game: dict):
 async def write_gpt_summary(game: dict, history=None):
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
     cleaned_game = clean_up_data(game)
-    cleaned_game["previous_games"] = history
     json_output = json.dumps(cleaned_game)
+    history_json_output = json.dumps({"previous_games": history})
     messages = [
         {
             "role": "system",
@@ -159,7 +160,8 @@ async def write_gpt_summary(game: dict, history=None):
             }
         )
 
-    messages.append({"role": "user", "content": "###\n" + json_output})
+    messages.append({"role": "user", "content": "\n###\n" + json_output + "\n"})
+    messages.append({"role": "user", "content": "\n###\n" + history_json_output + "\n"})
 
     if check_dnf(cleaned_game):
         messages.append(
@@ -186,7 +188,7 @@ async def write_gpt_summary(game: dict, history=None):
 
     try:
         chat_completion = await openai.ChatCompletion.acreate(
-            model="gpt-", messages=messages, temperature=0.9
+            model="gpt-3.5-turbo", messages=messages, temperature=0.9
         )
     except (ServiceUnavailableError, RateLimitError):
         logger.exception("OPENAI error")
