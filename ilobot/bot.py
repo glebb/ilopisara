@@ -63,7 +63,7 @@ class Bot(commands.Bot):
             )
             await channel.send((result.discord_print() + "\n" + details)[:1999])
             if summary:
-                if not match["summary"]:
+                if "summary" not in match:
                     db_mongo.db.matches.update_one(
                         {"_id": db_id}, {"$set": {"summary": summary}}
                     )
