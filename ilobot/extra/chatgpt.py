@@ -188,7 +188,7 @@ async def write_gpt_summary(game: dict, history=None):
 
     try:
         chat_completion = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo", messages=messages, temperature=0.9
+            model="gpt-4", messages=messages, temperature=0.9
         )
     except (ServiceUnavailableError, RateLimitError):
         logger.exception("OPENAI error")
