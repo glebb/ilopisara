@@ -58,7 +58,7 @@ class Bot(commands.Bot):
 
             summary: str = (
                 await chatgpt.write_gpt_summary(match, temp)
-                if not match["summary"]
+                if "summary" not in match
                 else match["summary"]
             )
             await channel.send((result.discord_print() + "\n" + details)[:1999])
