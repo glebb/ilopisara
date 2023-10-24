@@ -1,4 +1,4 @@
-import pytumblr
+import pytumblr  # type: ignore
 
 from ilobot.helpers import (
     TUMBLR_BLOG,
@@ -13,7 +13,9 @@ tumblr_client = pytumblr.TumblrRestClient(
 )
 
 
-def post(raw_text: str, title=None, tags=[]):
+def post(raw_text: str, title=None, tags=None):
+    if not tags:
+        tags = []
     return tumblr_client.create_text(
         TUMBLR_BLOG, body=raw_text.replace("\n", "<br />"), title=title, tags=tags
     )

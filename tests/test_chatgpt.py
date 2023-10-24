@@ -1,11 +1,9 @@
 # pylint: disable=C0413
 import json
 import os
-import sys
 
 import pytest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from ilobot import data_service, db_mongo
 from ilobot.base_logger import logger
 from ilobot.db_utils import enrich_match
@@ -33,7 +31,8 @@ async def test_chat_is_generated():
     history = await db_mongo.get_latest_match(2)
     results = [(data_service.format_result(m).as_chatgpt_history()) for m in history]
     del history[0]["_id"]
-    del history[0]["summary"]
+    if "summary" in history[0]:
+        del history[0]["summary"]
     summary = await chatgpt.write_gpt_summary(history[0], results[1:])
     logger.info(history[0])
     logger.info(results[1])

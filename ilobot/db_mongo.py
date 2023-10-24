@@ -2,7 +2,6 @@
 
 import asyncio
 import getopt
-import os
 import sys
 
 import motor.motor_asyncio
@@ -10,7 +9,6 @@ import pymongo.errors
 from cachetools import TTLCache, cached
 from dacite import MissingValueError, from_dict
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from ilobot import db_utils, helpers
 from ilobot.base_logger import logger
 from ilobot.data import api
@@ -40,13 +38,13 @@ async def watch(result_handler):
                     await result_handler((insert_change["fullDocument"]))
 
 
-async def update_matches(club_id, platform):
+async def update_matches(team_id, system):
     for game_type in helpers.GAMETYPE:
         postfix = ""
-        if club_id != helpers.CLUB_ID:
-            postfix = "_" + club_id + "_" + platform
+        if team_id != helpers.CLUB_ID:
+            postfix = "_" + team_id + "_" + system
         matches = api.get_matches(
-            club_id=club_id, platform=platform, count=10, game_type=game_type.value
+            club_id=team_id, platform=system, count=10, game_type=game_type.value
         )
         for match in reversed(matches):
             if len(match["aggregate"]) != 2:

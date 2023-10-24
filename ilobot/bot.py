@@ -1,12 +1,13 @@
 import datetime
+import pprint
 import sys
+from typing import cast
 
 import nextcord
 from dacite import from_dict
 from nextcord.ext import commands, tasks
 
 from ilobot import data_service, db_mongo, helpers, tumblrl
-from ilobot.ApplicationCommandCog import ApplicationCommandCog
 from ilobot.base_logger import logger
 from ilobot.data import api
 from ilobot.extra import chatgpt
@@ -14,12 +15,12 @@ from ilobot.twitch import Twitcher, TwitchStatus
 
 from .models import Match
 
-team_name = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
-logger.info(team_name)
-names = {}
+TEAM_NAME = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
+player_names = {}
 for member in api.get_members():
-    names[member["name"]] = api.get_member(member["name"])["skplayername"]
-logger.info(names)
+    player_names[member["name"]] = api.get_member(member["name"])["skplayername"]
+logger.info(f"Team: {helpers.CLUB_ID} - {TEAM_NAME}")
+logger.info("Players: \n" + pprint.pformat(player_names))
 
 intents = nextcord.Intents.all()
 
@@ -42,12 +43,14 @@ class Bot(commands.Bot):
 
     async def report_results(self, match: dict):
         logger.info("Report results to channel")
-        channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
+        channel: nextcord.PartialMessageable = cast(
+            nextcord.PartialMessageable, self.get_channel(int(helpers.DISCORD_CHANNEL))
+        )
         result, details = data_service.match_result(match)
         if result:
             history = [
                 (data_service.format_result(m).as_chatgpt_history())
-                for m in await db_mongo.get_latest_match(4)
+                for m in await db_mongo.get_latest_match(6)
             ]
             db_id = match.pop("_id")
             temp = []
@@ -64,25 +67,22 @@ class Bot(commands.Bot):
             await channel.send((result.discord_print() + "\n" + details)[:1999])
             if summary:
                 if "summary" not in match:
-                    db_mongo.db.matches.update_one(
+                    await db_mongo.db.matches.update_one(
                         {"_id": db_id}, {"$set": {"summary": summary}}
                     )
                 await channel.send(("\nYoosef's analysis\n" + summary)[:1999])
-                try:
-                    tumblrl.post(
-                        summary,
-                        title=str(result),
-                        tags=["nhl24"],
-                    )
-                except:
-                    logger.exception("Tumblr error")
+                tumblrl.post(
+                    summary,
+                    title=str(result),
+                    tags=["nhl24"],
+                )
 
     def get_team_names(self):
         short_list = list(self.all_teams[-24:])
         try:
-            short_list.insert(0, short_list.pop(short_list.index(team_name)))
+            short_list.insert(0, short_list.pop(short_list.index(TEAM_NAME)))
         except ValueError:
-            short_list.insert(0, team_name)
+            short_list.insert(0, TEAM_NAME)
         except:
             logger.error("Unexpected error:", sys.exc_info()[0])
             raise
@@ -130,8 +130,3 @@ class Bot(commands.Bot):
             channel = self.get_channel(int(helpers.TWITCH_CHANNEL))
             logger.info(f"Stream activated {self.twitcher.stream_url}")
             await channel.send("Stream started: " + self.twitcher.stream_url)
-
-
-bot = Bot()
-bot.add_cog(ApplicationCommandCog(bot))
-bot.run(helpers.TOKEN)

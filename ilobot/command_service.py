@@ -7,10 +7,10 @@ from ilobot.data import api
 
 async def results(club_id=None, game_type=None) -> List[data_service.Result]:
     matches = await db_mongo.find_matches_by_club_id(club_id, game_type)
-    results = []
+    data = []
     for i in range(0, len(matches))[-20:]:
-        results.append(data_service.format_result(matches[i]))
-    return results
+        data.append(data_service.format_result(matches[i]))
+    return data
 
 
 async def match(match_id):
@@ -80,7 +80,7 @@ async def member_stats(name, stats_filter=None, send_dm=False):
 async def game_record(stats_filter, player_name=None, position=None, team_stats=None):
     result = ""
     if team_stats:
-        if team_stats in jsonmap.club_stats.keys():
+        if team_stats in jsonmap.club_stats:
             data_set = "clubs"
             key = jsonmap.club_stats.get(team_stats)
         else:
@@ -89,8 +89,8 @@ async def game_record(stats_filter, player_name=None, position=None, team_stats=
         query = f"{data_set}.{helpers.CLUB_ID}.{key}"
         matches = await db_mongo.get_sorted_matches(query)
         index = 0
-        for match in matches:
-            if float(match[data_set][helpers.CLUB_ID][key]) < float(
+        for raw_match in matches:
+            if float(raw_match[data_set][helpers.CLUB_ID][key]) < float(
                 matches[0][data_set][helpers.CLUB_ID][key]
             ):
                 break
@@ -98,8 +98,8 @@ async def game_record(stats_filter, player_name=None, position=None, team_stats=
         result = (
             f"Team {team_stats} record: {matches[0][data_set][helpers.CLUB_ID][key]}\n"
         )
-        for match in matches[:index]:
-            result += data_service.format_result(match).discord_print() + "\n"
+        for raw_match in matches[:index]:
+            result += data_service.format_result(raw_match).discord_print() + "\n"
         return result, [data_service.format_result(x) for x in matches[:index]]
 
     matches = await db_mongo.find_matches_by_club_id(player_name=player_name)

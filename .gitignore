@@ -246,3 +246,4 @@ firebase-credentials.json
 .DS_Store
 
 *.log
+log.txt

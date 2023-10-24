@@ -1,10 +1,6 @@
 # pylint: disable=C0413
 import os
-import sys
 
-import pytest
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from ilobot import tumblrl
 from ilobot.base_logger import logger
 from ilobot.helpers import TUMBLR_BLOG

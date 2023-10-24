@@ -28,9 +28,10 @@ def format_result(match_raw: dict) -> Result:
     else:
         match = match_raw
     timestamp = int(match.timestamp)
-    score_time = datetime.fromtimestamp(timestamp)
-    score_time = score_time.astimezone(pytz.timezone("Europe/Helsinki")).strftime(
-        "%d.%m. %H:%M"
+    score_time = (
+        datetime.fromtimestamp(timestamp)
+        .astimezone(pytz.timezone("Europe/Helsinki"))
+        .strftime("%d.%m. %H:%M")
     )
     opponent_id = match.clubs[helpers.CLUB_ID].opponentClubId
     opponent_name = (
@@ -151,10 +152,10 @@ def top_stats(members_raw: List[dict], stats_filter: str, per_game=False):
         ):
             value = getattr(member, key)
             if per_game:
-                value = str(round(float(getattr(member, key)) / float(member.skgp), 1))
+                value = str(round(float(getattr(member, key)) / float(member.skgp), 2))
             reply += "" + member.name + " " + value + per_game_text + "\n"
     except (TypeError, ValueError):
-        for member in sorted(members, key=lambda m: m[key], reverse=True):
+        for member in sorted(members, key=lambda m: getattr(m, key), reverse=True):
             value = getattr(member, key)
             reply += member.name + " " + value + "\n"
     except KeyError:
@@ -170,17 +171,19 @@ def _should_update_record(existing_record, new_record):
     )
 
 
-def _matches_existing_record(new_record: Record, existing_record: Record):
-    return float(new_record.stats_value) == float(existing_record.stats_value)
+def _matches_existing_record(new_record: Record, existing_record: Record | None):
+    if existing_record:
+        return float(new_record.stats_value) == float(existing_record.stats_value)
+    return False
 
 
 def game_record(
     matches: List[dict], stats_filter: str, player_name=None, position=None
 ) -> List[Record]:
     stats_key = jsonmap.get_key(stats_filter, jsonmap.match)
-    records = []
-    for match in matches:
-        match = from_dict(data_class=Match, data=match)
+    records: List[Record] = []
+    for raw_match in matches:
+        match = from_dict(data_class=Match, data=raw_match)
         for _, player_data in match.players[helpers.CLUB_ID].items():
             if stats_key in [field.name for field in fields(player_data)]:
                 # if we are looking for a specific player records...
@@ -201,6 +204,7 @@ def game_record(
 
     if records:
         return records
+    return []
 
 
 def team_record(team):
@@ -236,8 +240,8 @@ def team_record(team):
         else:
             goals_per_game = 0
             goals_against_per_game = 0
-        reply += "goals per game: " + "{:.2f}".format(goals_per_game) + "\n"
-        reply += "goals against per game: " + "{:.2f}".format(goals_against_per_game)
+        reply += f"goals per game: {goals_per_game:.2f}\n"
+        reply += f"goals against per game: {goals_against_per_game:.2f}"
         reply += "```"
     if reply:
         return reply

@@ -1,15 +1,10 @@
 # pylint: disable=C0413
-import os
-import sys
 from typing import List, Literal
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import pytest
 from dacite import from_dict
 
 from ilobot import db_utils
-from ilobot.base_logger import logger
 from ilobot.data import api
 from ilobot.helpers import GAMETYPE
 from ilobot.models import Match
@@ -32,9 +27,9 @@ def test_get_matches_max_result_count_capped_to_5():
     assert len(matches) <= 5
 
 
-@pytest.mark.parametrize("clubId", [(""), ("00006660000"), ("cxvcxvcxvc"), None])
-def test_get_matches_wrong_id(clubId: Literal['', '00006660000', 'cxvcxvcxvc'] | None):
-    matches = api.get_matches(clubId, PLATFORM)
+@pytest.mark.parametrize("club_id", [(""), ("00006660000"), ("cxvcxvcxvc"), None])
+def test_get_matches_wrong_id(club_id: Literal["", "00006660000", "cxvcxvcxvc"] | None):
+    matches = api.get_matches(club_id, PLATFORM)
     assert len(matches) == 0
     assert isinstance(matches, List) is True
 
@@ -46,7 +41,7 @@ def test_get_members():
 
 
 @pytest.mark.parametrize("club_id", [(""), ("00006660000"), ("cxvcxvcxvc"), None])
-def test_get_members_wrong_id(club_id: Literal['', '00006660000', 'cxvcxvcxvc'] | None):
+def test_get_members_wrong_id(club_id: Literal["", "00006660000", "cxvcxvcxvc"] | None):
     members = api.get_members(club_id, PLATFORM)
     assert len(members) == 0
     assert isinstance(members, List) is True

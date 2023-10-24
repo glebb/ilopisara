@@ -42,7 +42,7 @@ class Result:
             "date_time": self.date_and_time,
             "game_outcome": self.score,
             "win": False if ":x:" in self.mark else True,
-            "gm_recap_abstract": self.summary.split("\n")[-1],
+            "gm_recap_abstract": self.summary.rsplit("\n", maxsplit=1)[-1],
         }
 
 

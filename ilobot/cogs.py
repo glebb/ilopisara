@@ -5,51 +5,33 @@ from nextcord.ext import commands
 
 from ilobot import command_service, data_service, db_mongo, helpers, jsonmap
 from ilobot.base_logger import logger
+from ilobot.bot import Bot
+from ilobot.components import DropdownView, GameDetails
 from ilobot.data import api
-from ilobot.jsonmap import club_stats
-from ilobot.models import Result
 
-
-class GameDetails(nextcord.ui.Select):
-    def __init__(self, options, bot, cog):
-        self.cog = cog
-        self.bot = bot
-        super().__init__(
-            placeholder="Choose game to show details",
-            options=options,
-        )
-
-    async def callback(self, interaction: nextcord.Interaction):
-        await self.cog.match(interaction, self.values[0])
-
-
-class DropdownView(nextcord.ui.View):
-    def __init__(self, details, timeout):
-        super().__init__(timeout=timeout)
-        self.add_item(details)
+from .models import Result
 
 
 class ApplicationCommandCog(commands.Cog):
-    bot = None
-    MEMBERS = list(map(lambda x: x["name"], api.get_members()))
+    MEMBERS = tuple(map(lambda x: x["name"], api.get_members()))
     MEMBERS = tuple(sorted(MEMBERS, key=str.casefold))
 
-    def __init__(self, bot: commands.Bot):
-        ApplicationCommandCog.bot = bot
+    def __init__(self, bot: Bot):
+        self.bot = bot
 
     async def matches_dropdown(
         self, response, matches: List[Result], interaction: nextcord.Interaction
     ):
         options = []
         cleaned = {}
+        match: Result
         for match in matches:
             if match.match_id not in cleaned:
                 cleaned[match.match_id] = match
-        match: Result
         for match in cleaned.values():
             label = match.date_and_time + " " + match.score
             options.append(nextcord.SelectOption(label=label, value=match.match_id))
-        view = DropdownView(GameDetails(options, self.bot, self), None)
+        view = DropdownView(GameDetails(options, self.match), None)
         await interaction.followup.send(response[:1999], view=view)
 
     @nextcord.slash_command(
@@ -177,6 +159,7 @@ class ApplicationCommandCog(commands.Cog):
         else:
             await interaction.followup.send(public[:1999])
         if send_dm:
+            assert interaction.user
             await interaction.user.send(response[:1999])
 
     @nextcord.slash_command(
@@ -193,7 +176,7 @@ class ApplicationCommandCog(commands.Cog):
         ),
         team_stats: str = nextcord.SlashOption(
             name="team_stats",
-            choices=list(club_stats.keys())
+            choices=list(jsonmap.club_stats.keys())
             + [
                 "skater shots",
                 "skater hits",
@@ -236,6 +219,7 @@ class ApplicationCommandCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: nextcord.Message):
+        assert self.bot.user
         if self.bot.user != message.author and self.bot.user.mentioned_in(message):
             logger.info("udpate")
             await db_mongo.update_matches(helpers.CLUB_ID, helpers.PLATFORM)
@@ -273,9 +257,7 @@ class ApplicationCommandCog(commands.Cog):
     @team.on_autocomplete("name")
     async def select_teams(self, interaction: nextcord.Interaction, name: str):
         if not name:
-            await interaction.response.send_autocomplete(
-                ApplicationCommandCog.bot.get_team_names()
-            )
+            await interaction.response.send_autocomplete(self.bot.get_team_names())
             return
         get_near_names = [
             n for n in list(self.bot.all_teams) if n.lower().startswith(name.lower())

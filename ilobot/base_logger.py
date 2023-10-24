@@ -10,7 +10,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-fileHandler = logging.FileHandler("{0}/{1}.log".format("./", "log"))
+fileHandler = logging.FileHandler("./log.txt")
 fileHandler.setFormatter(logFormatter)
 rootLogger.addHandler(fileHandler)
 

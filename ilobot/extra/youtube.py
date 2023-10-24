@@ -10,9 +10,7 @@ def get_all_video_in_channel(channel_id):
 
     first_url = (
         base_search_url
-        + "key={}&channelId={}&part=snippet,id&order=date&maxResults=25".format(
-            api_key, channel_id
-        )
+        + f"key={api_key}&channelId={channel_id}&part=snippet,id&order=date&maxResults=25"
     )
 
     video_links = {}
@@ -29,12 +27,9 @@ def get_all_video_in_channel(channel_id):
                     "title": i["snippet"]["title"],
                 }
 
-        try:
-            next_page_token = resp["nextPageToken"]
-            url = first_url + "&pageToken={}".format(next_page_token)
-        except:
-            break
-    return video_links
+        next_page_token = resp["nextPageToken"]
+        url = first_url + f"&pageToken={next_page_token}"
+        return video_links
 
 
 print(get_all_video_in_channel("UCzqu2LpKSFhvaS9n189xgAA"))

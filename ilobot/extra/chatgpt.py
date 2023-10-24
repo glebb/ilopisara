@@ -5,7 +5,7 @@ from openai.error import RateLimitError, ServiceUnavailableError
 
 from ilobot.base_logger import logger
 from ilobot.data import api
-from ilobot.helpers import CLUB_ID, OPEN_API
+from ilobot.helpers import CLUB_ID, GPT_MODEL, OPEN_API
 from ilobot.jsonmap import match
 
 openai.api_key = OPEN_API
@@ -83,6 +83,8 @@ def convert_keys(temp):
         if "position" in temp:
             if key in skip_just_player_keys:
                 continue
+            if int(temp["skgiveaways"]) < 5:
+                continue
 
         if isinstance(value, dict):
             # Recursively process nested dictionaries
@@ -142,11 +144,16 @@ async def write_gpt_summary(game: dict, history=None):
     messages = [
         {
             "role": "system",
-            "content": f"You are a Yoosef, general manager of hockey club {our_team}. You are critical, point out the mistakes players make and give praise only on most exceptional performances.",
+            "content": f"You are a Yoosef, general manager of hockey club {our_team}."
+            "You are mean, point out the mistakes players make and give praise only on "
+            "most exceptional performances.",
         },
         {
             "role": "user",
-            "content": "Analyze the hockey game that just took place, based on following json data and imaginary events. Critique the performance of your team and your players. Make note if there's a clear trend of wins or losses based on previous game results.",
+            "content": "Analyze the hockey game that just took place, based on following "
+            "json data and imaginary events. Critique the performance of your team and your "
+            "players. Throw insults if needed to make a point. "
+            "Make note if there's a clear trend of wins or losses based on previous game results.",
         },
     ]
     if (
@@ -167,7 +174,10 @@ async def write_gpt_summary(game: dict, history=None):
         messages.append(
             {
                 "role": "user",
-                "content": f"If the data indicates 'winnerByDnf' or 'winnerByGoalieDnf' with other than value 0, make a big deal about the other chickening out by not finishing the game properly. Don't mention the data keys or values as such. If it was the opponent who won by {our_team} not finishing the team, raise hell.",
+                "content": "If the data indicates 'winnerByDnf' or 'winnerByGoalieDnf' "
+                "with other than value 0, make a big deal about the other team chickening out by not "
+                "finishing the game properly. Don't mention the data keys or values as such. "
+                f"If it was the opponent who won by {our_team} not finishing the team, raise hell.",
             }
         )
         messages.append(
@@ -188,7 +198,12 @@ async def write_gpt_summary(game: dict, history=None):
 
     try:
         chat_completion = await openai.ChatCompletion.acreate(
-            model="gpt-4", messages=messages, temperature=0.9
+            model=GPT_MODEL,
+            messages=messages,
+            temperature=1.33,
+            top_p=0.5,
+            frequency_penalty=0.3,
+            presence_penalty=1,
         )
     except (ServiceUnavailableError, RateLimitError):
         logger.exception("OPENAI error")

@@ -11,30 +11,28 @@ goalie_fails = (
 )
 
 
-url = "http://api.giphy.com/v1/gifs/search"
+URL = "http://api.giphy.com/v1/gifs/search"
 
-params = [
-    ["q", "hockey fail"],
-    ("api_key", API_KEY),
-    ("limit", "100"),
-    ("rating", "r")
-]
+params = [("q", "hockey fail"), ("api_key", API_KEY), ("limit", "100"), ("rating", "r")]
 
-response = requests.get(url, params=params)
+response = requests.get(URL, params=params, timeout=5)
 fails = response.json()
-params[0][1] = "hockey win"
-response = requests.get(url, params=params)
+params[0] = ("q", "hockey win")
+response = requests.get(URL, params=params, timeout=5)
 wins = response.json()
 
+
 def get_win():
-    win = random.choice(wins['data'])
+    win = random.choice(wins["data"])
     if win:
-        return win['images']['original']['url']
+        return win["images"]["original"]["url"]
+
 
 def get_fail():
-    fail = random.choice(fails['data'])
+    fail = random.choice(fails["data"])
     if fail:
-        return fail['images']['original']['url']
+        return fail["images"]["original"]["url"]
+
 
 def teppo_scores(match):
     for _, p in match["players"][CLUB_ID].items():
