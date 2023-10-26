@@ -69,7 +69,7 @@ def get_match_mark(match: Match):
                 for player in match.players[CLUB_ID].values()
             ]
         )
-        mark = ":timer: " if overt_time_loss else ":x: "
+        mark = ":alarm_clock: " if overt_time_loss else ":x: "
     return mark
 
 
