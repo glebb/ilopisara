@@ -83,7 +83,7 @@ def convert_keys(temp):
         if "position" in temp:
             if key in skip_just_player_keys:
                 continue
-            if int(temp["skgiveaways"]) < 5:
+            if key == "skgiveaways" and int(temp["skgiveaways"]) < 5:
                 continue
 
         if isinstance(value, dict):
@@ -116,8 +116,7 @@ def clean_up_data(game: dict):
         del clubs[club_name]["details"]
         clubs[club_name]["players"] = {
             api.get_member(player_data["playername"])["skplayername"]
-            if "skplayername" in api.get_member(player_data["playername"])
-            else player_data["playername"]: player_data
+            or player_data["playername"]: player_data
             for player_id, player_data in club_data["players"].items()
         }
         for player in clubs[club_name]["players"]:
