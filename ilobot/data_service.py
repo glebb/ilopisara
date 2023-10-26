@@ -1,6 +1,6 @@
 from dataclasses import fields
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import pytz
 from dacite import from_dict
@@ -171,7 +171,7 @@ def _should_update_record(existing_record, new_record):
     )
 
 
-def _matches_existing_record(new_record: Record, existing_record: Record | None):
+def _matches_existing_record(new_record: Record, existing_record: Optional[Record]):
     if existing_record:
         return float(new_record.stats_value) == float(existing_record.stats_value)
     return False
