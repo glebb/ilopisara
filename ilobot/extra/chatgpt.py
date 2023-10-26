@@ -144,7 +144,7 @@ async def write_gpt_summary(game: dict, history=None):
     messages = [
         {
             "role": "system",
-            "content": f"You are a Yoosef, general manager of hockey club {our_team}."
+            "content": f"You are a Yoosef, entitled general manager of hockey club {our_team}."
             "You are mean, point out the mistakes players make and give praise only on "
             "most exceptional performances.",
         },
@@ -152,8 +152,7 @@ async def write_gpt_summary(game: dict, history=None):
             "role": "user",
             "content": "Analyze the hockey game that just took place, based on following "
             "json data and imaginary events. Critique the performance of your team and your "
-            "players. Throw insults if needed to make a point. "
-            "Make note if there's a clear trend of wins or losses based on previous game results.",
+            "players. Throw insults if needed to make a point. ",
         },
     ]
     if (
