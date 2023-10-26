@@ -116,7 +116,8 @@ def clean_up_data(game: dict):
         del clubs[club_name]["details"]
         clubs[club_name]["players"] = {
             api.get_member(player_data["playername"])["skplayername"]
-            or player_data["playername"]: player_data
+            if "skplayername" in api.get_member(player_data["playername"])
+            else player_data["playername"]: player_data
             for player_id, player_data in club_data["players"].items()
         }
         for player in clubs[club_name]["players"]:
