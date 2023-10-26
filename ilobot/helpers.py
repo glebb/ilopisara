@@ -59,11 +59,17 @@ def is_win(match: Match):
     return match.win
 
 
-def get_match_mark(match):
+def get_match_mark(match: Match):
     if is_win(match):
         mark = ":white_check_mark: "
     else:
-        mark = ":x: "
+        overt_time_loss = any(
+            [
+                int(player.toiseconds) > 3600
+                for player in match.players[CLUB_ID].values()
+            ]
+        )
+        mark = ":timer: " if overt_time_loss else ":x: "
     return mark
 
 
