@@ -133,8 +133,8 @@ def chatify_data(game: dict):
 def check_dnf(game: dict):
     for club in game["clubs"]:
         if (
-            game["clubs"][club]["winnerByDnf"] != "0"
-            or game["clubs"][club]["winnerByGoalieDnf"] != "0"
+            game["clubs"][club]["winner by DNF"] != "0"
+            or game["clubs"][club]["winner by goalie DNF"] != "0"
         ):
             return True
     return False
