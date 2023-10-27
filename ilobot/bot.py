@@ -70,7 +70,7 @@ class Bot(commands.Bot):
                     await db_mongo.db.matches.update_one(
                         {"_id": db_id}, {"$set": {"summary": summary}}
                     )
-                await channel.send(("\nYoosef's analysis\n" + summary)[:1999])
+                await channel.send(("\n\nYoosef's analysis\n" + summary)[:1999])
                 tumblrl.post(
                     summary,
                     title=str(result),

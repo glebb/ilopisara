@@ -79,23 +79,27 @@ def _match_details(match_dict: dict):
     players = ""
     for team_id in (match.opponent.id, helpers.CLUB_ID):
         players += f"\n**{match.clubs[team_id].details.name}**\n"
+        if team_id != helpers.CLUB_ID:
+            players += "```\n"
         for _, player in sorted(
             match.players[team_id].items(),
             key=lambda p: int(p[1].skgoals) + int(p[1].skassists),
             reverse=True,
         ):
+            if team_id == helpers.CLUB_ID:
+                players += "```\n"
+
             points = (
-                f" {float(player.glsavepct) * 100:5.2f}%"
+                f"{float(player.glsavepct) * 100:5.2f}%"
                 if player.position == "goalie"
-                else f" {player.skgoals} + {player.skassists}"
-            )
-            players += (
-                f"** {player.position[0].upper()} {player.playername}: {points} **"
+                else f"{player.skgoals} + {player.skassists}"
             )
             if team_id != helpers.CLUB_ID:
-                players += "\n"
+                players += (
+                    f"{player.position[0].upper()} {player.playername}: {points}\n"
+                )
                 continue
-            players += "\n> ```"
+            players += f"{player.position[0].upper()} {player.playername}: {points}\n"
             if player.position == "goalie":
                 players += "saves:" + player.glsaves + ", "
                 players += "breakaway save %:"
@@ -112,7 +116,7 @@ def _match_details(match_dict: dict):
                     else "100.00, "
                 )
                 players += "penaltyshots:" + player.glpenshots + ", "
-                players += "shots:" + player.glshots + ", "
+                players += "shots:" + player.glshots
             else:
                 players += "shots:" + player.skshots + ", "
                 players += "hits:" + player.skhits + ", "
@@ -125,11 +129,12 @@ def _match_details(match_dict: dict):
                 players += "deflections:" + player.skdeflections + ", "
                 players += "interceptions:" + player.skinterceptions + ", "
                 players += "penalties:" + player.skpim + "m"
-            if player.position.upper() == "CENTER":
-                players += (
-                    f", fow:{player.skfow}, fol:{player.skfol}, fopct: {player.skfopct}"
-                )
+                if player.position.upper() == "CENTER":
+                    players += f", fow:{player.skfow}, fol:{player.skfol}, fopct: {player.skfopct}"
             players += "```\n"
+        if team_id != helpers.CLUB_ID:
+            players += "```"
+
     return players
 
 

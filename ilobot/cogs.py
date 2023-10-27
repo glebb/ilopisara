@@ -1,4 +1,4 @@
-from typing import List
+from typing import Callable, List
 
 import nextcord
 from nextcord.ext import commands
@@ -6,10 +6,27 @@ from nextcord.ext import commands
 from ilobot import command_service, data_service, db_mongo, helpers, jsonmap
 from ilobot.base_logger import logger
 from ilobot.bot import Bot
-from ilobot.components import DropdownView, GameDetails
 from ilobot.data import api
 
 from .models import Result
+
+
+class GameDetails(nextcord.ui.Select):
+    def __init__(self, options, match_callback: Callable):
+        self.match_callback = match_callback
+        super().__init__(
+            placeholder="Choose game to show details",
+            options=options,
+        )
+
+    async def callback(self, interaction: nextcord.Interaction):
+        await self.match_callback(interaction, self.values[0])
+
+
+class DropdownView(nextcord.ui.View):
+    def __init__(self, details, timeout):
+        super().__init__(timeout=timeout)
+        self.add_item(details)
 
 
 class ApplicationCommandCog(commands.Cog):

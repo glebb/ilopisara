@@ -17,5 +17,5 @@ dacite
 openai
 pytest-asyncio
 pytumblr
-zombieimp
+zombieimp #for 3.12
 setuptools
