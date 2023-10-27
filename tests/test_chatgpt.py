@@ -19,7 +19,7 @@ with open(f"{__location__}/matches.json", "r", encoding="utf-8") as f:
 
 @pytest.mark.asyncio
 async def test_clean_up_data():
-    game = chatgpt.clean_up_data(enriched_match)
+    game = chatgpt.chatify_data(enriched_match)
     history = await db_mongo.get_latest_match(4)
     results = [(data_service.format_result(m).as_chatgpt_history()) for m in history]
     logger.info(json.dumps(game))

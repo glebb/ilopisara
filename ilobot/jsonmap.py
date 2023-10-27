@@ -58,11 +58,11 @@ names = {
     "penaltiesdrawn": "penalties drawn",
     "record": "record",
     "gamesCompleted": "games completed",
-    "winnerByDnf": "winner by dnf",
+    "winnerByDnf": "winner by DNF",
     "skwins": "skater wins",
     "sklosses": "skater losses",
     "skotl": "skater losses over-time",
-    "skwinnerByDnf": "skater wins by dnf",
+    "skwinnerByDnf": "skater winner by DNF",
     "skgoals": "skater goals",
     "skassists": "skater assists",
     "skpoints": "skater points",
@@ -119,7 +119,7 @@ names = {
     "glwins": "goalie wins",
     "gllosses": "goalie losses",
     "glotl": "goalie losses over-time",
-    "glwinnerByDnf": "goalie winnder by dnf",
+    "glwinnerByDnf": "goalie winner by DNF",
     "glshots": "goalie shots",
     "glsaves": "goalie saves",
     "gltoi": "goalie time on ice",
@@ -176,6 +176,8 @@ names = {
     "playerDNF": "player DNF",
     "gp": "gp",
     "DNF": "DNF",
+    "ppo": "powerplay opportunities",
+    "winnerByGoalieDnf": "winner by goalie DNF",
 }
 
 

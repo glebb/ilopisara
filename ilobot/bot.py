@@ -15,19 +15,13 @@ from ilobot.twitch import Twitcher, TwitchStatus
 
 from .models import Match
 
-TEAM_NAME = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
-player_names = {}
-for member in api.get_members():
-    player_names[member["name"]] = api.get_member(member["name"])["skplayername"]
-logger.info(f"Team: {helpers.CLUB_ID} - {TEAM_NAME}")
-logger.info("Players: \n" + pprint.pformat(player_names))
-
-intents = nextcord.Intents.all()
-
 
 class Bot(commands.Bot):
+    TEAM_NAME = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
+
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs, intents=intents)
+        super().__init__(*args, **kwargs, intents=nextcord.Intents.all())
+        self.player_names = {}
         self.loop.create_task(self.watch_db())
         self.all_teams = ()
         self.fetch_team_names.start()
@@ -35,6 +29,15 @@ class Bot(commands.Bot):
         self.twitch_check.start()
         # self.check_latest_game.start()
         self.now = None
+        self.pre_fetch_players_for_caching()
+
+    def pre_fetch_players_for_caching(self):
+        for member in api.get_members():
+            self.player_names[member["name"]] = api.get_member(member["name"])[
+                "skplayername"
+            ]
+        logger.info(f"Team: {helpers.CLUB_ID} - {self.TEAM_NAME}")
+        logger.info("Players: \n" + pprint.pformat(self.player_names))
 
     async def watch_db(self):
         await self.wait_until_ready()
@@ -80,9 +83,9 @@ class Bot(commands.Bot):
     def get_team_names(self):
         short_list = list(self.all_teams[-24:])
         try:
-            short_list.insert(0, short_list.pop(short_list.index(TEAM_NAME)))
+            short_list.insert(0, short_list.pop(short_list.index(self.TEAM_NAME)))
         except ValueError:
-            short_list.insert(0, TEAM_NAME)
+            short_list.insert(0, self.TEAM_NAME)
         except:
             logger.error("Unexpected error:", sys.exc_info()[0])
             raise
