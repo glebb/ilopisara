@@ -58,8 +58,11 @@ KEY_MAPPINGS = {
 }
 
 
-def handle_keys(data):
+def handle_keys(data, game_type=None):
     """Skip unwanted keys and convert rest to mapped names"""
+    if not game_type:
+        game_type = int(data["clubs"][CLUB_ID]["cNhlOnlineGameType"])
+        logger.info(game_type)
     converted_data = {}
     for key, value in data.items():
         original_key = key
@@ -69,6 +72,11 @@ def handle_keys(data):
                 original_key = None
         if not original_key:
             continue
+
+        # skip power play stats for 3vs3
+        if key in ("ppo", "ppg", "skppg") and game_type >= 200:
+            continue
+
         if key.startswith("sk"):  # skip skater stats if goalie
             if data["position"] == "goalie":
                 continue
@@ -88,7 +96,7 @@ def handle_keys(data):
 
         if isinstance(value, dict):
             # Recursively process nested dictionaries
-            converted_data[original_key] = handle_keys(value)
+            converted_data[original_key] = handle_keys(value, game_type)
         elif key in KEY_MAPPINGS:
             # If key is in the mappings, replace it with the full name
             converted_data[KEY_MAPPINGS[key]] = value
@@ -149,14 +157,14 @@ def setup_messages(game, history):
         {
             "role": "system",
             "content": f"You are a Yoosef, entitled general manager of hockey club {our_team}."
-            "You are mean, point out the mistakes players make and give praise only on "
-            "most exceptional performances.",
+            "You are mean, point out the mistakes players make, but sometimes give praise on "
+            "exceptional performances as well.",
         },
         {
             "role": "user",
             "content": "Analyze the hockey game that just took place, based on following "
             "json data and imaginary events. Critique the performance of your team and your "
-            "players. Throw insults if needed to make a point. ",
+            "players. Throw insults if needed to make a point.",
         },
     ]
     if (
