@@ -138,7 +138,9 @@ def chatify_data(game: dict):
     del cleaned_data["players"]
     cleaned_data["clubs"] = clubs
     match = from_dict(data_class=Match, data=game)
-    cleaned_data["overtime"] = is_overtime(match)
+    overtime = is_overtime(match)
+    if overtime:
+        cleaned_data["overtime"] = True
 
     return cleaned_data
 
