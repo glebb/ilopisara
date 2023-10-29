@@ -1,12 +1,14 @@
 import json
 
 import openai
+from dacite import from_dict
 from openai.error import RateLimitError, ServiceUnavailableError
 
 from ilobot import jsonmap
 from ilobot.base_logger import logger
 from ilobot.data import api
-from ilobot.helpers import CLUB_ID, GPT_MODEL, OPEN_API
+from ilobot.helpers import CLUB_ID, GPT_MODEL, OPEN_API, is_overtime
+from ilobot.models import Match
 
 openai.api_key = OPEN_API
 
@@ -135,6 +137,9 @@ def chatify_data(game: dict):
 
     del cleaned_data["players"]
     cleaned_data["clubs"] = clubs
+    match = from_dict(data_class=Match, data=game)
+    cleaned_data["overtime"] = is_overtime(match)
+
     return cleaned_data
 
 
