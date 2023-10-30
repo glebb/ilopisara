@@ -93,7 +93,7 @@ def handle_keys(data, game_type=None):
         if "position" in data:  # player data
             if key in SKIP_PLAYER_KEYS:
                 continue
-            if key == "skgiveaways" and int(data["skgiveaways"]) < 5:
+            if key == "skgiveaways" and (0 < int(data["skgiveaways"]) < 8):
                 continue
 
         if isinstance(value, dict):
