@@ -198,7 +198,7 @@ class ApplicationCommandCog(commands.Cog):
                 "skater shots",
                 "skater hits",
                 "skater blocked shots",
-                "skater giweaways",
+                "skater giveaways",
                 "skater takeaways",
                 "skater pass attempts",
                 "skater penalty minutes",

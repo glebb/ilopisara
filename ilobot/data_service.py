@@ -121,7 +121,7 @@ def _match_details(match_dict: dict):
                 players += "shots:" + player.skshots + ", "
                 players += "hits:" + player.skhits + ", "
                 players += "blocked shots:" + player.skbs + ", "
-                players += "giweaways:" + player.skgiveaways + ", "
+                players += "giveaways:" + player.skgiveaways + ", "
                 players += "takeaways:" + player.sktakeaways + ", "
                 players += "pass attempts:" + player.skpassattempts + ", "
                 players += "pass %:" + player.skpasspct + ", "
