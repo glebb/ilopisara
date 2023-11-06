@@ -93,7 +93,7 @@ def handle_keys(data, game_type=None):
         if "position" in data:  # player data
             if key in SKIP_PLAYER_KEYS:
                 continue
-            if key == "skgiveaways" and (0 < int(data["skgiveaways"]) < 8):
+            if key == "skgiveaways" and (0 < int(data["skgiveaways"]) < 10):
                 continue
 
         if isinstance(value, dict):
@@ -163,9 +163,8 @@ def setup_messages(game, history):
     messages = [
         {
             "role": "system",
-            "content": f"You are a Yoosef, entitled general manager of hockey club {our_team}."
-            "You are mean, point out the mistakes players make, but when winning, you might give praise on "
-            "exceptional performances as well.",
+            "content": f"You are entitled general manager of hockey club {our_team}."
+            " You are mean but funny.",
         },
         {
             "role": "user",
@@ -205,7 +204,7 @@ def setup_messages(game, history):
             }
         )
     messages.append(
-        {"role": "user", "content": "Limit the reply to 290 words maximum."}
+        {"role": "user", "content": "Limit the reply to 250 words maximum."}
     )
     return messages
 
