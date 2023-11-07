@@ -56,17 +56,15 @@ class Bot(commands.Bot):
                 for m in await db_mongo.get_latest_match(6)
             ]
             db_id = match.pop("_id")
-            temp = []
-            for x in history[1:-1]:
-                x["gm_recap_abstract"] = ""
-                temp.append(x)
-            temp.append(history[-1])
 
             summary: str = (
-                await chatgpt.write_gpt_summary(match, temp)
+                await chatgpt.write_gpt_summary(
+                    match, history[1:]
+                )  # history[0] is same as match
                 if "summary" not in match
                 else match["summary"]
             )
+
             await channel.send((result.discord_print() + "\n" + details)[:1999])
             if summary:
                 if "summary" not in match:
