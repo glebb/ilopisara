@@ -2,7 +2,7 @@ import json
 
 import openai
 from dacite import from_dict
-from openai.error import RateLimitError, ServiceUnavailableError
+from openai import OpenAIError
 
 from ilobot import jsonmap
 from ilobot.base_logger import logger
@@ -227,7 +227,7 @@ async def write_gpt_summary(game: dict, history=None):
             frequency_penalty=0.8,
             presence_penalty=1.5,
         )
-    except (ServiceUnavailableError, RateLimitError):
+    except OpenAIError:
         logger.exception("OPENAI error")
         return None
 

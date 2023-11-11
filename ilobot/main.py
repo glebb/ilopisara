@@ -6,7 +6,7 @@ from ilobot.cogs import ApplicationCommandCog
 def main():
     bot = Bot()
     bot.add_cog(ApplicationCommandCog(bot))
-    bot.run(config.TOKEN)
+    bot.run(config.DISCORD_TOKEN)
 
 
 if __name__ == "__main__":
