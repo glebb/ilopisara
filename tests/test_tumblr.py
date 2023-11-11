@@ -3,7 +3,7 @@ import os
 
 from ilobot import tumblrl
 from ilobot.base_logger import logger
-from ilobot.helpers import TUMBLR_BLOG
+from ilobot.config import TUMBLR_BLOG
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 

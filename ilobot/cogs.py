@@ -3,6 +3,7 @@ from typing import Callable, List
 import nextcord
 from nextcord.ext import commands
 
+import ilobot.config
 from ilobot import command_service, data_service, db_mongo, helpers, jsonmap
 from ilobot.base_logger import logger
 from ilobot.bot import Bot
@@ -52,7 +53,7 @@ class ApplicationCommandCog(commands.Cog):
         await interaction.followup.send(response[:1999], view=view)
 
     @nextcord.slash_command(
-        guild_ids=[helpers.GUILD_ID], description="Display team overview"
+        guild_ids=[ilobot.config.GUILD_ID], description="Display team overview"
     )
     async def team(
         self,
@@ -69,7 +70,7 @@ class ApplicationCommandCog(commands.Cog):
         ),
     ):
         await interaction.response.defer()
-        platform = platform if platform is not None else helpers.PLATFORM
+        platform = platform if platform is not None else ilobot.config.PLATFORM
         try:
             response, matches = await command_service.team_record(name, platform)
         except:
@@ -86,7 +87,7 @@ class ApplicationCommandCog(commands.Cog):
             await interaction.followup.send(response[:1999])
 
     @nextcord.slash_command(
-        guild_ids=[helpers.GUILD_ID],
+        guild_ids=[ilobot.config.GUILD_ID],
         description="Display results for most rececnt matches",
     )
     async def results(
@@ -108,7 +109,7 @@ class ApplicationCommandCog(commands.Cog):
             await interaction.followup.send("No results found")
 
     @nextcord.slash_command(
-        guild_ids=[helpers.GUILD_ID], description="Display match details"
+        guild_ids=[ilobot.config.GUILD_ID], description="Display match details"
     )
     async def match(
         self,
@@ -126,7 +127,7 @@ class ApplicationCommandCog(commands.Cog):
         await interaction.followup.send(response[:1999])
 
     @nextcord.slash_command(
-        guild_ids=[helpers.GUILD_ID], description="Rank players by stat"
+        guild_ids=[ilobot.config.GUILD_ID], description="Rank players by stat"
     )
     async def top(
         self,
@@ -148,7 +149,7 @@ class ApplicationCommandCog(commands.Cog):
         await interaction.followup.send(response[:1999])
 
     @nextcord.slash_command(
-        guild_ids=[helpers.GUILD_ID], description="Display single player stats"
+        guild_ids=[ilobot.config.GUILD_ID], description="Display single player stats"
     )
     async def player(
         self,
@@ -180,7 +181,7 @@ class ApplicationCommandCog(commands.Cog):
             await interaction.user.send(response[:1999])
 
     @nextcord.slash_command(
-        guild_ids=[helpers.GUILD_ID],
+        guild_ids=[ilobot.config.GUILD_ID],
         description="Display single game record for a stat",
     )
     async def record(
@@ -239,7 +240,7 @@ class ApplicationCommandCog(commands.Cog):
         assert self.bot.user
         if self.bot.user != message.author and self.bot.user.mentioned_in(message):
             logger.info("udpate")
-            await db_mongo.update_matches(helpers.CLUB_ID, helpers.PLATFORM)
+            await db_mongo.update_matches(ilobot.config.CLUB_ID, ilobot.config.PLATFORM)
 
     @top.on_autocomplete("stats_name")
     async def select_stats(self, interaction: nextcord.Interaction, stats_name: str):

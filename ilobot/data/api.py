@@ -3,13 +3,14 @@ from json.decoder import JSONDecodeError
 
 from cachetools import TTLCache, cached
 
+import ilobot.config
 import ilobot.helpers as helpers
 from ilobot.base_logger import logger
 from ilobot.data import direct
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_members(club_id=helpers.CLUB_ID, platform=helpers.PLATFORM):
+def get_members(club_id=ilobot.config.CLUB_ID, platform=ilobot.config.PLATFORM):
     data = {}
     try:
         data = direct.get_members(club_id, platform)
@@ -22,8 +23,8 @@ def get_members(club_id=helpers.CLUB_ID, platform=helpers.PLATFORM):
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 def get_matches(
-    club_id=helpers.CLUB_ID,
-    platform=helpers.PLATFORM,
+    club_id=ilobot.config.CLUB_ID,
+    platform=ilobot.config.PLATFORM,
     count=10,
     game_type=helpers.GAMETYPE.REGULARSEASON.value,
 ):
@@ -36,7 +37,7 @@ def get_matches(
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_team_record(team, platform=helpers.PLATFORM):
+def get_team_record(team, platform=ilobot.config.PLATFORM):
     try:
         team_record = direct.get_team_record(team, platform)
     except JSONDecodeError as err:
@@ -45,7 +46,7 @@ def get_team_record(team, platform=helpers.PLATFORM):
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_team_info(team, platform=helpers.PLATFORM):
+def get_team_info(team, platform=ilobot.config.PLATFORM):
     try:
         team_info = direct.get_team_info(team, platform)
     except JSONDecodeError as err:
@@ -54,7 +55,7 @@ def get_team_info(team, platform=helpers.PLATFORM):
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
-def get_seasonal_stats(team, platform=helpers.PLATFORM):
+def get_seasonal_stats(team, platform=ilobot.config.PLATFORM):
     try:
         stats = direct.get_seasonal_stats(team, platform)
     except JSONDecodeError as err:
@@ -63,7 +64,7 @@ def get_seasonal_stats(team, platform=helpers.PLATFORM):
 
 
 @cache
-def get_member(member_name, platform=helpers.PLATFORM):
+def get_member(member_name, platform=ilobot.config.PLATFORM):
     data = {}
     try:
         data = direct.get_member(member_name, platform)

@@ -2,7 +2,8 @@ import random
 
 import requests
 
-from ilobot.helpers import API_KEY, CLUB_ID, ResultMark, is_win
+from ilobot.config import API_KEY, CLUB_ID
+from ilobot.helpers import ResultMark, is_win
 
 goalie_fails = (
     "https://youtu.be/fR-_q9XeYZo?t=11",

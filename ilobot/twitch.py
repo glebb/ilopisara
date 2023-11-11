@@ -3,7 +3,7 @@ from enum import Enum
 import requests
 
 from ilobot.base_logger import logger
-from ilobot.helpers import CLIENT_ID, OAUTH, STREAMERS
+from ilobot.config import CLIENT_ID, OAUTH, STREAMERS
 
 
 class TwitchStatus(Enum):

@@ -1,6 +1,6 @@
 from typing import List
 
-from ilobot import data_service, db_mongo, helpers, jsonmap
+from ilobot import config, data_service, db_mongo, jsonmap
 from ilobot.base_logger import logger
 from ilobot.data import api
 
@@ -86,17 +86,17 @@ async def game_record(stats_filter, player_name=None, position=None, team_stats=
         else:
             data_set = "aggregate"
             key = jsonmap.get_key(team_stats, jsonmap.match)
-        query = f"{data_set}.{helpers.CLUB_ID}.{key}"
+        query = f"{data_set}.{config.CLUB_ID}.{key}"
         matches = await db_mongo.get_sorted_matches(query)
         index = 0
         for raw_match in matches:
-            if float(raw_match[data_set][helpers.CLUB_ID][key]) < float(
-                matches[0][data_set][helpers.CLUB_ID][key]
+            if float(raw_match[data_set][config.CLUB_ID][key]) < float(
+                matches[0][data_set][config.CLUB_ID][key]
             ):
                 break
             index += 1
         result = (
-            f"Team {team_stats} record: {matches[0][data_set][helpers.CLUB_ID][key]}\n"
+            f"Team {team_stats} record: {matches[0][data_set][config.CLUB_ID][key]}\n"
         )
         for raw_match in matches[:index]:
             result += data_service.format_result(raw_match).discord_print() + "\n"
@@ -138,7 +138,7 @@ async def team_record(name, platform):
         result_string += record + "\n"
         club_id = list(temp.keys())[0]
         members = api.get_members(club_id)
-        if club_id != helpers.CLUB_ID:
+        if club_id != config.CLUB_ID:
             db_matches = await db_mongo.find_matches_by_club_id(versus_club_id=club_id)
             if db_matches:
                 matches = [data_service.format_result(x) for x in db_matches]

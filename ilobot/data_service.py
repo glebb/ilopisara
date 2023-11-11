@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 import pytz
 from dacite import from_dict
 
+import ilobot.config
 from ilobot import helpers, jsonmap
 from ilobot.models import Match, MemberRecord, Record, Result
 
@@ -33,14 +34,16 @@ def format_result(match_raw: dict) -> Result:
         .astimezone(pytz.timezone("Europe/Helsinki"))
         .strftime("%d.%m. %H:%M")
     )
-    opponent_id = match.clubs[helpers.CLUB_ID].opponentClubId
+    opponent_id = match.clubs[ilobot.config.CLUB_ID].opponentClubId
     opponent_name = (
         match.clubs[opponent_id].details.name
         if match.clubs[opponent_id].details
         else "???"
     )
-    score_teams = match.clubs[helpers.CLUB_ID].details.name + " vs " + opponent_name
-    score_result = match.clubs[helpers.CLUB_ID].scoreString
+    score_teams = (
+        match.clubs[ilobot.config.CLUB_ID].details.name + " vs " + opponent_name
+    )
+    score_result = match.clubs[ilobot.config.CLUB_ID].scoreString
     return Result(
         mark=helpers.get_match_mark(match),
         date_and_time=score_time,
@@ -48,7 +51,7 @@ def format_result(match_raw: dict) -> Result:
         game_type=helpers.get_match_type_mark(match),
         match_id=match.matchId,
         summary=match.summary,
-        match_type=match.clubs[helpers.CLUB_ID].get_match_type(),
+        match_type=match.clubs[ilobot.config.CLUB_ID].get_match_type(),
     )
 
 
@@ -77,16 +80,16 @@ def format_stats(stats, stats_filter=None):
 def _match_details(match_dict: dict):
     match = from_dict(data_class=Match, data=match_dict)
     players = ""
-    for team_id in (match.opponent.id, helpers.CLUB_ID):
+    for team_id in (match.opponent.id, ilobot.config.CLUB_ID):
         players += f"\n**{match.clubs[team_id].details.name}**\n"
-        if team_id != helpers.CLUB_ID:
+        if team_id != ilobot.config.CLUB_ID:
             players += "```\n"
         for _, player in sorted(
             match.players[team_id].items(),
             key=lambda p: int(p[1].skgoals) + int(p[1].skassists),
             reverse=True,
         ):
-            if team_id == helpers.CLUB_ID:
+            if team_id == ilobot.config.CLUB_ID:
                 players += "```\n"
 
             points = (
@@ -94,7 +97,7 @@ def _match_details(match_dict: dict):
                 if player.position == "goalie"
                 else f"{player.skgoals} + {player.skassists}"
             )
-            if team_id != helpers.CLUB_ID:
+            if team_id != ilobot.config.CLUB_ID:
                 players += (
                     f"{player.position[0].upper()} {player.playername}: {points}\n"
                 )
@@ -132,7 +135,7 @@ def _match_details(match_dict: dict):
                 if player.position.upper() == "CENTER":
                     players += f", fow:{player.skfow}, fol:{player.skfol}, fopct: {player.skfopct}"
             players += "```\n"
-        if team_id != helpers.CLUB_ID:
+        if team_id != ilobot.config.CLUB_ID:
             players += "```"
 
     return players
@@ -189,7 +192,7 @@ def game_record(
     records: List[Record] = []
     for raw_match in matches:
         match = from_dict(data_class=Match, data=raw_match)
-        for _, player_data in match.players[helpers.CLUB_ID].items():
+        for _, player_data in match.players[ilobot.config.CLUB_ID].items():
             if stats_key in [field.name for field in fields(player_data)]:
                 # if we are looking for a specific player records...
                 if player_name and player_data.playername != player_name:

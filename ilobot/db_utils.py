@@ -1,11 +1,11 @@
 import copy
 
-from ilobot import helpers
+from ilobot import config
 from ilobot.base_logger import logger
 
 
 def _is_win(match):
-    scores = match["clubs"][helpers.CLUB_ID]["scoreString"].split(" - ")
+    scores = match["clubs"][config.CLUB_ID]["scoreString"].split(" - ")
     return int(scores[0]) > int(scores[1])
 
 
@@ -36,7 +36,7 @@ def enrich_match(original_match, game_type):
             temp["club_id"] = club
             temp["club_name"] = team_name
             match["player_names"].append(temp)
-        if club != helpers.CLUB_ID:
+        if club != config.CLUB_ID:
             match["opponent"]["name"] = team_name
             match["opponent"]["id"] = club
     return match

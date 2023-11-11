@@ -9,10 +9,11 @@ import pymongo.errors
 from cachetools import TTLCache, cached
 from dacite import MissingValueError, from_dict
 
+import ilobot.config
 from ilobot import db_utils, helpers
 from ilobot.base_logger import logger
+from ilobot.config import DB_NAME
 from ilobot.data import api
-from ilobot.helpers import DB_NAME
 from ilobot.models import Match
 
 client = motor.motor_asyncio.AsyncIOMotorClient()
@@ -41,7 +42,7 @@ async def watch(result_handler):
 async def update_matches(team_id, system):
     for game_type in helpers.GAMETYPE:
         postfix = ""
-        if team_id != helpers.CLUB_ID:
+        if team_id != ilobot.config.CLUB_ID:
             postfix = "_" + team_id + "_" + system
         matches = api.get_matches(
             club_id=team_id, platform=system, count=10, game_type=game_type.value
@@ -113,7 +114,7 @@ async def get_sorted_matches(sort_key):
 
 async def find_matches_for_player(player_id):
     matches = db.matches.find(
-        {f"players.{helpers.CLUB_ID}.{player_id}": {"$exists": True}}
+        {f"players.{ilobot.config.CLUB_ID}.{player_id}": {"$exists": True}}
     ).sort("timestamp", 1)
     return await matches.to_list(length=10000)
 
@@ -124,8 +125,8 @@ async def get_latest_match(count=1):
 
 
 if __name__ == "__main__":
-    club_id = helpers.CLUB_ID
-    platform = helpers.PLATFORM
+    club_id = ilobot.config.CLUB_ID
+    platform = ilobot.config.PLATFORM
     try:
         opts, args = getopt.getopt(sys.argv[1:], "p:c:", ["platform=", "clubid="])
         for opt, arg in opts:

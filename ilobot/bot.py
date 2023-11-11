@@ -7,7 +7,8 @@ import nextcord
 from dacite import from_dict
 from nextcord.ext import commands, tasks
 
-from ilobot import data_service, db_mongo, helpers, tumblrl
+import ilobot.config
+from ilobot import data_service, db_mongo, tumblrl
 from ilobot.base_logger import logger
 from ilobot.data import api
 from ilobot.extra import chatgpt
@@ -17,7 +18,7 @@ from .models import Match
 
 
 class Bot(commands.Bot):
-    TEAM_NAME = api.get_team_info(helpers.CLUB_ID)[helpers.CLUB_ID]["name"]
+    TEAM_NAME = api.get_team_info(ilobot.config.CLUB_ID)[ilobot.config.CLUB_ID]["name"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, intents=nextcord.Intents.all())
@@ -36,7 +37,7 @@ class Bot(commands.Bot):
             self.player_names[member["name"]] = api.get_member(member["name"])[
                 "skplayername"
             ]
-        logger.info(f"Team: {helpers.CLUB_ID} - {self.TEAM_NAME}")
+        logger.info(f"Team: {ilobot.config.CLUB_ID} - {self.TEAM_NAME}")
         logger.info("Players: \n" + pprint.pformat(self.player_names))
 
     async def watch_db(self):
@@ -47,7 +48,8 @@ class Bot(commands.Bot):
     async def report_results(self, match: dict):
         logger.info("Report results to channel")
         channel: nextcord.PartialMessageable = cast(
-            nextcord.PartialMessageable, self.get_channel(int(helpers.DISCORD_CHANNEL))
+            nextcord.PartialMessageable,
+            self.get_channel(int(ilobot.config.DISCORD_CHANNEL)),
         )
         result, details = data_service.match_result(match)
         if result:
@@ -96,7 +98,7 @@ class Bot(commands.Bot):
             return
         if self.now and self.now + 3600 * 36 > datetime.datetime.now().timestamp():
             return
-        channel = self.get_channel(int(helpers.DISCORD_CHANNEL))
+        channel = self.get_channel(int(ilobot.config.DISCORD_CHANNEL))
         logger.info("Checking latest game timestamp")
         latest_game = await db_mongo.get_latest_match()
         if latest_game is None:
@@ -128,6 +130,6 @@ class Bot(commands.Bot):
         if status == TwitchStatus.STOPPED:
             return
         if status == TwitchStatus.STARTED:
-            channel = self.get_channel(int(helpers.TWITCH_CHANNEL))
+            channel = self.get_channel(int(ilobot.config.TWITCH_CHANNEL))
             logger.info(f"Stream activated {self.twitcher.stream_url}")
             await channel.send("Stream started: " + self.twitcher.stream_url)

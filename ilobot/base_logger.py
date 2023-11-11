@@ -1,6 +1,6 @@
 import logging
 
-from ilobot.helpers import DEBUG
+from ilobot.config import DEBUG
 
 rootLogger = logging.getLogger()
 logFormatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")

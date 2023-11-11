@@ -6,8 +6,9 @@ from openai.error import RateLimitError, ServiceUnavailableError
 
 from ilobot import jsonmap
 from ilobot.base_logger import logger
+from ilobot.config import CLUB_ID, GPT_MODEL, OPEN_API
 from ilobot.data import api
-from ilobot.helpers import CLUB_ID, GPT_MODEL, OPEN_API, is_overtime
+from ilobot.helpers import is_overtime
 from ilobot.models import Match
 
 openai.api_key = OPEN_API

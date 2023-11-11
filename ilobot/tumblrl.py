@@ -1,6 +1,6 @@
-import pytumblr  # type: ignore
+import pytumblr
 
-from ilobot.helpers import (
+from ilobot.config import (  # type: ignore
     TUMBLR_BLOG,
     TUMBLR_KEY,
     TUMBLR_OAUTH_KEY,
