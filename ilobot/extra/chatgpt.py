@@ -43,6 +43,7 @@ SKIP_KEYS = (
     "skfow",
     "skfol",
     "skshotpct",
+    "skplusmin",
 )
 
 SKIP_PLAYER_KEYS = (
@@ -93,7 +94,9 @@ def handle_keys(data, game_type=None):
         if "position" in data:  # player data
             if key in SKIP_PLAYER_KEYS:
                 continue
-            if key == "skgiveaways" and (0 < int(data["skgiveaways"]) < 10):
+            if key == "skgiveaways" and (0 < int(data[key]) < 10):
+                continue
+            if "rating" in key and (55 < int(data["skgiveaways"]) <= 75):
                 continue
 
         if isinstance(value, dict):
@@ -160,17 +163,20 @@ def setup_messages(game, history):
     cleaned_game = chatify_data(game)
     game_json_output = json.dumps(cleaned_game)
     history_json_output = json.dumps({"previous_games": history})
+    moods = [""]
     messages = [
         {
             "role": "system",
             "content": f"You are entitled general manager of hockey club {our_team}."
-            " You are mean but funny.",
+            " You are mean and funny.",
         },
         {
             "role": "user",
             "content": "Analyze the hockey game that just took place, based on following "
-            "json data and imaginary events. Critique the performance of your team and your "
-            "players. Throw insults if needed to make a point.",
+            "json data. Critique the performance of your team and your "
+            "players. Throw insults if needed to make a point. Consider highlighting different perspectives, "
+            "historical context, and potential future implications. Consider incorporating elements of "
+            "savage humor, analogy, or real-world comparisons to keep the analyses engaging and unique each time.",
         },
     ]
     if (
@@ -215,10 +221,10 @@ async def write_gpt_summary(game: dict, history=None):
         chat_completion = await openai.ChatCompletion.acreate(
             model=GPT_MODEL,
             messages=messages,
-            temperature=1.33,
-            top_p=0.5,
-            frequency_penalty=0.3,
-            presence_penalty=1,
+            temperature=1.5,
+            top_p=0.7,
+            frequency_penalty=0.8,
+            presence_penalty=1.5,
         )
     except (ServiceUnavailableError, RateLimitError):
         logger.exception("OPENAI error")
