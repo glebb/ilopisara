@@ -1,5 +1,46 @@
 Discord bot to fetch statistics for EA NHL
 Utilizes NHL api's (ONLINE) and local mongo db (DB) to preserve match history with stats.
+Can utilize OpenAI GPT to write summaries for games (and additionally publish them to Tumblr blog)
+
+----------
+
+Bot (slash) commands:
+/team <name>
+Team record and other details from ONLINE.
+Checks also DB for previous matches against this team.
+
+/player <name> <filter>
+All stats for player from ONLINE
+
+/top <stat>
+Rank club members based on single statistic from ONLINE
+
+/results
+Show results of latest games from DB
+
+
+/record <stat>
+Single game record for a stat from DB
+
+The bot will monitor latest results (from DB) and post them to specified channel.
+
+----------
+
+Technical requirements:
+* Local mongodb instance, with replica sets setup. Works without this, but you lose useful features.
+   mongodb.conf:
+      replication:
+      replSetName: "rs0"
+   mongosh: rs.initiate()
+* Cronjob to execute db_mongo.py to fetch game results periodically
+   0 * * * * cd /home/<user>/ilopisara && .venv/bin/python -m ilobot.db_mongo
+* IP that allows access for NHL apis. (test by running py.test)
+* Network access to EA "proclubs" api (base url not provided, dig it up and test if it works for you)
+
+Copy sample.env as .env and fill all values (check config.py)
+Install python requirements: pip install -m requirements.txt (for python 3.12 add zombieimp)
+
+run: python -m ilobot.main
 
 ----------
 
@@ -35,38 +76,4 @@ Oh... How is all this related to the Discord bot you might ask? Well, back in th
 
 ----------
 
-Bot (slash) commands:
-/results
-Show results of latest games from ONLINE
 
-/team <name>
-Team record and other details from ONLINE.
-Checks also DB for previous matches against this team.
-
-/player <name> <filter>
-All stats for player from ONLINE
-
-/top <stat>
-Rank club members based on single statistic from ONLINE
-
-/record <stat>
-Single game record for a stat from DB
-
-The bot will monitor latest results (from DB) and post them to specified channel.
-
-----------
-
-Technical requirements:
-* Local mongodb instance, with replica sets setup.
-   mongodb.conf:
-      replication:
-      replSetName: "rs0"
-   mongosh: rs.initiate()
-* Cronjob to execute db_mongo.py to fetch game results periodically
-   0 * * * * cd /home/<user>/ilopisara && .venv/bin/python -m ilobot.db_mongo
-* IP that allows access for NHL apis. (test by running py.test)
-
-Copy sample.env as .env and fill all values (check config.py)
-Install python requirements: pip install -m requirements.txt
-
-run: python -m ilobot.main
