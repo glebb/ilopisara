@@ -36,7 +36,7 @@ def get_matches(club_id, platform, count, game_type):
     data = []
     try:
         url = (
-            "{EA_API_BASE_URL}clubs/matches?matchType="
+            f"{EA_API_BASE_URL}clubs/matches?matchType="
             f"{str(game_type)}&platform={platform}&clubIds={club_id}&maxResultCount={count}"
         )
         logger.info(f"Fetching url: {url}")
