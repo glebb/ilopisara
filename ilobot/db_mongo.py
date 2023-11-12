@@ -16,10 +16,22 @@ from ilobot.config import DB_NAME
 from ilobot.data import api
 from ilobot.models import Match
 
-client = motor.motor_asyncio.AsyncIOMotorClient()
+client = motor.motor_asyncio.AsyncIOMotorClient(serverSelectionTimeoutMS=100)
 db = client[DB_NAME]
 
 
+def handle_exceptions(func):
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except pymongo.errors.ServerSelectionTimeoutError:
+            logger.exception("DB not accessible.")
+            return None
+
+    return wrapper
+
+
+@handle_exceptions
 async def watch(result_handler):
     resume_token = None
     pipeline = [{"$match": {"operationType": "insert"}}]
@@ -39,6 +51,7 @@ async def watch(result_handler):
                     await result_handler((insert_change["fullDocument"]))
 
 
+@handle_exceptions
 async def update_matches(team_id, system):
     for game_type in helpers.GAMETYPE:
         postfix = ""
@@ -77,6 +90,7 @@ async def update_matches(team_id, system):
             # if update_result.matched_count == 0:
 
 
+@handle_exceptions
 async def find_matches_by_club_id(
     versus_club_id=None, game_type=None, player_name=None
 ):
@@ -96,6 +110,7 @@ async def find_match_by_id(match_id):
     return await matches.to_list(length=1)
 
 
+@handle_exceptions
 @cached(cache=TTLCache(maxsize=1024, ttl=180))
 async def get_known_team_names():
     temp = db.opponents.find({}, {"name": 1})
@@ -103,6 +118,7 @@ async def get_known_team_names():
     return map(lambda x: x["name"], data)
 
 
+@handle_exceptions
 async def get_sorted_matches(sort_key):
     matches = (
         db.matches.find()
@@ -112,6 +128,7 @@ async def get_sorted_matches(sort_key):
     return await matches.to_list(length=10000)
 
 
+@handle_exceptions
 async def find_matches_for_player(player_id):
     matches = db.matches.find(
         {f"players.{ilobot.config.CLUB_ID}.{player_id}": {"$exists": True}}
@@ -119,6 +136,7 @@ async def find_matches_for_player(player_id):
     return await matches.to_list(length=10000)
 
 
+@handle_exceptions
 async def get_latest_match(count=1):
     matches = db.matches.find().sort("timestamp", -1)
     return await matches.to_list(count)

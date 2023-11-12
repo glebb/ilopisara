@@ -6,10 +6,11 @@ from ilobot.data import api
 
 
 async def results(club_id=None, game_type=None) -> List[data_service.Result]:
-    matches = await db_mongo.find_matches_by_club_id(club_id, game_type)
     data = []
-    for i in range(0, len(matches))[-20:]:
-        data.append(data_service.format_result(matches[i]))
+    matches = await db_mongo.find_matches_by_club_id(club_id, game_type)
+    if matches:
+        for i in range(0, len(matches))[-20:]:
+            data.append(data_service.format_result(matches[i]))
     return data
 
 
@@ -104,10 +105,12 @@ async def game_record(stats_filter, player_name=None, position=None, team_stats=
 
     matches = await db_mongo.find_matches_by_club_id(player_name=player_name)
     return_matches = []
-    temp = " ".join(stats_filter)
-    records = data_service.game_record(
-        matches, temp, player_name=player_name, position=position
-    )
+    records = []
+    if matches:
+        temp = " ".join(stats_filter)
+        records = data_service.game_record(
+            matches, temp, player_name=player_name, position=position
+        )
     if records:
         result = f"Single game record for {temp}"
         if player_name:

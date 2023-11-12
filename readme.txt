@@ -49,9 +49,6 @@ All stats for player from ONLINE
 /top <stat>
 Rank club members based on single statistic from ONLINE
 
-/match <id>
-Details for specific match from DB.
-
 /record <stat>
 Single game record for a stat from DB
 
@@ -69,7 +66,7 @@ Technical requirements:
    0 * * * * cd /home/<user>/ilopisara && .venv/bin/python -m ilobot.db_mongo
 * IP that allows access for NHL apis. (test by running py.test)
 
-Copy sample.env as .env and fill all values
+Copy sample.env as .env and fill all values (check config.py)
 Install python requirements: pip install -m requirements.txt
 
 run: python -m ilobot.main

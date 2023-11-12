@@ -1,8 +1,7 @@
 import json
 
-import openai
 from dacite import from_dict
-from openai import OpenAIError
+from openai import AsyncOpenAI, OpenAIError
 
 from ilobot import jsonmap
 from ilobot.base_logger import logger
@@ -10,8 +9,6 @@ from ilobot.config import CLUB_ID, GPT_MODEL, OPEN_API
 from ilobot.data import api
 from ilobot.helpers import is_overtime
 from ilobot.models import Match
-
-openai.api_key = OPEN_API
 
 SKIP_KEYS = (
     "matchId",
@@ -218,8 +215,11 @@ def setup_messages(game, history):
 
 async def write_gpt_summary(game: dict, history=None):
     messages = setup_messages(game, history)
+    client = AsyncOpenAI(
+        api_key=OPEN_API,
+    )
     try:
-        chat_completion = await openai.ChatCompletion.acreate(
+        chat_completion = await client.chat.completions.create(
             model=GPT_MODEL,
             messages=messages,
             temperature=1.5,
@@ -230,5 +230,4 @@ async def write_gpt_summary(game: dict, history=None):
     except OpenAIError:
         logger.exception("OPENAI error")
         return None
-
-    return chat_completion["choices"][0]["message"]["content"]
+    return chat_completion.choices[0].message.content

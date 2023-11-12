@@ -9,6 +9,8 @@ DB_NAME = os.getenv("DB_NAME", "ilobot")
 PLATFORM = os.getenv("PLATFORM", "common-gen5")
 
 # Minimum requirements
+EA_API_BASE_URL = os.getenv("EA_API_BASE_URL")
+assert EA_API_BASE_URL, "You need to specify base url for the EA api"
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 assert DISCORD_TOKEN, "You need to specify discord token"
 DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL", "0"))

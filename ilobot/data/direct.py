@@ -6,6 +6,7 @@ from simplejson import JSONDecodeError
 from urllib3.util import Retry
 
 from ilobot.base_logger import logger
+from ilobot.config import EA_API_BASE_URL
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:77.0) Gecko/20100101 Firefox/77.0"
@@ -23,7 +24,7 @@ http.mount("http://", adapter)
 def get_members(club_id, platform):
     data = {}
     try:
-        url = f"https://proclubs.ea.com/api/nhl/members/career/stats?platform={platform}&clubId={club_id}"
+        url = f"{EA_API_BASE_URL}members/career/stats?platform={platform}&clubId={club_id}"
         logger.info(f"Fetching url: {url}")
         data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
@@ -35,7 +36,7 @@ def get_matches(club_id, platform, count, game_type):
     data = []
     try:
         url = (
-            "https://proclubs.ea.com/api/nhl/clubs/matches?matchType="
+            "{EA_API_BASE_URL}clubs/matches?matchType="
             f"{str(game_type)}&platform={platform}&clubIds={club_id}&maxResultCount={count}"
         )
         logger.info(f"Fetching url: {url}")
@@ -49,7 +50,9 @@ def get_team_record(team, platform):
     data = {}
     try:
         team_quoted = urllib.parse.quote(team)
-        url = f"https://proclubs.ea.com/api/nhl/clubs/search?platform={platform}&clubName={team_quoted}"
+        url = (
+            f"{EA_API_BASE_URL}clubs/search?platform={platform}&clubName={team_quoted}"
+        )
         logger.info(f"Fetching url: {url}")
         data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
@@ -60,7 +63,7 @@ def get_team_record(team, platform):
 def get_team_info(team_id, platform):
     data = {}
     try:
-        url = f"https://proclubs.ea.com/api/nhl/clubs/info?platform={platform}&clubIds={team_id}"
+        url = f"{EA_API_BASE_URL}clubs/info?platform={platform}&clubIds={team_id}"
         logger.info(f"Fetching url: {url}")
         data = http.get(url, timeout=4, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
@@ -71,7 +74,7 @@ def get_team_info(team_id, platform):
 def get_seasonal_stats(team_id, platform):
     data = {}
     try:
-        url = f"https://proclubs.ea.com/api/nhl/clubs/seasonalStats?platform={platform}&clubIds={team_id}"
+        url = f"{EA_API_BASE_URL}clubs/seasonalStats?platform={platform}&clubIds={team_id}"
         logger.info(f"Fetching url: {url}")
         data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
@@ -82,7 +85,7 @@ def get_seasonal_stats(team_id, platform):
 def get_member(member_name, platform):
     data = {}
     try:
-        url = f"https://proclubs.ea.com/api/nhl/members/search?platform={platform}&memberName={member_name}"
+        url = f"{EA_API_BASE_URL}members/search?platform={platform}&memberName={member_name}"
         logger.info(f"Fetching url: {url}")
         data = http.get(url, timeout=10, headers=headers).json()
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
