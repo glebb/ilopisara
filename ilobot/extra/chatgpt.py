@@ -215,10 +215,11 @@ def setup_messages(game, history):
 
 async def write_gpt_summary(game: dict, history=None):
     messages = setup_messages(game, history)
-    client = AsyncOpenAI(
-        api_key=OPEN_API,
-    )
     try:
+        client = AsyncOpenAI(
+            api_key=OPEN_API,
+        )
+
         chat_completion = await client.chat.completions.create(
             model=GPT_MODEL,
             messages=messages,

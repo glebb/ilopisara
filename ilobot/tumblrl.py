@@ -1,5 +1,6 @@
 import pytumblr
 
+from ilobot.base_logger import logger
 from ilobot.config import (  # type: ignore
     TUMBLR_BLOG,
     TUMBLR_KEY,
@@ -16,6 +17,9 @@ tumblr_client = pytumblr.TumblrRestClient(
 def post(raw_text: str, title=None, tags=None):
     if not tags:
         tags = []
-    return tumblr_client.create_text(
-        TUMBLR_BLOG, body=raw_text.replace("\n", "<br />"), title=title, tags=tags
-    )
+    try:
+        tumblr_client.create_text(
+            TUMBLR_BLOG, body=raw_text.replace("\n", "<br />"), title=title, tags=tags
+        )
+    except Exception:
+        logger.exception("TUMBLR error - couldn't post")
