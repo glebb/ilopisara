@@ -19,3 +19,6 @@ pytest-asyncio==0.21.1
 PyTumblr==0.1.2
 # zombieimp #for 3.12
 setuptools==68.2.2
+falcon==3.1.1
+httpie==3.2.2
+uvicorn==0.24.0.post1
