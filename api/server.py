@@ -68,4 +68,4 @@ matches_resource = MatchesResource()
 app.add_route("/matches", matches_resource)
 
 if __name__ == "__main__":
-    uvicorn.run("api.server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api.server:app", host="0.0.0.0", port=8000, reload=False)
