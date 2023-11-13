@@ -6,7 +6,7 @@ import falcon.asgi
 import uvicorn
 from dotenv import load_dotenv
 
-from ilobot import db_mongo
+from ilobot import calculations, db_mongo
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 load_dotenv(f"{__location__}/../.env")
@@ -52,12 +52,12 @@ class MatchesResource:
         resp.media = matches[:limit]
 
 
-class WinsResource:
+class WinsResources:
     async def on_get(self, req, resp):
         matches = await db_mongo.find_matches_by_club_id()
-        for m in matches:
-            del m["_id"]
-        resp.media = json.dumps(matches)
+        result = calculations.win_percentages_by_hour(matches)
+        resp.content_type = falcon.MEDIA_TEXT  # Default is JSON, so override
+        resp.text = calculations.text_for_win_percentage_by_hour(result)
 
 
 app = falcon.asgi.App(
@@ -66,6 +66,10 @@ app = falcon.asgi.App(
 
 matches_resource = MatchesResource()
 app.add_route("/matches", matches_resource)
+
+winpct_resource = WinsResources()
+app.add_route("/winpct", winpct_resource)
+
 
 if __name__ == "__main__":
     uvicorn.run("api.server:app", host="0.0.0.0", port=8000, reload=False)

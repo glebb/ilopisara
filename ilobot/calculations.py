@@ -42,24 +42,26 @@ def win_percentages_by_hour(matches):
     return result_by_hour
 
 
-def print_win_percentage_by_hour(
+def text_for_win_percentage_by_hour(
     win_percentages_by_hour_result: List[WinsByHourPercentage],
 ):
-    print("Win percentages by hour")
-    print("Hour\tGP\tWin %")
+    text = ""
+    text += "Win percentages by hour\n"
+    text += "Hour\tGP\tWin %\n"
     games = 0
     for item in sorted(
         win_percentages_by_hour_result,
         key=lambda w: w.hour,
     ):
         games += item.total_games
-        print(f"{item.hour}\t{item.total_games}\t{item.win_percentage():.2f}%")
-    print(f"Total games: {games}")
+        text += f"{item.hour}\t{item.total_games}\t{item.win_percentage():.2f}%\n"
+    text += f"Total games: {games}\n"
+    return text
 
 
 async def main():
     data = await db_mongo.find_matches_by_club_id()
-    print_win_percentage_by_hour(win_percentages_by_hour(data))
+    print(text_for_win_percentage_by_hour(win_percentages_by_hour(data)))
 
 
 if __name__ == "__main__":
