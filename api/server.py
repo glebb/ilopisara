@@ -46,7 +46,7 @@ class MatchesResource:
         limit = 10000
         if "limit" in req.params:
             limit = int(req.params["limit"])
-        matches = await db_mongo.find_matches_by_club_id()
+        matches = await db_mongo.get_sorted_matches("timestamp")
         for m in matches:
             del m["_id"]
         resp.media = matches[:limit]
