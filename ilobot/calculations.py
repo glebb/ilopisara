@@ -47,7 +47,7 @@ def text_for_win_percentage_by_hour(
 ):
     text = ""
     text += "Win percentages by hour\n"
-    text += "Hour\tGP\tWin %\n"
+    text += "Hour\tGames Played\tWin %\n"
     games = 0
     for item in sorted(
         win_percentages_by_hour_result,

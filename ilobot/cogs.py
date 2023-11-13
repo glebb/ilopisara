@@ -4,7 +4,14 @@ import nextcord
 from nextcord.ext import commands
 
 import ilobot.config
-from ilobot import command_service, data_service, db_mongo, helpers, jsonmap
+from ilobot import (
+    calculations,
+    command_service,
+    data_service,
+    db_mongo,
+    helpers,
+    jsonmap,
+)
 from ilobot.base_logger import logger
 from ilobot.bot import Bot
 from ilobot.data import api
@@ -85,6 +92,25 @@ class ApplicationCommandCog(commands.Cog):
             await self.matches_dropdown(response, matches, interaction)
         else:
             await interaction.followup.send(response[:1999])
+
+    @nextcord.slash_command(
+        guild_ids=[ilobot.config.GUILD_ID], description="Display data analytics"
+    )
+    async def analytics(
+        self,
+        interaction: nextcord.Interaction,
+        name: str = nextcord.SlashOption(
+            choices=({"Win percentage by hour": "winpct"}),
+            required=True,
+        ),
+    ):
+        await interaction.response.defer()
+        if name == "winpct":
+            matches = await db_mongo.find_matches_by_club_id()
+            response = calculations.text_for_win_percentage_by_hour(
+                calculations.win_percentages_by_hour(matches)
+            )
+            await interaction.followup.send(f"```{response[:1999]}```")
 
     @nextcord.slash_command(
         guild_ids=[ilobot.config.GUILD_ID],
