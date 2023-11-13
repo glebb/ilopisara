@@ -46,7 +46,7 @@ class MatchesResource:
         matches = await db_mongo.find_matches_by_club_id()
         for m in matches:
             del m["_id"]
-        resp.media = json.dumps(matches)
+        resp.media = json.dumps(matches[:10])
 
 
 class WinsResource:
