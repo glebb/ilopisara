@@ -43,10 +43,13 @@ class AuthMiddleware:
 
 class MatchesResource:
     async def on_get(self, req, resp):
+        limit = 10000
+        if "limit" in req.params:
+            limit = int(req.params["limit"])
         matches = await db_mongo.find_matches_by_club_id()
         for m in matches:
             del m["_id"]
-        resp.media = json.dumps(matches[:10])
+        resp.media = matches[:limit]
 
 
 class WinsResource:
