@@ -23,7 +23,7 @@ LOADOUTS = {
     "6": "Dangler",
     "11": "Defensive Defenseman",
     "12": "Offensive Defenseman",
-    "13": "Enforced Defenseman",
+    "13": "Enforcer Defenseman",
     "14": "Two-Way Defenseman",
     "15": "Puck Moving Defenseman",
     "115": "Bones - PMD",
