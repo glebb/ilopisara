@@ -61,14 +61,14 @@ def text_for_win_percentage_by_hour(
 ):
     text = ""
     text += "Win percentages by hour\n"
-    text += f"{'Hour'.ljust(5)}\t{'Games Played'.ljust(12)}\t{'Win %'.rjust(7)}\n"
+    text += f"{'Hour'.ljust(5)}\t{'GP'.ljust(4)}\t{'Win %'.rjust(7)}\n"
     games = 0
     for item in sorted(
         win_percentages_by_hour_result,
         key=lambda w: w.hour,
     ):
         games += item.total_games
-        text += f"{str(item.hour).ljust(5)}\t{str(item.total_games).ljust(12)}\t{item.win_percentage():6.2f}%\n"
+        text += f"{str(item.hour).ljust(5)}\t{str(item.total_games).ljust(4)}\t{item.win_percentage():6.2f}%\n"
     text += f"Total games: {games}\n"
     return text
 
@@ -87,7 +87,6 @@ def wins_by_player_by_position(matches):
             if name not in players:
                 players[name] = {}
             if position not in players[name]:
-                # players[name][position] = {"wins": 0, "total_games": 0}
                 players[name][position] = WinsByPosition(position=position)
             if match["win"]:
                 players[name][position].wins += 1
@@ -96,12 +95,12 @@ def wins_by_player_by_position(matches):
 
 
 def text_for_win_percentage_by_player_by_position(wins):
-    text = ""
+    text = f"{'Player'.ljust(16)}\t{'GP'.ljust(4)}\t{'Win %'.rjust(8)}\n"
     for player_name, player in wins.items():
         text += f"{player_name}\n"
-        text += f"\t{'position'.ljust(18)}\t{'win %'.rjust(7)}\tgames played\n"
         for position, data in player.items():
-            text += f"\t{position.ljust(18)}\t{data.win_percentage():6.2f}%  \t{str(data.total_games).rjust(4)}\n"
+            text += f"{position.ljust(16)}\t{str(data.total_games).ljust(4)}\t{data.win_percentage():6.2f}%\n"
+        text += "\n"
     return text
 
 

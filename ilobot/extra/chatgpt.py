@@ -3,7 +3,7 @@ import json
 from dacite import from_dict
 from openai import AsyncOpenAI, OpenAIError
 
-from ilobot import jsonmap
+from ilobot import helpers, jsonmap
 from ilobot.base_logger import logger
 from ilobot.config import CLUB_ID, GPT_MODEL, OPEN_API
 from ilobot.data import api
@@ -30,7 +30,6 @@ SKIP_KEYS = (
     "OnlineGameType",
     "asset",
     "rank",
-    "class",
     "gameType",
     "clubDivision",
     "memberString",
@@ -96,6 +95,8 @@ def handle_keys(data, game_type=None):
                 continue
             if "rating" in key and (55 < int(data["skgiveaways"]) <= 75):
                 continue
+            if key == "class":
+                value = helpers.LOADOUTS.get(value, "")
 
         if isinstance(value, dict):
             # Recursively process nested dictionaries

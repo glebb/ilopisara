@@ -13,6 +13,22 @@ PLATFORMS = {
     "xboxone": "xboxone",
 }
 
+LOADOUTS = {
+    "0": "Grinder",
+    "1": "Playmaker",
+    "2": "Sniper",
+    "3": "Power Forward",
+    "4": "Two-Way Forward",
+    "5": "Enforcer",
+    "6": "Dangler",
+    "11": "Defensive Defenseman",
+    "12": "Offensive Defenseman",
+    "13": "Enforced Defenseman",
+    "14": "Two-Way Defenseman",
+    "15": "Puck Moving Defenseman",
+    "115": "Bones - PMD",
+}
+
 
 class GAMETYPE(Enum):
     REGULARSEASON = "gameType5"

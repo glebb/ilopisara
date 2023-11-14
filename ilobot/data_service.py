@@ -77,8 +77,17 @@ def format_stats(stats, stats_filter=None):
         return message
 
 
+def convert_match(match_raw: dict):
+    for team in match_raw["players"]:
+        for player in match_raw["players"][team]:
+            match_raw["players"][team][player]["loadout"] = match_raw["players"][team][
+                player
+            ].pop("class")
+    return from_dict(data_class=Match, data=match_raw)
+
+
 def _match_details(match_dict: dict):
-    match = from_dict(data_class=Match, data=match_dict)
+    match = convert_match(match_dict)
     players = ""
     for team_id in (match.opponent.id, ilobot.config.CLUB_ID):
         players += f"\n**{match.clubs[team_id].details.name}**\n"
@@ -98,11 +107,9 @@ def _match_details(match_dict: dict):
                 else f"{player.skgoals} + {player.skassists}"
             )
             if team_id != ilobot.config.CLUB_ID:
-                players += (
-                    f"{player.position[0].upper()} {player.playername}: {points}\n"
-                )
+                players += f"{player.position[0].upper()} {player.playername} ({helpers.LOADOUTS.get(player.loadout, 'Unknown')}): {points}\n"
                 continue
-            players += f"{player.position[0].upper()} {player.playername}: {points}\n"
+            players += f"{player.position[0].upper()} {player.playername} ({helpers.LOADOUTS.get(player.loadout, 'Unknown')}): {points}\n"
             if player.position == "goalie":
                 players += "saves:" + player.glsaves + ", "
                 players += "breakaway save %:"

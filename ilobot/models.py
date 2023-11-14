@@ -174,6 +174,7 @@ class MatchClubData:
 
 @dataclass
 class MatchPlayerData:
+    loadout: Optional[str]
     clientPlatform: Optional[str]
     glbrksavepct: str
     glbrksaves: str
