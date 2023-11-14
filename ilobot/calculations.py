@@ -6,10 +6,12 @@ from pprint import pformat, pprint
 from typing import List
 
 import pytz
+from dacite import from_dict
 
 from ilobot import db_mongo
 from ilobot.base_logger import logger
 from ilobot.config import CLUB_ID
+from ilobot.models import Match
 
 
 @dataclass
@@ -74,11 +76,14 @@ def text_for_win_percentage_by_hour(
 def wins_by_player_by_position(matches):
     players = {}
     for match in matches:
+        model = from_dict(data_class=Match, data=match)
         for player_id, player in match["players"][CLUB_ID].items():
             if player["isGuest"] != "0":
                 continue
             name = player["playername"]
-            position = player["position"]
+            position = (
+                f"{player['position']} ({model.clubs[CLUB_ID].get_match_type().value})"
+            )
             if name not in players:
                 players[name] = {}
             if position not in players[name]:

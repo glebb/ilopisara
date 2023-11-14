@@ -24,6 +24,6 @@ async def test_win_percentage_by_hours():
 
 def test_win_percentage_by_player_by_position():
     result = calculations.wins_by_player_by_position(enriched_matches)
-    assert result["bodhi-FIN"]["defenseMen"].wins == 2
-    assert result["bodhi-FIN"]["defenseMen"].total_games == 4
-    assert result["bodhi-FIN"]["defenseMen"].win_percentage() == 50
+    assert result["bodhi-FIN"]["defenseMen (3vs3)"].wins == 2
+    assert result["bodhi-FIN"]["defenseMen (3vs3)"].total_games == 4
+    assert result["bodhi-FIN"]["defenseMen (3vs3)"].win_percentage() == 50
