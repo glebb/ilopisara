@@ -20,3 +20,10 @@ async def test_win_percentage_by_hours():
     assert result.hour == 22
     assert result.wins == 0
     assert result.total_games == 1
+
+
+def test_win_percentage_by_player_by_position():
+    result = calculations.wins_by_player_by_position(enriched_matches)
+    assert result["bodhi-FIN"]["defenseMen"].wins == 2
+    assert result["bodhi-FIN"]["defenseMen"].total_games == 4
+    assert result["bodhi-FIN"]["defenseMen"].win_percentage() == 50

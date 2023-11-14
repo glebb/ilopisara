@@ -100,7 +100,10 @@ class ApplicationCommandCog(commands.Cog):
         self,
         interaction: nextcord.Interaction,
         name: str = nextcord.SlashOption(
-            choices=({"Win percentage by hour": "winpct"}),
+            choices={
+                "Win percentage by hour": "winpct",
+                "Win percentage by position by player": "winpctposplr",
+            },
             required=True,
         ),
     ):
@@ -111,6 +114,12 @@ class ApplicationCommandCog(commands.Cog):
                 calculations.win_percentages_by_hour(matches)
             )
             await interaction.followup.send(f"```{response[:1999]}```")
+        if name == "winpctposplr":
+            matches = await db_mongo.find_matches_by_club_id()
+            response = calculations.text_for_win_percentage_by_player_by_position(
+                calculations.wins_by_player_by_position(matches)
+            )
+            await interaction.followup.send(f"```\n{response[:1999]}```")
 
     @nextcord.slash_command(
         guild_ids=[ilobot.config.GUILD_ID],

@@ -2,12 +2,14 @@ import asyncio
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
+from pprint import pformat, pprint
 from typing import List
 
 import pytz
 
 from ilobot import db_mongo
 from ilobot.base_logger import logger
+from ilobot.config import CLUB_ID
 
 
 @dataclass
@@ -15,6 +17,16 @@ class WinsByHourPercentage:
     hour: int
     wins: int
     total_games: int
+
+    def win_percentage(self):
+        return self.wins / self.total_games * 100 if self.total_games > 0 else 0
+
+
+@dataclass
+class WinsByPosition:
+    position: str
+    wins: int = 0
+    total_games: int = 0
 
     def win_percentage(self):
         return self.wins / self.total_games * 100 if self.total_games > 0 else 0
@@ -59,9 +71,42 @@ def text_for_win_percentage_by_hour(
     return text
 
 
+def wins_by_player_by_position(matches):
+    players = {}
+    for match in matches:
+        for player_id, player in match["players"][CLUB_ID].items():
+            if player["isGuest"] != "0":
+                continue
+            name = player["playername"]
+            position = player["position"]
+            if name not in players:
+                players[name] = {}
+            if position not in players[name]:
+                # players[name][position] = {"wins": 0, "total_games": 0}
+                players[name][position] = WinsByPosition(position=position)
+            if match["win"]:
+                players[name][position].wins += 1
+            players[name][position].total_games += 1
+    return players
+
+
+def text_for_win_percentage_by_player_by_position(wins):
+    logger.info(wins)
+    text = ""
+    for player_name, player in wins.items():
+        text += f"{player_name}\n"
+        text += f"\tposition\twin %\tgames played\n"
+        for position, data in player.items():
+            text += f"\t{position}\t{data.win_percentage():.2f}\t{data.total_games}\n"
+    return text
+
+
 async def main():
     data = await db_mongo.find_matches_by_club_id()
     print(text_for_win_percentage_by_hour(win_percentages_by_hour(data)))
+    print(
+        text_for_win_percentage_by_player_by_position(wins_by_player_by_position(data))
+    )
 
 
 if __name__ == "__main__":
