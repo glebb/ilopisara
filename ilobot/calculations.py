@@ -96,13 +96,12 @@ def wins_by_player_by_position(matches):
 
 
 def text_for_win_percentage_by_player_by_position(wins):
-    logger.info(wins)
     text = ""
     for player_name, player in wins.items():
         text += f"{player_name}\n"
         text += f"\tposition\twin %\tgames played\n"
         for position, data in player.items():
-            text += f"\t{position}\t{data.win_percentage():.2f}\t{data.total_games}\n"
+            text += f"\t{position}\t{data.win_percentage():.2f}%\t{data.total_games}\n"
     return text
 
 
