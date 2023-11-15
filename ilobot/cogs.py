@@ -109,24 +109,28 @@ class ApplicationCommandCog(commands.Cog):
         ),
     ):
         await interaction.response.defer()
+        response = "Error"
         if name == "winpct":
             matches = await db_mongo.find_matches_by_club_id()
             response = calculations.text_for_win_percentage_by_hour(
                 calculations.win_percentages_by_hour(matches)
             )
-            await interaction.followup.send(f"```{response[:1999]}```")
         if name == "winpctposplr":
             matches = await db_mongo.find_matches_by_club_id()
             response = calculations.text_for_win_percentage_by_player_by_position(
                 calculations.wins_by_player_by_position(matches)
             )
-            await interaction.followup.send(f"```\n{response[:1999]}```")
         if name == "winpctposloadout":
             matches = await db_mongo.find_matches_by_club_id()
             response = calculations.text_for_win_percentage_by_player_by_position(
                 calculations.wins_by_loadout_by_position(matches)
             )
-            await interaction.followup.send(f"```\n{response[:1999]}```")
+        if len(response) >= 1500:
+            indx = response[1500:].find("\n") + 1500
+            await interaction.followup.send(f"```\n{response[:indx]}```")
+            await interaction.followup.send(f"```\n{response[indx:]}```")
+        else:
+            await interaction.followup.send(f"```\n{response[:1990]}```")
 
     @nextcord.slash_command(
         guild_ids=[ilobot.config.GUILD_ID],
