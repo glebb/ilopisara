@@ -73,16 +73,16 @@ def text_for_win_percentage_by_hour(
     return text
 
 
-def wins_by_player_by_position(matches):
+def wins_by_player_by_position(matches, club_id=CLUB_ID):
     players = {}
     for match in matches:
         model = from_dict(data_class=Match, data=match)
-        for _, player in match["players"][CLUB_ID].items():
+        for _, player in match["players"][club_id].items():
             if player["isGuest"] != "0":
                 continue
             name = player["playername"]
             position = (
-                f"{player['position']} ({model.clubs[CLUB_ID].get_match_type().value})"
+                f"{player['position']} ({model.clubs[club_id].get_match_type().value})"
             )
             if name not in players:
                 players[name] = {}
@@ -108,16 +108,16 @@ def sort_by_win_percentage(data):
     return sorted_data
 
 
-def wins_by_loadout_by_position(matches):
+def wins_by_loadout_by_position(matches, club_id=CLUB_ID):
     loadouts = {}
     for match in matches:
         model = data_service.convert_match(match)
-        for player_id, player in model.players[CLUB_ID].items():
+        for player_id, player in model.players[club_id].items():
             if player.isGuest != "0":
                 continue
             name = helpers.LOADOUTS.get(player.loadout, player.loadout)
             position = (
-                f"{player.position} ({model.clubs[CLUB_ID].get_match_type().value})"
+                f"{player.position} ({model.clubs[club_id].get_match_type().value})"
             )
             if position not in loadouts:
                 loadouts[position] = {}

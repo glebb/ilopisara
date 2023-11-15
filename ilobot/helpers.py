@@ -26,7 +26,10 @@ LOADOUTS = {
     "13": "Enforcer Defenseman",
     "14": "Two-Way Defenseman",
     "15": "Puck Moving Defenseman",
-    "115": "Bones - PMD",
+    # 20 21 22 Butterfly Standup Hybrid
+    "100": "Hammer - Grinder",
+    "103": "Moonlight - Power FWD",
+    "115": "Bones - Puck Moving D",
 }
 
 

@@ -107,23 +107,41 @@ class ApplicationCommandCog(commands.Cog):
             },
             required=True,
         ),
+        db: str = nextcord.SlashOption(
+            choices={
+                "NHL 24": ilobot.config.DB_NAME,
+                "NHL 23"
+                if ilobot.config.DB_NAME_23
+                else "NHL 24": ilobot.config.DB_NAME_23
+                if ilobot.config.DB_NAME_23
+                else ilobot.config.DB_NAME,
+            },
+            required=False,
+        ),
     ):
         await interaction.response.defer()
         response = "Error"
+        db_name = ilobot.config.DB_NAME
+        club_id = ilobot.config.CLUB_ID
+        if db and ilobot.config.DB_NAME_23 and ilobot.config.CLUB_ID_23:
+            db_name = db
+            club_id = (
+                ilobot.config.CLUB_ID
+                if db == ilobot.config.DB_NAME
+                else ilobot.config.CLUB_ID_23
+            )
+        matches = await db_mongo.find_matches_by_club_id(db_name=db_name)
         if name == "winpct":
-            matches = await db_mongo.find_matches_by_club_id()
             response = calculations.text_for_win_percentage_by_hour(
                 calculations.win_percentages_by_hour(matches)
             )
         if name == "winpctposplr":
-            matches = await db_mongo.find_matches_by_club_id()
             response = calculations.text_for_win_percentage_by_player_by_position(
-                calculations.wins_by_player_by_position(matches)
+                calculations.wins_by_player_by_position(matches, club_id=club_id)
             )
         if name == "winpctposloadout":
-            matches = await db_mongo.find_matches_by_club_id()
             response = calculations.text_for_win_percentage_by_player_by_position(
-                calculations.wins_by_loadout_by_position(matches)
+                calculations.wins_by_loadout_by_position(matches, club_id=club_id)
             )
         if len(response) >= 1500:
             indx = response[1500:].find("\n") + 1500

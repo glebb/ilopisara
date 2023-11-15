@@ -92,8 +92,9 @@ async def update_matches(team_id, system):
 
 @handle_exceptions
 async def find_matches_by_club_id(
-    versus_club_id=None, game_type=None, player_name=None
+    versus_club_id=None, game_type=None, player_name=None, db_name=DB_NAME
 ):
+    db = client[db_name]
     query = {}
     if game_type:
         query["gameType"] = game_type
