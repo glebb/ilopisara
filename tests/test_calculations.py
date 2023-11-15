@@ -27,3 +27,10 @@ def test_win_percentage_by_player_by_position():
     assert result["bodhi-FIN"]["defenseMen (3vs3)"].wins == 2
     assert result["bodhi-FIN"]["defenseMen (3vs3)"].total_games == 4
     assert result["bodhi-FIN"]["defenseMen (3vs3)"].win_percentage() == 50
+
+
+def test_win_percentage_by_loadout_by_position():
+    result = calculations.wins_by_loadout_by_position(enriched_matches)
+    assert result["defenseMen (3vs3)"]["Puck Moving Defenseman"].wins == 2
+    assert result["defenseMen (3vs3)"]["Puck Moving Defenseman"].total_games == 4
+    assert result["defenseMen (3vs3)"]["Puck Moving Defenseman"].win_percentage() == 50

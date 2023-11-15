@@ -1,5 +1,5 @@
 import asyncio
-from collections import Counter
+from collections import Counter, OrderedDict
 from dataclasses import dataclass
 from datetime import datetime
 from pprint import pformat, pprint
@@ -8,7 +8,7 @@ from typing import List
 import pytz
 from dacite import from_dict
 
-from ilobot import db_mongo
+from ilobot import data_service, db_mongo, helpers
 from ilobot.base_logger import logger
 from ilobot.config import CLUB_ID
 from ilobot.models import Match
@@ -77,7 +77,7 @@ def wins_by_player_by_position(matches):
     players = {}
     for match in matches:
         model = from_dict(data_class=Match, data=match)
-        for player_id, player in match["players"][CLUB_ID].items():
+        for _, player in match["players"][CLUB_ID].items():
             if player["isGuest"] != "0":
                 continue
             name = player["playername"]
@@ -91,15 +91,51 @@ def wins_by_player_by_position(matches):
             if match["win"]:
                 players[name][position].wins += 1
             players[name][position].total_games += 1
-    return players
+    return sort_by_win_percentage(players)
+
+
+def sort_by_win_percentage(data):
+    sorted_data = {}
+    for p_key, _ in data.items():
+        sorted_data[p_key] = {}
+        sorted_data[p_key] = dict(
+            sorted(
+                data[p_key].items(),
+                key=lambda x: x[1].win_percentage(),
+                reverse=True,
+            )
+        )
+    return sorted_data
+
+
+def wins_by_loadout_by_position(matches):
+    loadouts = {}
+    for match in matches:
+        model = data_service.convert_match(match)
+        for player_id, player in model.players[CLUB_ID].items():
+            if player.isGuest != "0":
+                continue
+            name = helpers.LOADOUTS.get(player.loadout, "Unknown")
+            position = (
+                f"{player.position} ({model.clubs[CLUB_ID].get_match_type().value})"
+            )
+            if position not in loadouts:
+                loadouts[position] = {}
+            if name not in loadouts[position]:
+                loadouts[position][name] = WinsByPosition(position=position)
+            if match["win"]:
+                loadouts[position][name].wins += 1
+            loadouts[position][name].total_games += 1
+
+    return sort_by_win_percentage(loadouts)
 
 
 def text_for_win_percentage_by_player_by_position(wins):
-    text = f"{'Player'.ljust(18)}\t{'GP'.ljust(4)}\t{'Win %'.rjust(8)}\n"
+    text = f"{'Name'.ljust(22)}\t{'GP'.ljust(4)}\t{'Win %'.rjust(8)}\n"
     for player_name, player in wins.items():
         text += f"{player_name}\n"
         for position, data in player.items():
-            text += f"{position.ljust(18)}\t{str(data.total_games).ljust(4)}\t{data.win_percentage():6.2f}%\n"
+            text += f"{position.ljust(22)}\t{str(data.total_games).ljust(4)}\t{data.win_percentage():6.2f}%\n"
         text += "\n"
     return text
 
@@ -109,6 +145,9 @@ async def main():
     print(text_for_win_percentage_by_hour(win_percentages_by_hour(data)))
     print(
         text_for_win_percentage_by_player_by_position(wins_by_player_by_position(data))
+    )
+    print(
+        text_for_win_percentage_by_player_by_position(wins_by_loadout_by_position(data))
     )
 
 
