@@ -95,11 +95,11 @@ def wins_by_player_by_position(matches):
 
 
 def text_for_win_percentage_by_player_by_position(wins):
-    text = f"{'Player'.ljust(16)}\t{'GP'.ljust(4)}\t{'Win %'.rjust(8)}\n"
+    text = f"{'Player'.ljust(18)}\t{'GP'.ljust(4)}\t{'Win %'.rjust(8)}\n"
     for player_name, player in wins.items():
         text += f"{player_name}\n"
         for position, data in player.items():
-            text += f"{position.ljust(16)}\t{str(data.total_games).ljust(4)}\t{data.win_percentage():6.2f}%\n"
+            text += f"{position.ljust(18)}\t{str(data.total_games).ljust(4)}\t{data.win_percentage():6.2f}%\n"
         text += "\n"
     return text
 
