@@ -115,7 +115,7 @@ def wins_by_loadout_by_position(matches):
         for player_id, player in model.players[CLUB_ID].items():
             if player.isGuest != "0":
                 continue
-            name = helpers.LOADOUTS.get(player.loadout, "Unknown")
+            name = helpers.LOADOUTS.get(player.loadout, player.loadout)
             position = (
                 f"{player.position} ({model.clubs[CLUB_ID].get_match_type().value})"
             )
