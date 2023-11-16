@@ -27,7 +27,7 @@ LOADOUTS = {
     "14": "Two-Way Defenseman",
     "15": "Puck Moving Defenseman",
     "20": "Stand-Up",
-    "21": "Hybird",
+    "21": "Hybrid",
     "22": "Butterfly",
     "100": "Hammer - Grinder",
     "103": "Moonlight - Power FWD",
