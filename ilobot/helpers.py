@@ -26,7 +26,9 @@ LOADOUTS = {
     "13": "Enforcer Defenseman",
     "14": "Two-Way Defenseman",
     "15": "Puck Moving Defenseman",
-    # 20 21 22 Butterfly Standup Hybrid
+    "20": "Stand-Up",
+    "21": "Hybird",
+    "22": "Butterfly",
     "100": "Hammer - Grinder",
     "103": "Moonlight - Power FWD",
     "115": "Bones - Puck Moving D",
