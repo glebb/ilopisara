@@ -7,6 +7,7 @@ from dacite import from_dict
 
 import ilobot.config
 from ilobot import helpers, jsonmap
+from ilobot.base_logger import logger
 from ilobot.models import Match, MemberRecord, Record, Result
 
 filters = {
@@ -82,7 +83,7 @@ def convert_match(match_raw: dict):
         for player in match_raw["players"][team]:
             match_raw["players"][team][player]["loadout"] = match_raw["players"][team][
                 player
-            ].pop("class")
+            ]["class"]
     return from_dict(data_class=Match, data=match_raw)
 
 

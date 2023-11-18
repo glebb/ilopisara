@@ -34,3 +34,11 @@ def test_win_percentage_by_loadout_by_position():
     assert result["defenseMen (3vs3)"]["Puck Moving Defenseman"].wins == 2
     assert result["defenseMen (3vs3)"]["Puck Moving Defenseman"].total_games == 4
     assert result["defenseMen (3vs3)"]["Puck Moving Defenseman"].win_percentage() == 50
+
+
+def test_win_percentage_by_loadout_lineup():
+    result = calculations.wins_by_loadout_lineup(enriched_matches)
+    lineup = "defenseMen: Puck Moving Defenseman\ncenter: Power Forward"
+    assert result["3vs3"][lineup].wins == 2
+    assert result["3vs3"][lineup].total_games == 4
+    assert result["3vs3"][lineup].win_percentage() == 50

@@ -61,14 +61,14 @@ def text_for_win_percentage_by_hour(
 ):
     text = ""
     text += "Win percentages by hour\n"
-    text += f"{'Hour'.ljust(5)}\t{'GP'.ljust(4)}\t{'Win %'.rjust(7)}\n"
+    text += f"{'Hour'.ljust(5)}\t{'GP'.rjust(4)}\t{'Win %'.rjust(7)}\n"
     games = 0
     for item in sorted(
         win_percentages_by_hour_result,
         key=lambda w: w.hour,
     ):
         games += item.total_games
-        text += f"{str(item.hour).ljust(5)}\t{str(item.total_games).ljust(4)}\t{item.win_percentage():6.2f}%\n"
+        text += f"{str(item.hour).ljust(5)}\t{str(item.total_games).rjust(4)}\t{item.win_percentage():6.2f}%\n"
     text += f"Total games: {games}\n"
     return text
 
@@ -77,13 +77,11 @@ def wins_by_player_by_position(matches, club_id=CLUB_ID):
     players = {}
     for match in matches:
         model = from_dict(data_class=Match, data=match)
-        for _, player in match["players"][club_id].items():
-            if player["isGuest"] != "0":
+        for _, player in model.players[club_id].items():
+            if player.isGuest != "0":
                 continue
-            name = player["playername"]
-            position = (
-                f"{player['position']} ({model.clubs[club_id].get_match_type().value})"
-            )
+            name = player.playername
+            position = f"{player.get_position()} ({model.clubs[club_id].get_match_type().value})"
             if name not in players:
                 players[name] = {}
             if position not in players[name]:
@@ -112,13 +110,11 @@ def wins_by_loadout_by_position(matches, club_id=CLUB_ID):
     loadouts = {}
     for match in matches:
         model = data_service.convert_match(match)
-        for player_id, player in model.players[club_id].items():
+        for _, player in model.players[club_id].items():
             if player.isGuest != "0":
                 continue
             name = helpers.LOADOUTS.get(player.loadout, player.loadout)
-            position = (
-                f"{player.position} ({model.clubs[club_id].get_match_type().value})"
-            )
+            position = f"{player.get_position()} ({model.clubs[club_id].get_match_type().value})"
             if position not in loadouts:
                 loadouts[position] = {}
             if name not in loadouts[position]:
@@ -130,12 +126,56 @@ def wins_by_loadout_by_position(matches, club_id=CLUB_ID):
     return sort_by_win_percentage(loadouts)
 
 
+def wins_by_loadout_lineup(matches, limit=10, club_id=CLUB_ID):
+    lineups = {}
+    for match in matches:
+        model = data_service.convert_match(match)
+        match_type = model.clubs[club_id].get_match_type().value
+        match_loadouts = []
+        for _, player in model.players[club_id].items():
+            if player.position == "goalie":
+                continue
+            loadout = helpers.LOADOUTS.get(player.loadout, player.loadout)
+            match_loadouts.append(
+                {
+                    "position": player.get_position(),
+                    "pos_sorted": player.posSorted,
+                    "loadout": loadout,
+                }
+            )
+        sorted_lineups = sorted(match_loadouts, key=lambda x: x["pos_sorted"])
+        lineup = ""
+        for l in sorted_lineups[:limit]:
+            lineup += f"{l['position']}: {l['loadout']}\n"
+        lineup = lineup.strip()
+        if match_type not in lineups:
+            lineups[match_type] = {}
+        if lineup not in lineups[match_type]:
+            lineups[match_type][lineup] = WinsByPosition(position=lineup)
+        if match["win"]:
+            lineups[match_type][lineup].wins += 1
+        lineups[match_type][lineup].total_games += 1
+    return sort_by_win_percentage(lineups)
+
+
 def text_for_win_percentage_by_player_by_position(wins):
-    text = f"{'Name'.ljust(22)}\t{'GP'.ljust(4)}\t{'Win %'.rjust(8)}\n"
+    text = f"{'Name'.ljust(22)}\t{'GP'.rjust(4)}\t{'Win %'.rjust(8)}\n"
     for player_name, player in wins.items():
         text += f"{player_name}\n"
         for position, data in player.items():
-            text += f"{position.ljust(22)}\t{str(data.total_games).ljust(4)}\t{data.win_percentage():6.2f}%\n"
+            text += f"{position.ljust(22)}\t{str(data.total_games).rjust(4)}\t{data.win_percentage():6.2f}%\n"
+        text += "\n"
+    return text
+
+
+def text_for_wins_by_loadout_lineup(wins):
+    text = ""
+    for match_type in wins.keys():
+        text += f"Lineup win percentages {match_type}\n"
+        for lineup, data in wins[match_type].items():
+            if data.total_games > 1:
+                text += f"Total games: {str(data.total_games)}\tWin percetange: {data.win_percentage():6.2f}%\n{lineup}\n"
+                text += "\n"
         text += "\n"
     return text
 
@@ -149,6 +189,7 @@ async def main():
     print(
         text_for_win_percentage_by_player_by_position(wins_by_loadout_by_position(data))
     )
+    print(text_for_wins_by_loadout_lineup(wins_by_loadout_lineup(data)))
 
 
 if __name__ == "__main__":

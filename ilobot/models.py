@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Optional
 
+from ilobot import helpers
+
 # pylint: disable=C0103
 
 
@@ -242,6 +244,13 @@ class MatchPlayerData:
     toiseconds: str
     playername: str
     skpoints: int
+
+    def get_position(self):
+        return (
+            self.position
+            if self.position != "defenseMen"
+            else helpers.D_POSITION.get(self.posSorted, self.position)
+        )
 
 
 @dataclass
