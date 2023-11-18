@@ -183,7 +183,7 @@ def text_for_wins_by_loadout_lineup(
                 text += f"Total games: {str(data.total_games)}\tWin percetange: {data.win_percentage():6.2f}%\n{lineup}\n"
                 text += "\n"
             if counter == limit:
-                break
+                continue
         text += "\n"
 
     return text
