@@ -126,7 +126,7 @@ def wins_by_loadout_by_position(matches, club_id=CLUB_ID):
     return sort_by_win_percentage(loadouts)
 
 
-def wins_by_loadout_lineup(matches, limit=10, club_id=CLUB_ID):
+def wins_by_loadout_lineup(matches, club_id=CLUB_ID):
     lineups = {}
     for match in matches:
         model = data_service.convert_match(match)
@@ -145,7 +145,7 @@ def wins_by_loadout_lineup(matches, limit=10, club_id=CLUB_ID):
             )
         sorted_lineups = sorted(match_loadouts, key=lambda x: x["pos_sorted"])
         lineup = ""
-        for l in sorted_lineups[:limit]:
+        for l in sorted_lineups:
             lineup += f"{l['position']}: {l['loadout']}\n"
         lineup = lineup.strip()
         if match_type not in lineups:
@@ -168,15 +168,24 @@ def text_for_win_percentage_by_player_by_position(wins):
     return text
 
 
-def text_for_wins_by_loadout_lineup(wins):
+def text_for_wins_by_loadout_lineup(
+    wins,
+    limit=6,
+    min_games=5,
+):
     text = ""
     for match_type in wins.keys():
+        counter = 0
         text += f"Lineup win percentages {match_type}\n"
         for lineup, data in wins[match_type].items():
-            if data.total_games > 1:
+            if data.total_games >= min_games:
+                counter += 1
                 text += f"Total games: {str(data.total_games)}\tWin percetange: {data.win_percentage():6.2f}%\n{lineup}\n"
                 text += "\n"
+            if counter == limit:
+                break
         text += "\n"
+
     return text
 
 
