@@ -179,6 +179,7 @@ def text_for_wins_by_loadout_lineup(
 ):
     text = ""
     for match_type in wins.keys():
+        logger.info(f"type {match_type} number of matches: {len(wins[match_type])}")
         min_games_limit = min_games
         if match_type == MatchType.THREE_ON_THREE.value:
             min_games_limit = min_games + 2
@@ -212,7 +213,7 @@ async def main():
     )
     print(
         text_for_wins_by_loadout_lineup(
-            wins_by_loadout_lineup(data), limit=100, min_games=-1
+            wins_by_loadout_lineup(data), limit=1000, min_games=-1
         )
     )
 
