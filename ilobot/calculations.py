@@ -10,7 +10,7 @@ from dacite import from_dict
 
 from ilobot import data_service, db_mongo, helpers
 from ilobot.base_logger import logger
-from ilobot.config import CLUB_ID
+from ilobot.config import CLUB_ID, CLUB_ID_23, DB_NAME_23
 from ilobot.models import Match, MatchType
 
 
@@ -182,6 +182,7 @@ def text_for_wins_by_loadout_lineup(
         min_games_limit = min_games
         if match_type == MatchType.THREE_ON_THREE.value:
             min_games_limit = min_games + 2
+        logger.info(len(wins[match_type]))
         counter = 0
         text += f"Lineup win percentages {match_type} (min number of games {min_games_limit})\n"
         for lineup, data in wins[match_type].items():
@@ -198,7 +199,9 @@ def text_for_wins_by_loadout_lineup(
 
 
 async def main():
-    data = await db_mongo.find_matches_by_club_id()
+    data = {}
+    data[CLUB_ID] = await db_mongo.find_matches_by_club_id()
+    data[CLUB_ID_23] = await db_mongo.find_matches_by_club_id(db_name=DB_NAME_23)
     print(text_for_win_percentage_by_hour(win_percentages_by_hour(data)))
     print(
         text_for_win_percentage_by_player_by_position(wins_by_player_by_position(data))
@@ -206,7 +209,11 @@ async def main():
     print(
         text_for_win_percentage_by_player_by_position(wins_by_loadout_by_position(data))
     )
-    print(text_for_wins_by_loadout_lineup(wins_by_loadout_lineup(data)))
+    print(
+        text_for_wins_by_loadout_lineup(
+            wins_by_loadout_lineup(data), limit=100, min_games=1
+        )
+    )
 
 
 if __name__ == "__main__":
