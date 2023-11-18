@@ -104,6 +104,7 @@ class ApplicationCommandCog(commands.Cog):
                 "Win percentage by hour": "winpct",
                 "Win percentage by player by position": "winpctposplr",
                 "Win percentage by position by loadout": "winpctposloadout",
+                "Win percentage by lineup": "winpctlineup",
             },
             required=True,
         ),
@@ -143,6 +144,11 @@ class ApplicationCommandCog(commands.Cog):
             response = calculations.text_for_win_percentage_by_player_by_position(
                 calculations.wins_by_loadout_by_position(matches, club_id=club_id)
             )
+        if name == "winpctlineup":
+            response = calculations.text_for_wins_by_loadout_lineup(
+                calculations.wins_by_loadout_lineup(matches, club_id=club_id)
+            )
+
         if len(response) >= 1500:
             indx = response[1500:].find("\n") + 1500
             await interaction.followup.send(f"```\n{response[:indx]}```")
