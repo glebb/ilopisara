@@ -212,7 +212,7 @@ async def main():
     )
     print(
         text_for_wins_by_loadout_lineup(
-            wins_by_loadout_lineup(data), limit=100, min_games=1
+            wins_by_loadout_lineup(data), limit=100, min_games=-1
         )
     )
 
