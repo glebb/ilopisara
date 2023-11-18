@@ -108,9 +108,9 @@ def _match_details(match_dict: dict):
                 else f"{player.skgoals} + {player.skassists}"
             )
             if team_id != ilobot.config.CLUB_ID:
-                players += f"{player.position[0].upper()} {player.playername} ({helpers.LOADOUTS.get(player.loadout, 'Unknown')}): {points}\n"
+                players += f"{player.get_position()} {player.playername} ({helpers.LOADOUTS.get(player.loadout, 'Unknown')}): {points}\n"
                 continue
-            players += f"{player.position[0].upper()} {player.playername} ({helpers.LOADOUTS.get(player.loadout, 'Unknown')}): {points}\n"
+            players += f"{player.get_position()} {player.playername} ({helpers.LOADOUTS.get(player.loadout, 'Unknown')}): {points}\n"
             if player.position == "goalie":
                 players += "saves:" + player.glsaves + ", "
                 players += "breakaway save %:"
