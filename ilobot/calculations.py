@@ -184,7 +184,7 @@ def text_for_wins_by_loadout_lineup(
             if counter == limit:
                 counter = 0
                 break
-            if data.total_games >= min_games:
+            if data.total_games >= min_games_limit:
                 counter += 1
                 text += f"Total games: {str(data.total_games)}\tWin percetange: {data.win_percentage():6.2f}%\n{lineup}\n"
                 text += "\n"
