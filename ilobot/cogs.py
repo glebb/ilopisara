@@ -110,6 +110,7 @@ class ApplicationCommandCog(commands.Cog):
         ),
         db: str = nextcord.SlashOption(
             choices={
+                "All-time": "",
                 "NHL 24": ilobot.config.DB_NAME,
                 "NHL 23"
                 if ilobot.config.DB_NAME_23
@@ -122,8 +123,10 @@ class ApplicationCommandCog(commands.Cog):
     ):
         await interaction.response.defer()
         response = "Error"
+        title = "Uknown"
         db_name = ilobot.config.DB_NAME
         club_id = ilobot.config.CLUB_ID
+        matches = {}
         if db and ilobot.config.DB_NAME_23 and ilobot.config.CLUB_ID_23:
             db_name = db
             club_id = (
@@ -131,27 +134,36 @@ class ApplicationCommandCog(commands.Cog):
                 if db == ilobot.config.DB_NAME
                 else ilobot.config.CLUB_ID_23
             )
-        matches = await db_mongo.find_matches_by_club_id(db_name=db_name)
+        if not db and (ilobot.config.DB_NAME_23 and ilobot.config.CLUB_ID_23):
+            matches[ilobot.config.CLUB_ID] = await db_mongo.find_matches_by_club_id()
+            matches[ilobot.config.CLUB_ID_23] = await db_mongo.find_matches_by_club_id(
+                db_name=ilobot.config.DB_NAME_23
+            )
+            title = "All-time\n"
+
+        else:
+            matches[club_id] = await db_mongo.find_matches_by_club_id(db_name=db_name)
+            title = "NHL 24\n" if db_name == ilobot.config.DB_NAME else "NHL 23\n"
         if name == "winpct":
             response = calculations.text_for_win_percentage_by_hour(
                 calculations.win_percentages_by_hour(matches)
             )
         if name == "winpctposplr":
             response = calculations.text_for_win_percentage_by_player_by_position(
-                calculations.wins_by_player_by_position(matches, club_id=club_id)
+                calculations.wins_by_player_by_position(matches)
             )
         if name == "winpctposloadout":
             response = calculations.text_for_win_percentage_by_player_by_position(
-                calculations.wins_by_loadout_by_position(matches, club_id=club_id)
+                calculations.wins_by_loadout_by_position(matches)
             )
         if name == "winpctlineup":
             response = calculations.text_for_wins_by_loadout_lineup(
-                calculations.wins_by_loadout_lineup(matches, club_id=club_id)
+                calculations.wins_by_loadout_lineup(matches)
             )
-        title = "NHL 24\n" if db_name == ilobot.config.DB_NAME else "NHL 23\n"
+
         response = title + response
-        if len(response) >= 1500:
-            indx = response[1500:].find("\n") + 1500
+        if len(response) >= 1800:
+            indx = response[1800:].find("\n") + 1800
             await interaction.followup.send(f"```\n{response[:indx]}```")
             await interaction.followup.send(f"```\n{response[indx:]}```")
         else:

@@ -11,7 +11,9 @@ from ilobot.helpers import GAMETYPE
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 with open(f"{__location__}/matches.json", "r", encoding="utf-8") as f:
     data = json.load(f)
-    enriched_matches = [enrich_match(match, GAMETYPE.REGULARSEASON) for match in data]
+    enriched_matches = {
+        "2380": [enrich_match(match, GAMETYPE.REGULARSEASON) for match in data]
+    }
 
 
 @pytest.mark.asyncio
@@ -24,21 +26,23 @@ async def test_win_percentage_by_hours():
 
 def test_win_percentage_by_player_by_position():
     result = calculations.wins_by_player_by_position(enriched_matches)
-    assert result["bodhi-FIN"]["defenseMen (3vs3)"].wins == 2
-    assert result["bodhi-FIN"]["defenseMen (3vs3)"].total_games == 4
-    assert result["bodhi-FIN"]["defenseMen (3vs3)"].win_percentage() == 50
+    assert result["bodhi-FIN"]["leftDefenseman (3vs3)"].wins == 2
+    assert result["bodhi-FIN"]["leftDefenseman (3vs3)"].total_games == 4
+    assert result["bodhi-FIN"]["leftDefenseman (3vs3)"].win_percentage() == 50
 
 
 def test_win_percentage_by_loadout_by_position():
     result = calculations.wins_by_loadout_by_position(enriched_matches)
-    assert result["defenseMen (3vs3)"]["Puck Moving Defenseman"].wins == 2
-    assert result["defenseMen (3vs3)"]["Puck Moving Defenseman"].total_games == 4
-    assert result["defenseMen (3vs3)"]["Puck Moving Defenseman"].win_percentage() == 50
+    assert result["leftDefenseman (3vs3)"]["Puck Moving Defenseman"].wins == 2
+    assert result["leftDefenseman (3vs3)"]["Puck Moving Defenseman"].total_games == 4
+    assert (
+        result["leftDefenseman (3vs3)"]["Puck Moving Defenseman"].win_percentage() == 50
+    )
 
 
 def test_win_percentage_by_loadout_lineup():
     result = calculations.wins_by_loadout_lineup(enriched_matches)
-    lineup = "defenseMen: Puck Moving Defenseman\ncenter: Power Forward"
+    lineup = "leftDefenseman: Puck Moving Defenseman\ncenter: Power Forward"
     assert result["3vs3"][lineup].wins == 2
     assert result["3vs3"][lineup].total_games == 4
     assert result["3vs3"][lineup].win_percentage() == 50
