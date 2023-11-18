@@ -182,7 +182,8 @@ def text_for_wins_by_loadout_lineup(
         min_games_limit = min_games
         if match_type == MatchType.THREE_ON_THREE.value:
             min_games_limit = min_games + 2
-        logger.info(len(wins[match_type]))
+        elif len(wins[match_type]) > 100:
+            min_games_limit = min_games + 2
         counter = 0
         text += f"Lineup win percentages {match_type} (min number of games {min_games_limit})\n"
         for lineup, data in wins[match_type].items():
