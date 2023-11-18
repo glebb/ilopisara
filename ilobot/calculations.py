@@ -176,7 +176,9 @@ def text_for_wins_by_loadout_lineup(
     text = ""
     for match_type in wins.keys():
         counter = 0
-        text += f"Lineup win percentages {match_type}\n"
+        text += (
+            f"Lineup win percentages {match_type} (min number of games {min_games}\n"
+        )
         for lineup, data in wins[match_type].items():
             if counter == limit:
                 break
