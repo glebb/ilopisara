@@ -11,7 +11,7 @@ from dacite import from_dict
 from ilobot import data_service, db_mongo, helpers
 from ilobot.base_logger import logger
 from ilobot.config import CLUB_ID
-from ilobot.models import Match
+from ilobot.models import Match, MatchType
 
 
 @dataclass
@@ -170,15 +170,16 @@ def text_for_win_percentage_by_player_by_position(wins):
 
 def text_for_wins_by_loadout_lineup(
     wins,
-    limit=6,
+    limit=5,
     min_games=3,
 ):
     text = ""
     for match_type in wins.keys():
+        min_games_limit = min_games
+        if match_type == MatchType.THREE_ON_THREE.value:
+            min_games_limit = min_games + 2
         counter = 0
-        text += (
-            f"Lineup win percentages {match_type} (min number of games {min_games})\n"
-        )
+        text += f"Lineup win percentages {match_type} (min number of games {min_games_limit})\n"
         for lineup, data in wins[match_type].items():
             if counter == limit:
                 counter = 0

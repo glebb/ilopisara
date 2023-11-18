@@ -148,7 +148,8 @@ class ApplicationCommandCog(commands.Cog):
             response = calculations.text_for_wins_by_loadout_lineup(
                 calculations.wins_by_loadout_lineup(matches, club_id=club_id)
             )
-
+        title = "NHL 24\n" if db_name == ilobot.config.DB_NAME else "NHL 23\n"
+        response = title + response
         if len(response) >= 1500:
             indx = response[1500:].find("\n") + 1500
             await interaction.followup.send(f"```\n{response[:indx]}```")
