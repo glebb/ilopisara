@@ -171,7 +171,7 @@ def text_for_win_percentage_by_player_by_position(wins):
 def text_for_wins_by_loadout_lineup(
     wins,
     limit=6,
-    min_games=2,
+    min_games=5,
 ):
     text = ""
     for match_type in wins.keys():
@@ -179,7 +179,7 @@ def text_for_wins_by_loadout_lineup(
         text += f"Lineup win percentages {match_type}\n"
         for lineup, data in wins[match_type].items():
             if counter == limit:
-                continue
+                break
             if data.total_games >= min_games:
                 counter += 1
                 text += f"Total games: {str(data.total_games)}\tWin percetange: {data.win_percentage():6.2f}%\n{lineup}\n"
