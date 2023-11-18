@@ -171,7 +171,7 @@ def text_for_win_percentage_by_player_by_position(wins):
 def text_for_wins_by_loadout_lineup(
     wins,
     limit=10,
-    min_games=2,
+    min_games=3,
 ):
     text = ""
     for match_type in wins.keys():
