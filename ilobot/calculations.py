@@ -172,11 +172,7 @@ def text_for_win_percentage_by_player_by_position(wins):
     return text
 
 
-def text_for_wins_by_loadout_lineup(
-    wins,
-    limit=5,
-    min_games=3,
-):
+def text_for_wins_by_loadout_lineup(wins, limit=5, min_games=3, reverse=False):
     text = ""
     for match_type in wins.keys():
         logger.info(f"type {match_type} number of matches: {len(wins[match_type])}")
@@ -187,7 +183,10 @@ def text_for_wins_by_loadout_lineup(
             min_games_limit = min_games + 2
         counter = 0
         text += f"Lineup win percentages {match_type} (min number of games {min_games_limit})\n"
-        for lineup, data in wins[match_type].items():
+        temp = (
+            reversed(wins[match_type].items()) if reverse else wins[match_type].items()
+        )
+        for lineup, data in temp:
             if counter == limit:
                 counter = 0
                 break

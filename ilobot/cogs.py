@@ -120,6 +120,9 @@ class ApplicationCommandCog(commands.Cog):
             },
             required=False,
         ),
+        reverse: bool = nextcord.SlashOption(
+            name="reverse", required=False, description="Reverse", default=False
+        ),
     ):
         await interaction.response.defer()
         response = "Error"
@@ -158,7 +161,7 @@ class ApplicationCommandCog(commands.Cog):
             )
         if name == "winpctlineup":
             response = calculations.text_for_wins_by_loadout_lineup(
-                calculations.wins_by_loadout_lineup(matches)
+                calculations.wins_by_loadout_lineup(matches), reverse=reverse
             )
 
         response = title + response
