@@ -246,11 +246,10 @@ class MatchPlayerData:
     skpoints: int
 
     def get_position(self):
-        return (
-            self.position
-            if self.position != "defenseMen"
-            else helpers.D_POSITION.get(self.posSorted, self.position)
-        )
+        if self.posSorted in helpers.POSITIONS:
+            return "".join([s[0] for s in helpers.POSITIONS[self.posSorted].split()])
+        else:
+            return self.position
 
 
 @dataclass

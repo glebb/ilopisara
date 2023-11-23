@@ -13,9 +13,13 @@ PLATFORMS = {
     "xboxone": "xboxone",
 }
 
-D_POSITION = {
-    "1": "rightDefenseman",
-    "2": "leftDefenseman",
+POSITIONS = {
+    "0": "Goalie",
+    "1": "Right Defenseman",
+    "2": "Left Defenseman",
+    "3": "Right Wing",
+    "4": "Left Wing",
+    "5": "Center",
 }
 
 LOADOUTS = {
