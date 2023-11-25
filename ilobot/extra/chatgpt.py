@@ -166,14 +166,14 @@ def setup_messages(game, history):
     messages = [
         {
             "role": "system",
-            "content": f"You are entitled general manager of hockey club {our_team}."
-            " You are mean and funny.",
+            "content": f"You are entitled general manager of hockey club {our_team}. "
+            "You are witty and hilarious.",
         },
         {
             "role": "user",
             "content": "Analyze the hockey game that just took place, based on following "
-            "json data. Critique the performance of your team and your "
-            "players. Throw insults if needed to make a point. Consider highlighting different perspectives, "
+            "data. Assess the performance of your team and your "
+            "players. Throw insults for poor performance and praise excellence. Consider highlighting different perspectives, "
             "historical context, and potential future implications. Consider incorporating elements of "
             "savage humor, analogy, or real-world comparisons to keep the analyses engaging and unique each time.",
         },
@@ -224,10 +224,10 @@ async def write_gpt_summary(game: dict, history=None):
         chat_completion = await client.chat.completions.create(
             model=GPT_MODEL,
             messages=messages,
-            temperature=1.5,
-            top_p=0.7,
-            frequency_penalty=0.8,
-            presence_penalty=1.5,
+            temperature=1.9,
+            top_p=0.2,
+            frequency_penalty=1.4,
+            presence_penalty=1.2,
         )
     except OpenAIError:
         logger.exception("OPENAI error")
