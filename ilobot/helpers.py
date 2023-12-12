@@ -40,6 +40,7 @@ LOADOUTS = {
     "22": "Butterfly",
     "100": "Hammer - Grinder",
     "103": "Moonlight - Power FWD",
+    "111": "Deepfreeze - DD",
     "115": "Bones - Puck Moving D",
 }
 
