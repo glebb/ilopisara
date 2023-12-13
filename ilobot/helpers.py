@@ -42,6 +42,7 @@ LOADOUTS = {
     "103": "Moonlight - Power FWD",
     "111": "Deepfreeze - DD",
     "115": "Bones - Puck Moving D",
+    "120": "Wally - Stand-Up G",
 }
 
 
