@@ -39,6 +39,8 @@ LOADOUTS = {
     "21": "Hybrid",
     "22": "Butterfly",
     "100": "Hammer - Grinder",
+    "101": "Surge - Playmaker",
+    "106": "Vector - Dangler",
     "103": "Moonlight - Power FWD",
     "111": "Deepfreeze - DD",
     "115": "Bones - Puck Moving D",
