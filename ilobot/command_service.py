@@ -109,25 +109,24 @@ async def member_stats(name, source, stats_filter=None):
         stats["skhitspg"] = (
             round(stats["skhits"] / skater_games, 2) if skater_games > 0 else 0
         )
-        stats["skplayername"] = player_name
         stats["blazeId"] = member_id
         stats["skpoints"] = stats["skgoals"] + stats["skassists"]
     else:
         index = data_service.find(members, "name", name)
         if index is not None:
             stats = members[index]
-
+    stats["skplayername"] = member.get("skplayername", name)
     reply = ""
     public_reply = "No stats available."
     if stats:
         if not source:
             source = ""
         reply = (
-            f"Stats for {name} / {member['skplayername']} {source}\n"
+            f"Stats for {name} / {stats['skplayername']} {source}\n"
             + data_service.format_stats(stats, stats_filter)
         )
         public_reply = (
-            f"**{name} / {member['skplayername']} {source}**\n"
+            f"**{name} / {stats['skplayername']} {source}**\n"
             + "```Record: "
             + str(stats["record"])
             + "\nPoints: "
