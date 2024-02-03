@@ -121,11 +121,11 @@ async def member_stats(name, source, stats_filter=None):
     public_reply = "No stats available."
     if stats:
         reply = (
-            f"Stats for {name} / {member['skplayername']}:\n"
+            f"Stats for {name} / {member['skplayername']} {source}\n"
             + data_service.format_stats(stats, stats_filter)
         )
         public_reply = (
-            f"**{name} / {member['skplayername']}**\n"
+            f"**{name} / {member['skplayername']} {source}**\n"
             + "```Record: "
             + str(stats["record"])
             + "\nPoints: "
