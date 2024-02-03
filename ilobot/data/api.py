@@ -71,5 +71,7 @@ def get_member(member_name, platform=ilobot.config.PLATFORM):
     except JSONDecodeError as err:
         logger.error(err)
     if data:
-        return data["members"][0]
+        for member in data["members"]:
+            if member["name"].lower() == member_name.lower():
+                return member
     return None

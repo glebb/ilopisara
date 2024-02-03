@@ -34,9 +34,10 @@ class Bot(commands.Bot):
 
     def pre_fetch_players_for_caching(self):
         for member in api.get_members():
-            self.player_names[member["name"]] = api.get_member(member["name"])[
-                "skplayername"
-            ]
+            member = api.get_member(member["name"])
+            self.player_names[member["name"]] = member.get(
+                "skplayername", member["name"]
+            )
         logger.info(f"Team: {ilobot.config.CLUB_ID} - {self.TEAM_NAME}")
         logger.info("Players: \n" + pprint.pformat(self.player_names))
 

@@ -64,14 +64,9 @@ def format_stats(stats, stats_filter=None):
         stat = None
         key = jsonmap.get_name(key)
         if stats_filter and key.startswith(stats_filter.lower()):
-            stat = key + ": " + value
+            stat = key + ": " + str(value)
         elif not stats_filter:
-            if (
-                not key.startswith("skater")
-                and not key.startswith("goalie")
-                and not key.startswith("xfactor")
-            ):
-                stat = key + ": " + value
+            stat = key + ": " + str(value)
         if stat:
             message += stat + "\n"
     if message:
@@ -161,9 +156,11 @@ def top_stats(members_raw: List[dict], stats_filter: str, per_game=False):
     try:
         for member in sorted(
             members,
-            key=lambda m: float(getattr(m, key))
-            if not per_game
-            else float(getattr(m, key)) / float(m.skgp),
+            key=lambda m: (
+                float(getattr(m, key))
+                if not per_game
+                else float(getattr(m, key)) / float(m.skgp)
+            ),
             reverse=True,
         ):
             value = getattr(member, key)

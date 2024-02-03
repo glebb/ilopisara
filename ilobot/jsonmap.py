@@ -84,6 +84,7 @@ names = {
     "skfow": "skater faceoff won",
     "skfol": "skater faceoffs lost",
     "skfop": "skater faceoffs percentage",
+    "skfopct": "skater faceoffs percentage",
     "skhits": "skater hits",
     "skhitspg": "skater hits per game",
     "skbs": "skater blocked shots",

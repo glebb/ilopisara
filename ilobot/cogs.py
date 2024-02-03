@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable, List
 
 import nextcord
@@ -112,11 +113,11 @@ class ApplicationCommandCog(commands.Cog):
             choices={
                 "All-time": "",
                 "NHL 24": ilobot.config.DB_NAME,
-                "NHL 23"
-                if ilobot.config.DB_NAME_23
-                else "NHL 24": ilobot.config.DB_NAME_23
-                if ilobot.config.DB_NAME_23
-                else ilobot.config.DB_NAME,
+                "NHL 23" if ilobot.config.DB_NAME_23 else "NHL 24": (
+                    ilobot.config.DB_NAME_23
+                    if ilobot.config.DB_NAME_23
+                    else ilobot.config.DB_NAME
+                ),
             },
             required=False,
         ),
@@ -251,11 +252,18 @@ class ApplicationCommandCog(commands.Cog):
         send_dm: bool = nextcord.SlashOption(
             name="send_dm",
             required=False,
+            default=True,
+        ),
+        source: str = nextcord.SlashOption(
+            name="source",
+            choices=("3vs3", "6vs6"),
+            required=False,
+            description="Get data from online or database",
         ),
     ):
         await interaction.response.defer()
         response, public, matches = await command_service.member_stats(
-            name, stats_filter, send_dm
+            name, source, stats_filter
         )
         response = "No results found" if not response else response
         if len(matches) > 0:
@@ -264,7 +272,14 @@ class ApplicationCommandCog(commands.Cog):
             await interaction.followup.send(public[:1999])
         if send_dm:
             assert interaction.user
-            await interaction.user.send(response[:1999])
+            if len(response) >= 1800:
+                indx = 0
+                while indx < len(response):
+                    temp = response[indx + 1800 :].find("\n") + 1800 + indx
+                    await interaction.user.send(f"```\n{response[indx:temp]}```")
+                    indx = temp
+            else:
+                await interaction.user.send(f"```\n{response[:1990]}```")
 
     @nextcord.slash_command(
         guild_ids=[ilobot.config.GUILD_ID],

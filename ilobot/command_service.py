@@ -1,6 +1,6 @@
 from typing import List
 
-from ilobot import config, data_service, db_mongo, jsonmap
+from ilobot import config, data_service, db_mongo, helpers, jsonmap
 from ilobot.base_logger import logger
 from ilobot.data import api
 
@@ -20,14 +20,106 @@ async def match(match_id):
         return data_service.match_result(matches[0])
 
 
-async def member_stats(name, stats_filter=None, send_dm=False):
-    members = api.get_members()
+def get_as_number(value):
+    if isinstance(value, int) or isinstance(value, float):
+        return value
+    if "." in value:
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    else:
+        try:
+            return int(value)
+        except ValueError:
+            return None
+
+
+async def member_stats(name, source, stats_filter=None):
     member = api.get_member(name)
+    members = api.get_members()
+    if source:
+        wins = 0
+        losses = 0
+        ovt_losses = 0
+        goalie_games = 0
+        skater_games = 0
+        member_id = member["blazeId"]
+        player_name = member["skplayername"]
+        matches = await db_mongo.find_matches_for_player(member_id)
+        stats = {}
+        for match in matches:
+            model = data_service.convert_match(match)
+            match_type = model.clubs[config.CLUB_ID].get_match_type().value
+            if match_type != source:
+                continue
+            if match["win"]:
+                wins += 1
+            else:
+                if helpers.is_overtime(model):
+                    ovt_losses += 1
+                else:
+                    losses += 1
+            for key, value in match["players"][config.CLUB_ID][member_id].items():
+                if key.startswith("sk") or key.startswith("gl"):
+                    temp_value = (
+                        get_as_number(value)
+                        if get_as_number(value) is not None
+                        else value
+                    )
+                    if key not in stats:
+                        stats[key] = temp_value
+                    elif get_as_number(value):
+                        stats[key] = stats[key] + temp_value
+            if match["players"][config.CLUB_ID][member_id]["posSorted"] == "0":
+                goalie_games += 1
+            else:
+                skater_games += 1
+
+        for key in stats:
+            if key == "glgaa" and goalie_games > 0:
+                stats[key] = round(stats["glga"] / goalie_games, 2)
+            if key == "glsavepct" and goalie_games > 0:
+                stats[key] = round(stats["glsaves"] / stats["glshots"], 2)
+            if key == "skpasspct" and stats["skpassattempts"] > 0:
+                stats[key] = round(stats["skpasses"] / stats["skpassattempts"] * 100, 2)
+            if key == "skfopct" and stats["skfopct"] > 0:
+                stats[key] = round(
+                    (stats["skfow"] / (stats["skfow"] + stats["skfol"])) * 100, 2
+                )
+            if key == "skshotonnetpct" and stats["skshotonnetpct"] > 0:
+                stats[key] = round(stats["skshots"] / stats["skshotattempts"] * 100, 2)
+
+            if key == "skshotpct" and stats["skshots"] > 0:
+                stats[key] = round(stats["skgoals"] / stats["skshots"] * 100, 2)
+
+            if key == "glsavepct" and stats["glshots"] > 0:
+                stats[key] = round(stats["glsaves"] / stats["glshots"] * 100, 2)
+            if key == "glbrksavepct" and stats["glbrkshots"] > 0:
+                stats[key] = round(stats["glbrksaves"] / stats["glbrkshots"] * 100, 2)
+            if key == "glpensavepct" and stats["glpenshots"] > 0:
+                stats[key] = round(stats["glpensaves"] / stats["glpenshots"] * 100, 2)
+
+        stats["record"] = f"{wins}-{losses}-{ovt_losses}"
+        stats["glgp"] = goalie_games
+        stats["skgp"] = skater_games
+        stats["skpointspg"] = (
+            round(stats["skpoints"] / skater_games, 2) if skater_games > 0 else 0
+        )
+        stats["skhitspg"] = (
+            round(stats["skhits"] / skater_games, 2) if skater_games > 0 else 0
+        )
+        stats["skplayername"] = player_name
+        stats["blazeId"] = member_id
+        stats["skpoints"] = stats["skgoals"] + stats["skassists"]
+    else:
+        index = data_service.find(members, "name", name)
+        if index is not None:
+            stats = members[index]
+
     reply = ""
     public_reply = "No stats available."
-    index = data_service.find(members, "name", name)
-    if index is not None:
-        stats = members[index]
+    if stats:
         reply = (
             f"Stats for {name} / {member['skplayername']}:\n"
             + data_service.format_stats(stats, stats_filter)
@@ -35,39 +127,42 @@ async def member_stats(name, stats_filter=None, send_dm=False):
         public_reply = (
             f"**{name} / {member['skplayername']}**\n"
             + "```Record: "
-            + members[index]["record"]
+            + str(stats["record"])
             + "\nPoints: "
-            + members[index]["points"]
-            + "\nSkater win percentage: "
-            + members[index]["skwinpct"]
+            + str(stats["skpoints"])
             + "\nPoints per game: "
-            + members[index]["skpointspg"]
+            + str(stats["skpointspg"])
             + "\nPass percentage: "
-            + members[index]["skpasspct"]
-            + "\nPenaltyshot percentage: "
-            + members[index]["skpenaltyshotpct"]
+            + str(stats["skpasspct"])
             + "\nHits per game: "
-            + members[index]["skhitspg"]
+            + str(stats["skhitspg"])
         )
-        if int(members[index]["glgp"]) > 0:
+        if int(stats["glgp"]) > 0:
             public_reply += (
                 "\nGoalie games: "
-                + members[index]["glgp"]
+                + str(stats["glgp"])
                 + "\nGoal against average: "
-                + members[index]["glgaa"]
+                + str(stats["glgaa"])
                 + "\nSave percentage: "
-                + members[index]["glsavepct"]
+                + str(stats["glsavepct"])
             )
 
         public_reply += "```"
 
-    logger.info(send_dm)
-    if send_dm:
-        public_reply += "Rest of the stats delivered by DM.\n"
     return_matches = []
     if member:
         matches = await db_mongo.find_matches_for_player(member["blazeId"])
         if matches:
+            if source:
+                matches = [
+                    x
+                    for x in matches
+                    if data_service.convert_match(x)
+                    .clubs[config.CLUB_ID]
+                    .get_match_type()
+                    .value
+                    == source
+                ]
             public_reply += "\nLatest games: \n"
             for i in range(0, len(matches))[-10:]:
                 public_reply += (
