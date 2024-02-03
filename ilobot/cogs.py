@@ -249,11 +249,6 @@ class ApplicationCommandCog(commands.Cog):
             choices={"goalie": 1, "skater": 2, "xfactor": 3},
             required=False,
         ),
-        send_dm: bool = nextcord.SlashOption(
-            name="send_dm",
-            required=False,
-            default=True,
-        ),
         source: str = nextcord.SlashOption(
             name="source",
             choices=("3vs3", "6vs6"),
@@ -270,16 +265,15 @@ class ApplicationCommandCog(commands.Cog):
             await self.matches_dropdown(public, matches, interaction)
         else:
             await interaction.followup.send(public[:1999])
-        if send_dm:
-            assert interaction.user
-            if len(response) >= 1800:
-                indx = 0
-                while indx < len(response):
-                    temp = response[indx + 1800 :].find("\n") + 1800 + indx
-                    await interaction.user.send(f"```\n{response[indx:temp]}```")
-                    indx = temp
-            else:
-                await interaction.user.send(f"```\n{response[:1990]}```")
+        assert interaction.user
+        if len(response) >= 1800:
+            indx = 0
+            while indx < len(response):
+                temp = response[indx + 1800 :].find("\n") + 1800 + indx
+                await interaction.user.send(f"```\n{response[indx:temp]}```")
+                indx = temp
+        else:
+            await interaction.user.send(f"```\n{response[:1990]}```")
 
     @nextcord.slash_command(
         guild_ids=[ilobot.config.GUILD_ID],

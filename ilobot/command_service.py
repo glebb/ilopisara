@@ -120,6 +120,8 @@ async def member_stats(name, source, stats_filter=None):
     reply = ""
     public_reply = "No stats available."
     if stats:
+        if not source:
+            source = ""
         reply = (
             f"Stats for {name} / {member['skplayername']} {source}\n"
             + data_service.format_stats(stats, stats_filter)
