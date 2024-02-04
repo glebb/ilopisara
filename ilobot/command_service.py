@@ -5,9 +5,22 @@ from ilobot.base_logger import logger
 from ilobot.data import api
 
 
-async def results(club_id=None, game_type=None) -> List[data_service.Result]:
+def filter_matches_by_type(matches, match_type):
+    return [
+        x
+        for x in matches
+        if data_service.convert_match(x).clubs[config.CLUB_ID].get_match_type().value
+        == match_type
+    ]
+
+
+async def results(
+    club_id=None, game_type=None, source=None
+) -> List[data_service.Result]:
     data = []
     matches = await db_mongo.find_matches_by_club_id(club_id, game_type)
+    if source:
+        matches = filter_matches_by_type(matches, source)
     if matches:
         for i in range(0, len(matches))[-20:]:
             data.append(data_service.format_result(matches[i]))
@@ -155,15 +168,7 @@ async def member_stats(name, source, stats_filter=None):
         matches = await db_mongo.find_matches_for_player(member["blazeId"])
         if matches:
             if source:
-                matches = [
-                    x
-                    for x in matches
-                    if data_service.convert_match(x)
-                    .clubs[config.CLUB_ID]
-                    .get_match_type()
-                    .value
-                    == source
-                ]
+                matches = filter_matches_by_type(matches, source)
             public_reply += "\nLatest games: \n"
             for i in range(0, len(matches))[-10:]:
                 public_reply += (

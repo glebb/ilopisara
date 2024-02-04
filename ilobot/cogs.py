@@ -186,9 +186,14 @@ class ApplicationCommandCog(commands.Cog):
             required=False,
             description="Optionally limit matches by game type",
         ),
+        match_type: str = nextcord.SlashOption(
+            name="match_type",
+            choices=("3vs3", "6vs6"),
+            required=False,
+        ),
     ):
         await interaction.response.defer()
-        matches = await command_service.results(None, game_type)
+        matches = await command_service.results(None, game_type, match_type)
         if len(matches) > 0:
             response = "\n".join([line.discord_print() for line in matches])
             await self.matches_dropdown(response, matches, interaction)
