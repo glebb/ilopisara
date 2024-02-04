@@ -52,9 +52,13 @@ async def member_stats(name, source, stats_filter=None):
     member = api.get_member(name)
     members = api.get_members()
     if source:
-        wins = 0
-        losses = 0
-        ovt_losses = 0
+        skater_wins = 0
+        skater_losses = 0
+        skater_ovt_losses = 0
+        goalie_wins = 0
+        goalie_losses = 0
+        goalie_ovt_losses = 0
+
         goalie_games = 0
         skater_games = 0
         member_id = member["blazeId"]
@@ -66,13 +70,6 @@ async def member_stats(name, source, stats_filter=None):
             match_type = model.clubs[config.CLUB_ID].get_match_type().value
             if match_type != source:
                 continue
-            if match["win"]:
-                wins += 1
-            else:
-                if helpers.is_overtime(model):
-                    ovt_losses += 1
-                else:
-                    losses += 1
             for key, value in match["players"][config.CLUB_ID][member_id].items():
                 if key.startswith("sk") or key.startswith("gl"):
                     temp_value = (
@@ -86,8 +83,22 @@ async def member_stats(name, source, stats_filter=None):
                         stats[key] = stats[key] + temp_value
             if match["players"][config.CLUB_ID][member_id]["posSorted"] == "0":
                 goalie_games += 1
+                if match["win"]:
+                    goalie_wins += 1
+                else:
+                    if helpers.is_overtime(model):
+                        goalie_ovt_losses += 1
+                    else:
+                        goalie_losses += 1
             else:
                 skater_games += 1
+                if match["win"]:
+                    skater_wins += 1
+                else:
+                    if helpers.is_overtime(model):
+                        skater_ovt_losses += 1
+                    else:
+                        skater_losses += 1
 
         for key in stats:
             if key == "glgaa" and goalie_games > 0:
@@ -96,10 +107,6 @@ async def member_stats(name, source, stats_filter=None):
                 stats[key] = round(stats["glsaves"] / stats["glshots"], 2)
             if key == "skpasspct" and stats["skpassattempts"] > 0:
                 stats[key] = round(stats["skpasses"] / stats["skpassattempts"] * 100, 2)
-            if key == "skfopct" and stats["skfopct"] > 0:
-                stats[key] = round(
-                    (stats["skfow"] / (stats["skfow"] + stats["skfol"])) * 100, 2
-                )
             if key == "skshotonnetpct" and stats["skshotonnetpct"] > 0:
                 stats[key] = round(stats["skshots"] / stats["skshotattempts"] * 100, 2)
 
@@ -107,13 +114,15 @@ async def member_stats(name, source, stats_filter=None):
                 stats[key] = round(stats["skgoals"] / stats["skshots"] * 100, 2)
 
             if key == "glsavepct" and stats["glshots"] > 0:
-                stats[key] = round(stats["glsaves"] / stats["glshots"] * 100, 2)
+                stats[key] = round(stats["glsaves"] / stats["glshots"], 2)
             if key == "glbrksavepct" and stats["glbrkshots"] > 0:
-                stats[key] = round(stats["glbrksaves"] / stats["glbrkshots"] * 100, 2)
+                stats[key] = round(stats["glbrksaves"] / stats["glbrkshots"], 2)
             if key == "glpensavepct" and stats["glpenshots"] > 0:
-                stats[key] = round(stats["glpensaves"] / stats["glpenshots"] * 100, 2)
+                stats[key] = round(stats["glpensaves"] / stats["glpenshots"], 2)
 
-        stats["record"] = f"{wins}-{losses}-{ovt_losses}"
+        stats["record"] = (
+            f"{skater_wins + goalie_wins}-{skater_losses + goalie_losses}-{skater_ovt_losses + goalie_ovt_losses}"
+        )
         stats["glgp"] = goalie_games
         stats["skgp"] = skater_games
         stats["skpointspg"] = (
@@ -124,6 +133,22 @@ async def member_stats(name, source, stats_filter=None):
         )
         stats["blazeId"] = member_id
         stats["skpoints"] = stats["skgoals"] + stats["skassists"]
+        stats["skwinpct"] = (
+            round(skater_wins / skater_games * 100, 2) if skater_games > 0 else 0
+        )
+        stats["glwinpct"] = (
+            round(goalie_wins / goalie_games * 100, 2) if goalie_games > 0 else 0
+        )
+        if stats["skfopct"] > 0:
+            fowpct = round(
+                (stats["skfow"] / (stats["skfow"] + stats["skfol"])) * 100, 2
+            )
+            stats["skfopct"] = fowpct
+            stats["skfop"] = fowpct
+        else:
+            stats["skfopct"] = 0
+            stats["skfop"] = 0
+
     else:
         index = data_service.find(members, "name", name)
         if index is not None:
@@ -142,12 +167,16 @@ async def member_stats(name, source, stats_filter=None):
             f"**{name} / {stats['skplayername']} {source}**\n"
             + "```Record: "
             + str(stats["record"])
+            + "\nWin percentage: "
+            + str(stats["skwinpct"])
             + "\nPoints: "
-            + str(stats["skpoints"])
+            + str(f"{stats['skgoals']} + {stats['skassists']}")
             + "\nPoints per game: "
             + str(stats["skpointspg"])
             + "\nPass percentage: "
             + str(stats["skpasspct"])
+            + "\nFaceoff percentage: "
+            + str(stats["skfop"])
             + "\nHits per game: "
             + str(stats["skhitspg"])
         )
@@ -155,7 +184,9 @@ async def member_stats(name, source, stats_filter=None):
             public_reply += (
                 "\nGoalie games: "
                 + str(stats["glgp"])
-                + "\nGoal against average: "
+                + "\nGoalie Win percentage: "
+                + str(stats["glwinpct"])
+                + "\nGoals against average: "
                 + str(stats["glgaa"])
                 + "\nSave percentage: "
                 + str(stats["glsavepct"])
