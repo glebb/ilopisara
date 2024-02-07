@@ -233,9 +233,7 @@ async def game_record(
             ):
                 break
             index += 1
-        result = (
-            f"Team {team_stats} record: {matches[0][data_set][config.CLUB_ID][key]}\n"
-        )
+        result = f"Team {team_stats} record: {matches[0][data_set][config.CLUB_ID][key]} {match_type}\n"
         for raw_match in matches[:index]:
             result += data_service.format_result(raw_match).discord_print() + "\n"
         return result, [data_service.format_result(x) for x in matches[:index]]
@@ -252,7 +250,7 @@ async def game_record(
             matches, temp, player_name=player_name, position=position
         )
     if records:
-        result = f"Single game record for {temp}"
+        result = f"Single game record for {temp} {match_type}"
         if player_name:
             result += f" for {player_name}"
         if position:
