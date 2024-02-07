@@ -324,10 +324,15 @@ class ApplicationCommandCog(commands.Cog):
             required=False,
             description="Optionally choose player position",
         ),
+        match_type: str = nextcord.SlashOption(
+            name="match_type",
+            choices=("3vs3", "6vs6"),
+            required=False,
+        ),
     ):
         await interaction.response.defer()
         response, matches = await command_service.game_record(
-            [stats_name], player_name, position, team_stats
+            [stats_name], player_name, position, team_stats, match_type
         )
         response = "No results found" if not response else response
         if len(matches) > 0:

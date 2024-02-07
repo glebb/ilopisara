@@ -210,7 +210,9 @@ async def member_stats(name, source, stats_filter=None):
     return reply, public_reply, [data_service.format_result(x) for x in return_matches]
 
 
-async def game_record(stats_filter, player_name=None, position=None, team_stats=None):
+async def game_record(
+    stats_filter, player_name=None, position=None, team_stats=None, match_type=None
+):
     result = ""
     if team_stats:
         if team_stats in jsonmap.club_stats:
@@ -221,6 +223,9 @@ async def game_record(stats_filter, player_name=None, position=None, team_stats=
             key = jsonmap.get_key(team_stats, jsonmap.match)
         query = f"{data_set}.{config.CLUB_ID}.{key}"
         matches = await db_mongo.get_sorted_matches(query)
+        if match_type:
+            matches = filter_matches_by_type(matches, match_type)
+
         index = 0
         for raw_match in matches:
             if float(raw_match[data_set][config.CLUB_ID][key]) < float(
@@ -236,6 +241,9 @@ async def game_record(stats_filter, player_name=None, position=None, team_stats=
         return result, [data_service.format_result(x) for x in matches[:index]]
 
     matches = await db_mongo.find_matches_by_club_id(player_name=player_name)
+    if match_type:
+        matches = filter_matches_by_type(matches, match_type)
+
     return_matches = []
     records = []
     if matches:
