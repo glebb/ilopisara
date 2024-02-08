@@ -225,6 +225,8 @@ async def game_record(
         matches = await db_mongo.get_sorted_matches(query)
         if match_type:
             matches = filter_matches_by_type(matches, match_type)
+        else:
+            match_type = ""
 
         index = 0
         for raw_match in matches:
@@ -241,6 +243,8 @@ async def game_record(
     matches = await db_mongo.find_matches_by_club_id(player_name=player_name)
     if match_type:
         matches = filter_matches_by_type(matches, match_type)
+    else:
+        match_type = ""
 
     return_matches = []
     records = []
