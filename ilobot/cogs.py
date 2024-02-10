@@ -260,10 +260,16 @@ class ApplicationCommandCog(commands.Cog):
             required=False,
             description="Get data from online or database",
         ),
+        position: str = nextcord.SlashOption(
+            name="position",
+            choices={value: key for key, value in helpers.POSITIONS.items()},
+            required=False,
+            description="Player position (requires also source)",
+        ),
     ):
         await interaction.response.defer()
         response, public, matches = await command_service.member_stats(
-            name, source, stats_filter
+            name, source, stats_filter, position
         )
         response = "No results found" if not response else response
         if len(matches) > 0:
