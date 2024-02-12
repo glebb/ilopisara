@@ -130,7 +130,9 @@ def chatify_data(game: dict):
 
         # add player actual names under the club data
         clubs[club_name]["players"] = {
-            api.get_member(player_data["playername"])["skplayername"]
+            api.get_member(player_data["playername"]).get(
+                "skplayername", player_data["playername"]
+            )
             or player_data["playername"]: player_data
             for player_id, player_data in club_data["players"].items()
         }
