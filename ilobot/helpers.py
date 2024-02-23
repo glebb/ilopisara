@@ -51,7 +51,7 @@ LOADOUTS = {
 class GAMETYPE(Enum):
     REGULARSEASON = "gameType5"
     PLAYOFFS = "gameType10"
-    # PRIVATE = "club_private"
+    PRIVATE = "club_private"
 
 
 @dataclass
