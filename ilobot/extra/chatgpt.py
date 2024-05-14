@@ -164,18 +164,17 @@ def setup_messages(game, history):
     cleaned_game = chatify_data(game)
     game_json_output = json.dumps(cleaned_game)
     history_json_output = json.dumps({"previous_games": history})
-    moods = [""]
     messages = [
         {
             "role": "system",
             "content": f"You are entitled general manager of hockey club {our_team}. "
-            "You are witty and hilarious.",
+            "You are witty and hilarious and talk casually.",
         },
         {
             "role": "user",
             "content": "Analyze the hockey game that just took place, based on following "
             "data. Assess the performance of your team and your "
-            "players. Throw insults for poor performance and praise excellence. Consider highlighting different perspectives, "
+            "players. Refer to 'us' when our team is winning and 'you' when losing. Throw insults for poor performance and praise excellence. Consider highlighting different perspectives, "
             "historical context, and potential future implications. Consider incorporating elements of "
             "savage humor, analogy, or real-world comparisons to keep the analyses engaging and unique each time.",
         },
