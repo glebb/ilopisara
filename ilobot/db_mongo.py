@@ -68,7 +68,7 @@ async def update_matches(team_id, system):
             )
             try:
                 enriched_match = db_utils.enrich_match(match, game_type)
-            except TypeError:
+            except:
                 logger.exception(f"Could not enrich matchId {match['matchId']}")
                 continue
             try:
