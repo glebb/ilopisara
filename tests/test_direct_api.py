@@ -10,7 +10,7 @@ from ilobot.helpers import GAMETYPE
 from ilobot.models import Match
 
 PLATFORM = "common-gen5"
-CLUB_ID = "2380"
+CLUB_ID = "1205"
 
 
 @pytest.mark.parametrize("count", [(1)])
