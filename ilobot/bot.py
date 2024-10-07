@@ -8,7 +8,7 @@ from dacite import from_dict
 from nextcord.ext import commands, tasks
 
 import ilobot.config
-from ilobot import data_service, db_mongo, tumblrl
+from ilobot import command_service, data_service, db_mongo, tumblrl
 from ilobot.base_logger import logger
 from ilobot.data import api
 from ilobot.extra import chatgpt
@@ -54,6 +54,10 @@ class Bot(commands.Bot):
         )
         result, details = data_service.match_result(match)
         if result:
+            response, matches = await command_service.team_record(
+                result.opponent_name, ilobot.config.PLATFORM
+            )
+            response = "" if not response else response
             history = [
                 (data_service.format_result(m).as_chatgpt_history())
                 for m in await db_mongo.get_latest_match(6)
@@ -74,12 +78,19 @@ class Bot(commands.Bot):
                     await db_mongo.db.matches.update_one(
                         {"_id": db_id}, {"$set": {"summary": summary}}
                     )
-                await channel.send(("\n\nYoosef's analysis\n" + summary)[:1999])
+                await channel.send(
+                    ("\n\nYoosef's analysis\n" + summary + "\n\n")[:1999]
+                )
                 tumblrl.post(
                     summary,
                     title=str(result),
                     tags=["nhl24"],
                 )
+            if len(matches) > 1:
+                matches.pop()
+                response += "\nMatch history:\n"
+                response += "\n".join([line.discord_print() for line in matches])
+            await channel.send(response[:1999] + "\n\n")
 
     def get_team_names(self):
         short_list = list(self.all_teams[-24:])

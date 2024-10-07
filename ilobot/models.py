@@ -21,6 +21,7 @@ class Result:
     game_type: str
     match_id: str
     match_type: MatchType
+    opponent_name: str
     summary: str = ""
 
     def __str__(self):

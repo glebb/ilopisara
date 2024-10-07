@@ -52,6 +52,7 @@ def format_result(match_raw: dict) -> Result:
         game_type=helpers.get_match_type_mark(match),
         match_id=match.matchId,
         summary=match.summary,
+        opponent_name=opponent_name,
         match_type=match.clubs[ilobot.config.CLUB_ID].get_match_type(),
     )
 
@@ -238,6 +239,9 @@ def team_record(team):
             + team[key]["record"]
             + f" | {'% / '.join(list(map(str, percentages)))}%\n"
         )
+        difference = int(team[key]["goals"]) - int(team[key]["goalsAgainst"])
+        difference = "+" + str(difference) if difference >= 0 else str(difference)
+        reply += "goal difference: " + difference + "\n"
         reply += "points: " + team[key]["rankingPoints"] + "\n"
         reply += "star level: " + team[key]["starLevel"] + "\n"
         reply += "current division: " + str(team[key]["currentDivision"]) + "\n"
