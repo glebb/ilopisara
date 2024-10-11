@@ -24,7 +24,7 @@ assert CLUB_ID, "You need to specify club id"
 API_KEY = os.getenv("GIPHY_API_KEY")
 
 OPEN_API = os.getenv("OPEN_API")
-GPT_MODEL = os.getenv("GPT_MODEL", "gpt-3.5-turbo")
+GPT_MODEL = os.getenv("GPT_MODEL", "gpt-4o")
 
 CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
 OAUTH = os.getenv("TWITCH_OAUTH", "")

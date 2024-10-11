@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from dacite import from_dict
@@ -7,6 +8,7 @@ from ilobot import helpers, jsonmap
 from ilobot.base_logger import logger
 from ilobot.config import CLUB_ID, GPT_MODEL, OPEN_API
 from ilobot.data import api
+from ilobot.extra.format import format_game_data
 from ilobot.helpers import is_overtime
 from ilobot.models import Match
 
@@ -15,12 +17,10 @@ SKIP_KEYS = (
     "timeAgo",
     "aggregate",
     "player_names",
-    "toi",
     "toa",
     "raw",
     "teamArtAbbr",
     "opponentTeamArtAbbr",
-    "toiseconds",
     "dnf",
     "passc",
     "passa",
@@ -37,10 +37,8 @@ SKIP_KEYS = (
     "timestamp",
     "opponent",
     "playerLevel",
-    "skfow",
-    "skfol",
-    "skshotpct",
-    "skplusmin",
+    "platform",
+    "losses",
 )
 
 SKIP_PLAYER_KEYS = (
@@ -50,6 +48,7 @@ SKIP_PLAYER_KEYS = (
     "scoreRaw",
     "scoreString",
     "teamSide",
+    "platform",
 )
 
 KEY_MAPPINGS = {
@@ -93,7 +92,7 @@ def handle_keys(data, game_type=None):
                 continue
             if key == "skgiveaways" and (0 < int(data[key]) < 10):
                 continue
-            if "rating" in key and (55 < int(data["skgiveaways"]) <= 75):
+            if "rating" in key and (55 < int(data["skgiveaways"]) <= 70):
                 continue
             if key == "class":
                 value = helpers.LOADOUTS.get(value, "")
@@ -115,10 +114,10 @@ def handle_keys(data, game_type=None):
 def chatify_data(game: dict):
     cleaned_data = handle_keys(game)
     for key in cleaned_data["clubs"].keys():  # keep only our team players
-        if key == str(CLUB_ID):
-            cleaned_data["clubs"][key]["players"] = cleaned_data["players"][key]
-        else:
-            cleaned_data["clubs"][key]["players"] = {}
+        # if key == str(CLUB_ID):
+        cleaned_data["clubs"][key]["players"] = cleaned_data["players"][key]
+        # else:
+        #    cleaned_data["clubs"][key]["players"] = {}
 
     clubs = {}
     for club_id, club_data in cleaned_data["clubs"].items():
@@ -162,51 +161,50 @@ def check_dnf(game: dict):
 def setup_messages(game, history):
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
     cleaned_game = chatify_data(game)
-    game_json_output = json.dumps(cleaned_game)
-    history_json_output = json.dumps({"previous_games": history})
+    cleaned_game["previous_games"] = history if history else {}
+    game_json_output = json.dumps(format_game_data(cleaned_game))
+    now = datetime.date.today().strftime("%d %B")
     messages = [
         {
             "role": "system",
-            "content": f"You are entitled general manager of hockey club {our_team}. "
-            "You are witty and hilarious and talk casually.",
+            "content": f"""You are entitled general manager of hockey club {our_team}. 
+            You are witty and hilarious and talk casually. You are also quite mean spirited. 
+            You might be drunk.
+            You write in Finnish.
+            You refer to {our_team} as 'us' or 'we' if we are winning and 'you' if we are losing.
+            When you talk about {our_team} players, you give feedback to them directly.
+            """,
         },
         {
             "role": "user",
-            "content": "Analyze the hockey game that just took place, based on following "
-            "data. Assess the performance of your team and your "
-            "players. Refer to 'us' when our team is winning and 'you' when losing. Throw insults for poor performance and praise excellence. Consider highlighting different perspectives, "
-            "historical context, and potential future implications. Consider incorporating elements of "
-            "savage humor, analogy, or real-world comparisons to keep the analyses engaging and unique each time.",
+            "content": """Analyze the hockey game that just took place, based on following 
+            data. Assess the performance of your team and your
+            players. 
+            
+            Throw insults for poor performance and when winning, praise excellence. Consider highlighting different perspectives,
+            historical contexts. Consider incorporating elements of 
+            savage humor, analogies, or real-world comparisons to keep the analyses engaging and unique each time.
+            Comment poor shots statistics with a phrase 'VETOJA HYVÄT HERRAT!'
+            Give instructions on how to win or keep winning in the future.
+            
+            If current time of {now} happens to happen during some special occasions, such has halloween, thanksgiving, or new yar, use related phrases.
+            """,
         },
     ]
-    if (
-        game["clubs"][CLUB_ID]["losses"] != "0"
-        and int(game["clubs"][CLUB_ID]["shots"]) < 20
-    ):
-        messages.append(
-            {
-                "role": "user",
-                "content": "Comment the poor shots statistics with a phrase 'VETOJA HYVÄT HERRAT!'",
-            }
-        )
-
-    messages.append({"role": "user", "content": "\n###\n" + game_json_output + "\n"})
-    messages.append({"role": "user", "content": "\n###\n" + history_json_output + "\n"})
+    messages.append(
+        {
+            "role": "user",
+            "content": "\n###\n" + game_json_output + "\n",
+        }
+    )
 
     if check_dnf(cleaned_game):
         messages.append(
             {
                 "role": "user",
-                "content": "If the data indicates 'winner by DNF' or 'winner by goalie DNF' "
-                "with other than value 0, make a big deal about the other team chickening out by not "
-                "finishing the game properly. Don't mention the data keys or values as such. "
-                f"If it was the opponent who won by {our_team} not finishing the team, raise hell.",
-            }
-        )
-        messages.append(
-            {
-                "role": "assistant",
-                "content": "The team cowardly quit the game before it was finished.",
+                "content": "If the data indicates 'winner by DNF' or 'winner by goalie DNF'"
+                "for the opponent, make a big deal about them chickening out by not "
+                "finishing the game properly.",
             }
         )
     messages.append(

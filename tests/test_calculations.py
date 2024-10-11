@@ -9,10 +9,10 @@ from ilobot.db_utils import enrich_match
 from ilobot.helpers import GAMETYPE
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-with open(f"{__location__}/matches.json", "r", encoding="utf-8") as f:
+with open(f"{__location__}/matches_24.json", "r", encoding="utf-8") as f:
     data = json.load(f)
     enriched_matches = {
-        "2380": [enrich_match(match, GAMETYPE.REGULARSEASON) for match in data]
+        "2380": [enrich_match(match, GAMETYPE.REGULARSEASON, "2380") for match in data]
     }
 
 
