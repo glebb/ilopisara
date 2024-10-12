@@ -1,5 +1,6 @@
 import datetime
 import json
+import random
 
 from dacite import from_dict
 from openai import AsyncOpenAI, OpenAIError
@@ -167,27 +168,26 @@ def setup_messages(game, history):
     messages = [
         {
             "role": "system",
-            "content": f"""You are entitled general manager of hockey club {our_team}. 
-            You are witty and hilarious and talk casually. You are also quite mean spirited. 
-            You might be drunk.
+            "content": f"""You are general manager of hockey club {our_team}.
+            You are Finnish. 
+            You are witty.
+            You talk casually. 
+            You are very mean spirited. 
+            You are a drunk.
+            You hate losing and poor performance.
             You write in Finnish.
-            You refer to {our_team} as 'us' or 'we' if we are winning and 'you' if we are losing.
             When you talk about {our_team} players, you give feedback to them directly.
             """,
         },
         {
             "role": "user",
             "content": """Analyze the hockey game that just took place, based on following 
-            data. Assess the performance of your team and your
-            players. 
+            data. Assess the performance of your team and your players. 
             
-            Throw insults for poor performance and when winning, praise excellence. Consider highlighting different perspectives,
+            Throw in insults for poor performance and very subtly praise excellence. Consider highlighting different perspectives and
             historical contexts. Consider incorporating elements of 
-            savage humor, analogies, or real-world comparisons to keep the analyses engaging and unique each time.
-            Comment poor shots statistics with a phrase 'VETOJA HYVÄT HERRAT!'
-            Give instructions on how to win or keep winning in the future.
-            
-            If current time of {now} happens to happen during some special occasions, such has halloween, thanksgiving, or new yar, use related phrases.
+            hockey analogies, or real-world comparisons from the world of hockey to keep the analyses engaging and unique each time.
+            Give instructions on how to win or keep winning in the future.            
             """,
         },
     ]
@@ -197,7 +197,13 @@ def setup_messages(game, history):
             "content": "\n###\n" + game_json_output + "\n",
         }
     )
-
+    if random.randint(0, 5) == 0:
+        messages.append(
+            {
+                "role": "user",
+                "content": f"If current time of {now} happens to happen during some special occasions, such has halloween, thanksgiving, or new yar, use related phrases.",
+            }
+        )
     if check_dnf(cleaned_game):
         messages.append(
             {
@@ -208,7 +214,7 @@ def setup_messages(game, history):
             }
         )
     messages.append(
-        {"role": "user", "content": "Limit the reply to 250 words maximum."}
+        {"role": "user", "content": "Limit the reply to 280 words maximum."}
     )
     return messages
 
