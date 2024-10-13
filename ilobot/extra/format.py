@@ -3,6 +3,11 @@ import json
 
 # Function to format skater details
 def format_skater(player_data):
+    if player_data["position"].capitalize() == "Center":
+        faceoffs = f"\n    - Faceoffs Won: {player_data.get('skater faceoff won', 0)}, Faceoffs Lost: {player_data.get('skater faceoffs lost', 0)}, "
+        faceoffs += f"Faceoff Percentage: {player_data.get('skater faceoffs percentage', 'N/A')}%"
+    else:
+        faceoffs = ""
     return (
         f"  - {player_data['playername']} ({player_data['class']})\n"
         f"    - Position: {player_data['position'].capitalize()}\n"
@@ -13,9 +18,9 @@ def format_skater(player_data):
         f"    - Shots on Net: {player_data['skater shots']}/{player_data['skater shot attempts']} ({player_data['skater shots on net percentage']}%)\n"
         f"    - Passes: {player_data['skater passes']} (Pass Percentage: {player_data['skater pass percentage']}%)\n"
         f"    - Other stats: Blocked Shots: {player_data.get('skater blocked shots', 0)}, Hits: {player_data.get('skater hits', 0)}, "
-        f"Interceptions: {player_data.get('skater interceptions', 0)}, Takeaways: {player_data.get('skater takeaways', 0)}, "
-        f"Faceoffs Won: {player_data.get('skater faceoff won', 0)}, Faceoffs Lost: {player_data.get('skater faceoffs lost', 0)}, "
-        f"Faceoff Percentage: {player_data.get('skater faceoffs percentage', 'N/A')}%\n"
+        f"Interceptions: {player_data.get('skater interceptions', 0)}, Takeaways: {player_data.get('skater takeaways', 0)}, Giveaways: {player_data.get('skater giveaways', 0)}"
+        f"{faceoffs}"
+        f"\n"
     )
 
 

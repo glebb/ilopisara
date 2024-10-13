@@ -26,6 +26,8 @@ async def test_clean_up_data():
     js_history = json.dumps({"previous_games": results})
     logger.info(js_game)
     logger.info(js_history)
+    formatted = chatgpt.format_game_data(game)
+    logger.info(formatted)
     assert len(js_game) < 10000
 
 
