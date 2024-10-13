@@ -208,9 +208,9 @@ def setup_messages(game, history):
         messages.append(
             {
                 "role": "user",
-                "content": "If the data indicates 'winner by DNF' or 'winner by goalie DNF'"
-                "for the opponent, make a big deal about them chickening out by not "
-                "finishing the game properly.",
+                "content": "If the data indicates 'winner by DNF' or 'winner by goalie DNF' for us"
+                "make a big deal about the opponent chickening out by not "
+                "finishing the game properly. Note, this means we won the match!",
             }
         )
     messages.append(
