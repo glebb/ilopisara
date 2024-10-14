@@ -49,16 +49,13 @@ def format_player(player_data):
 
 # Function to format the club details
 def format_club(club_name, club_data):
-    if club_data["result"] == "0":
-        win = "Loss"
-    if club_data["result"] == "1":
-        win = "Win"
-    else:
-        win = "Overtime Win"
+    goals = club_data["goals"]
+    goalsAgainst = club_data["goalsAgainst"]
+    win = "Win" if int(goals) > int(goalsAgainst) else "Loss"
     formatted_club = (
         f"#### {club_name}\n"
-        f"- Result:{win}\n"
-        f"- Score: {club_data['goals']} (Goals) - {club_data['goalsAgainst']} (Goals Against)\n"
+        f"- Result: {win}\n"
+        f"- Score: {goals} (Goals) - {goalsAgainst} (Goals Against)\n"
         f"- Shots: {club_data['shots']}\n"
         f"- Team Side: {'Home' if club_data['teamSide'] == '0' else 'Away'}\n"
         f"- Winner by DNF: {'Yes' if club_data['winner by DNF'] != '0' else 'No'}\n"
