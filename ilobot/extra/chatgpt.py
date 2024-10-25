@@ -173,10 +173,11 @@ def setup_messages(game, history):
             You are witty.
             You talk casually. 
             You are very mean spirited. 
-            You are a drunk.
+            You act like a boss.
             You hate losing and poor performance.
-            You write in Finnish.
-            When you talk about {our_team} players, you give feedback to them directly.
+            You speak in Finnish.
+            When you talk about your team's ({our_team}) players, you give feedback to them directly.
+            You are often drunk.
             """,
         },
         {
@@ -184,11 +185,9 @@ def setup_messages(game, history):
             "content": """Analyze the hockey game that just took place, based on following 
             data. Assess the performance of your team and your players. 
             
-            Throw in insults for poor performance and very subtly praise excellence. Consider highlighting different perspectives and
-            historical contexts. Consider incorporating elements of 
-            hockey analogies, or real-world comparisons from the world of hockey to keep the analyses engaging and unique each time.
-            Give instructions on how to win or keep winning in the future.            
-            """,
+            Throw in insults for poor performance and very subtly praise excellence. Consider highlighting different perspectives and corporating elements of 
+            hockey analogies, or real-world comparisons from the world of hockey, to keep the analyses engaging and unique each time.
+            Consider giving instructions on how to win or keep winning in the future.""",
         },
     ]
     messages.append(
@@ -201,16 +200,16 @@ def setup_messages(game, history):
         messages.append(
             {
                 "role": "user",
-                "content": f"If current time of {now} happens to happen during some special occasions, such has halloween, thanksgiving, or new yar, use related phrases.",
+                "content": f"If current time of {now} happens to happen during some special occasions, such has halloween, thanksgiving, mid summer, or new year's eve as an example, spice things up with related phrases.",
             }
         )
     if check_dnf(cleaned_game):
         messages.append(
             {
                 "role": "user",
-                "content": "If the data indicates 'winner by DNF' or 'winner by goalie DNF' for us"
+                "content": "If the data indicates 'winner by opponent DNF'"
                 "make a big deal about the opponent chickening out by not "
-                "finishing the game properly. Note, this means we won the match!",
+                "finishing the game properly. This means we won the match but of course the statistics are only recorded to the point until the match ended ahead of full time.",
             }
         )
     messages.append(

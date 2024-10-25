@@ -299,6 +299,10 @@ async def team_record(name, platform):
     if record:
         result_string += record + "\n"
         club_id = list(temp.keys())[0]
+        rank = await ranking(club_id, platform, "season")
+        logger.info(rank)
+        if rank:
+            result_string += "**TOP 100 TEAM**\nrank: " + str(rank) + "\n\n"
         members = api.get_members(club_id)
         if club_id != config.CLUB_ID:
             db_matches = await db_mongo.find_matches_by_club_id(versus_club_id=club_id)
@@ -311,3 +315,16 @@ async def team_record(name, platform):
             top_reply = "\n" + "No top stats available"
         result_string += top_reply
     return result_string, matches
+
+
+async def ranking(club_id, platform, type):
+    rankings = api.get_rankings(platform, type)
+    # Find index of object in rankings based on club_id
+    index = next(
+        (i for i, x in enumerate(rankings) if int(x["clubId"]) == int(club_id)), None
+    )
+
+    if index is not None:
+        return index + 1
+    else:
+        return None

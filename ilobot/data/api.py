@@ -1,5 +1,6 @@
 from functools import cache
 from json.decoder import JSONDecodeError
+from typing import List
 
 from cachetools import TTLCache, cached
 
@@ -34,6 +35,16 @@ def get_matches(
     except JSONDecodeError as err:
         logger.error(err)
     return matches
+
+
+@cached(cache=TTLCache(maxsize=1024, ttl=3600))
+def get_rankings(platform=ilobot.config.PLATFORM, type="club") -> List[dict]:
+    rankings = []
+    try:
+        rankings = direct.get_rankings(platform, type)
+    except JSONDecodeError as err:
+        logger.error(err)
+    return rankings
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=180))

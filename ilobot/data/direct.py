@@ -91,3 +91,14 @@ def get_member(member_name, platform):
     except (requests.exceptions.Timeout, JSONDecodeError) as err:
         logger.error(err)
     return data
+
+
+def get_rankings(platform, type):
+    data = {}
+    try:
+        url = f"{EA_API_BASE_URL}{type}RankLeaderboard?platform={platform}"
+        logger.info(f"Fetching url: {url}")
+        data = http.get(url, timeout=10, headers=headers).json()
+    except (requests.exceptions.Timeout, JSONDecodeError) as err:
+        logger.error(err)
+    return data

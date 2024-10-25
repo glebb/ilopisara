@@ -4,7 +4,8 @@ from typing import List, Literal
 import pytest
 from dacite import from_dict
 
-from ilobot import db_utils
+from ilobot import command_service, db_utils
+from ilobot.base_logger import logger
 from ilobot.data import api
 from ilobot.helpers import GAMETYPE
 from ilobot.models import Match
@@ -74,3 +75,11 @@ def test_seasonal_stats():
 def test_get_member():
     member = api.get_member("InThaSky", PLATFORM)
     assert member["name"] == "InThaSky"
+
+
+@pytest.mark.asyncio
+async def test_get_rankings():
+    club_rankings = api.get_rankings(PLATFORM, "club")
+    season_rankings = api.get_rankings(PLATFORM, "season")
+    assert len(club_rankings) == 100
+    assert len(season_rankings) == 100

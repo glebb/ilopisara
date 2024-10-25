@@ -48,18 +48,19 @@ def format_player(player_data):
 
 
 # Function to format the club details
-def format_club(club_name, club_data):
+def format_club(club_name, club_data, overtime):
     goals = club_data["goals"]
     goalsAgainst = club_data["goalsAgainst"]
     win = "Win" if int(goals) > int(goalsAgainst) else "Loss"
+    if overtime:
+        win += " (Overtime)"
     formatted_club = (
         f"#### {club_name}\n"
         f"- Result: {win}\n"
         f"- Score: {goals} (Goals) - {goalsAgainst} (Goals Against)\n"
         f"- Shots: {club_data['shots']}\n"
         f"- Team Side: {'Home' if club_data['teamSide'] == '0' else 'Away'}\n"
-        f"- Winner by DNF: {'Yes' if club_data['winner by DNF'] != '0' else 'No'}\n"
-        f"- Winner by Goalie DNF: {'Yes' if club_data['winner by goalie DNF'] != '0' else 'No'}\n"
+        f"- Winner by opponent DNF: {'Yes' if club_data['winner by DNF'] != '0' or club_data['winner by goalie DNF'] != '0' else 'No'}\n"
     )
 
     if club_data["players"]:
@@ -89,7 +90,7 @@ def format_game_data(json_data):
 
     # Format clubs data
     for club_name, club_data in json_data["clubs"].items():
-        formatted_output += format_club(club_name, club_data)
+        formatted_output += format_club(club_name, club_data, json_data["overtime"])
 
     # Format previous games data
     if "previous_games" in json_data:
