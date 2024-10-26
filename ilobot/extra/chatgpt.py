@@ -145,6 +145,8 @@ def chatify_data(game: dict):
     overtime = is_overtime(match)
     if overtime:
         cleaned_data["overtime"] = True
+    else:
+        cleaned_data["overtime"] = False
 
     return cleaned_data
 
