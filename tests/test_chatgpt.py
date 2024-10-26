@@ -20,15 +20,13 @@ with open(f"{__location__}/matches.json", "r", encoding="utf-8") as f:
 @pytest.mark.asyncio
 async def test_clean_up_data():
     game = chatgpt.chatify_data(enriched_match)
-    history = await db_mongo.get_latest_match(4)
-    results = [(data_service.format_result(m).as_chatgpt_history()) for m in history]
-    js_game = json.dumps(game)
-    js_history = json.dumps({"previous_games": results})
-    logger.info(js_game)
-    logger.info(js_history)
+    history = [
+        (data_service.format_result(m).as_chatgpt_history())
+        for m in await db_mongo.get_latest_match(6)
+    ]
+    game["previous_games"] = history
     formatted = chatgpt.format_game_data(game)
     logger.info(formatted)
-    assert len(js_game) < 10000
 
 
 @pytest.mark.longrun

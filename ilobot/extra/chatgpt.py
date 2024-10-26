@@ -112,7 +112,7 @@ def handle_keys(data, game_type=None):
     return converted_data
 
 
-def chatify_data(game: dict):
+def chatify_data(game: dict, skip_player_names=False):
     cleaned_data = handle_keys(game)
     for key in cleaned_data["clubs"].keys():  # keep only our team players
         # if key == str(CLUB_ID):
@@ -129,11 +129,16 @@ def chatify_data(game: dict):
         del clubs[club_name]["details"]
 
         # add player actual names under the club data
+        # if not skip_player_names:
         clubs[club_name]["players"] = {
-            api.get_member(player_data["playername"]).get(
-                "skplayername", player_data["playername"]
-            )
-            or player_data["playername"]: player_data
+            (
+                player_data["playername"]
+                if skip_player_names
+                else api.get_member(player_data["playername"]).get(
+                    "skplayername", player_data["playername"]
+                )
+                or player_data["playername"]
+            ): player_data
             for player_id, player_data in club_data["players"].items()
         }
         for player in clubs[club_name]["players"]:

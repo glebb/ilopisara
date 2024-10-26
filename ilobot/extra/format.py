@@ -3,40 +3,51 @@ import json
 
 # Function to format skater details
 def format_skater(player_data):
+    name = (
+        player_data["playername"][1:]
+        if player_data["playername"].startswith("-")
+        else player_data["playername"]
+    )
     if player_data["position"].capitalize() == "Center":
-        faceoffs = f"\n    - Faceoffs Won: {player_data.get('skater faceoff won', 0)}, Faceoffs Lost: {player_data.get('skater faceoffs lost', 0)}, "
+        faceoffs = f", Faceoffs Won: {player_data.get('skater faceoff won', 0)}, Faceoffs Lost: {player_data.get('skater faceoffs lost', 0)}, "
         faceoffs += f"Faceoff Percentage: {player_data.get('skater faceoffs percentage', 'N/A')}%"
     else:
         faceoffs = ""
     return (
-        f"  - {player_data['playername']} ({player_data['class']})\n"
-        f"    - Position: {player_data['position'].capitalize()}\n"
-        f"    - Offense Rating: {player_data['ratingOffense']}\n"
-        f"    - Defense Rating: {player_data['ratingDefense']}\n"
-        f"    - Teamplay Rating: {player_data['ratingTeamplay']}\n"
-        f"    - Points: {player_data['skater points']} (Goals: {player_data.get('skater goals', 0)}, Assists: {player_data.get('skater assists', 0)})\n"
-        f"    - Shots on Net: {player_data['skater shots']}/{player_data['skater shot attempts']} ({player_data['skater shots on net percentage']}%)\n"
-        f"    - Passes: {player_data['skater passes']} (Pass Percentage: {player_data['skater pass percentage']}%)\n"
-        f"    - Other stats: Blocked Shots: {player_data.get('skater blocked shots', 0)}, Hits: {player_data.get('skater hits', 0)}, "
+        f"\n"
+        f"    - {name} ({player_data['class']})\n"
+        f"        - Position: {player_data['position'].capitalize()}\n"
+        f"        - Offense Rating: {player_data['ratingOffense']}\n"
+        f"        - Defense Rating: {player_data['ratingDefense']}\n"
+        f"        - Teamplay Rating: {player_data['ratingTeamplay']}\n"
+        f"        - Points: {player_data['skater points']} (Goals: {player_data.get('skater goals', 0)}, Assists: {player_data.get('skater assists', 0)})\n"
+        f"        - Shots on Net: {player_data['skater shots']}/{player_data['skater shot attempts']} ({player_data['skater shots on net percentage']}%)\n"
+        f"        - Passes: {player_data['skater passes']} (Pass Percentage: {player_data['skater pass percentage']}%)\n"
+        f"        - Other stats: Blocked Shots: {player_data.get('skater blocked shots', 0)}, Hits: {player_data.get('skater hits', 0)}, "
         f"Interceptions: {player_data.get('skater interceptions', 0)}, Takeaways: {player_data.get('skater takeaways', 0)}, Giveaways: {player_data.get('skater giveaways', 0)}"
         f"{faceoffs}"
-        f"\n"
     )
 
 
 # Function to format goalie details
 def format_goalie(player_data):
+    name = (
+        player_data["playername"][1:]
+        if player_data["playername"].startswith("-")
+        else player_data["playername"]
+    )
     return (
-        f"  - {player_data['playername']} ({player_data['class']})\n"
-        f"    - Position: Goalie\n"
-        f"    - Saves: {player_data['goalie saves']} out of {player_data['goalie shots']} shots\n"
-        f"    - Save Percentage: {player_data['goalie save percentage']}%\n"
-        f"    - Goals Against: {player_data['goalie goals against']}\n"
-        f"    - Shutout Periods: {player_data.get('goalie shutout periods', 0)}\n"
-        f"    - Breakaway Saves: {player_data['goalie breakaway saves']}/{player_data['goalie breakaway shots']} "
-        f"(Save Percentage: {player_data['goalie breakaway saves percentage']}%)\n"
-        f"    - Penalty Shots Saved: {player_data['goalie penalty shot saves']}/{player_data['goalie penalty shots']} "
-        f"(Save Percentage: {player_data['goalie penalty shot percentage']}%)\n"
+        f"\n"
+        f"    - {name} ({player_data['class']})\n"
+        f"        - Position: Goalie\n"
+        f"        - Saves: {player_data['goalie saves']} out of {player_data['goalie shots']} shots\n"
+        f"        - Save Percentage: {player_data['goalie save percentage']}%\n"
+        f"        - Goals Against: {player_data['goalie goals against']}\n"
+        f"        - Shutout Periods: {player_data.get('goalie shutout periods', 0)}\n"
+        f"        - Breakaway Saves: {player_data['goalie breakaway saves']}/{player_data['goalie breakaway shots']}"
+        f" (Save Percentage: {player_data['goalie breakaway saves percentage']}%)\n"
+        f"        - Penalty Shots Saved: {player_data['goalie penalty shot saves']}/{player_data['goalie penalty shots']}"
+        f" (Save Percentage: {player_data['goalie penalty shot percentage']}%)"
     )
 
 
@@ -55,38 +66,42 @@ def format_club(club_name, club_data, overtime):
     if overtime:
         win += " (Overtime)"
     formatted_club = (
-        f"#### {club_name}\n"
+        f"### {club_name}\n"
         f"- Result: {win}\n"
         f"- Score: {goals} (Goals) - {goalsAgainst} (Goals Against)\n"
         f"- Shots: {club_data['shots']}\n"
         f"- Team Side: {'Home' if club_data['teamSide'] == '0' else 'Away'}\n"
-        f"- Winner by opponent DNF: {'Yes' if club_data['winner by DNF'] != '0' or club_data['winner by goalie DNF'] != '0' else 'No'}\n"
     )
 
+    if club_data["winner by DNF"] != "0" or club_data["winner by goalie DNF"] != "0":
+        formatted_club += f"- Winner by opponent DNF: {'Yes' if club_data['winner by DNF'] != '0' or club_data['winner by goalie DNF'] != '0' else 'No'}\n"
+
     if club_data["players"]:
-        formatted_club += "- Players:\n"
+        formatted_club += "- Players:"
         for player_name, player_data in club_data["players"].items():
             formatted_club += format_player(player_data)
     else:
         formatted_club += "- Players: (No player data available)\n"
 
+    formatted_club += "\n\n"
     return formatted_club
 
 
 # Function to format the previous games
 def format_previous_games(games):
-    formatted_games = "\n### Previous Games:\n"
+    formatted_games = "\n# Previous Games\n"
     for game in games:
         formatted_games += (
-            f"{game['date_time']}: {game['game_outcome']} - "
+            f"- {game['date_time']}: {game['game_outcome']} - "
             f"{'Win' if game['win'] else 'Loss'}\n"
         )
     return formatted_games
 
 
 # Main function to format the JSON data
-def format_game_data(json_data):
-    formatted_output = "### Clubs:\n"
+def format_game_data(json_data, title="Match"):
+    formatted_output = f"# {title}\n"
+    formatted_output += "## Clubs\n"
 
     # Format clubs data
     for club_name, club_data in json_data["clubs"].items():
