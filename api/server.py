@@ -1,18 +1,22 @@
 import json
 import os
+import pprint
 
 import falcon
 import falcon.asgi
+import markdown
 import uvicorn
 from dotenv import load_dotenv
 
 from ilobot import calculations, data_service, db_mongo
+from ilobot.base_logger import logger
 from ilobot.extra.chatgpt import chatify_data
 from ilobot.extra.format import format_game_data
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 load_dotenv(f"{__location__}/../.env")
 API_KEY = os.getenv("OWN_API_KEY", "")
+PWD = "ilopisara"
 assert len(API_KEY) > 10, "You need to set proper api key for server"
 
 
@@ -47,7 +51,7 @@ class SimpleAuthMiddleware:
     async def process_request_async(self, req, resp):
         token = req.get_param("password")
 
-        if token != "ilopisara":
+        if token != PWD:
             raise falcon.HTTPUnauthorized(title="Authentication required")
 
 
@@ -58,17 +62,17 @@ class MatchesMarkdownResource:
     async def on_get(self, req, resp):
         """Handles GET requests"""
         resp.status = falcon.HTTP_200  # This is the default status
-        resp.content_type = falcon.MEDIA_TEXT  # Default is JSON, so override
+        resp.content_type = falcon.MEDIA_HTML  # Default is JSON, so override
         games = await db_mongo.get_sorted_matches("timestamp")
-
-        resp.text = ""
+        text = ""
         for game in games:
             cleaned_game = chatify_data(game, skip_player_names=True)
-            title = str(data_service.format_result(game))
-            resp.text += format_game_data(cleaned_game, title)
+            title = f"[{str(data_service.format_result(game))}](/match?id={game['matchId']}&password={PWD})"
+            text += format_game_data(cleaned_game, title)
             if "summary" in game:
-                resp.text += game["summary"] + "\n"
-            resp.text += "\n\n"
+                text += game["summary"] + "\n"
+            text += "\n\n"
+        resp.text = markdown.markdown(text)
 
 
 class MatchesResource:
@@ -80,6 +84,28 @@ class MatchesResource:
         for m in matches:
             del m["_id"]
         resp.media = matches[:limit]
+
+
+class MatchResource:
+    async def on_get(self, req, resp):
+        match_id = None
+        if "id" in req.params:
+            match_id = int(req.params["id"])
+        try:
+            match = await db_mongo.find_match_by_id(str(match_id))
+        except:
+            logger.exception("Failed to find match")
+            pass
+        if not match or len(match) != 1:
+            raise falcon.HTTPBadRequest(
+                title="No match found",
+            )
+        resp.status = falcon.HTTP_200  # This is the default status
+        resp.content_type = falcon.MEDIA_TEXT  # Default is JSON, so override
+        logger.info(match)
+        del match[0]["_id"]
+        cleaned_game = chatify_data(match[0], skip_player_names=True)
+        resp.text = pprint.pformat(cleaned_game)
 
 
 class WinsResources:
@@ -97,6 +123,10 @@ app = falcon.asgi.App(
 
 matches_resource = MatchesResource()
 app.add_route("/matches", matches_resource)
+
+match_resource = MatchResource()
+app.add_route("/match", match_resource)
+
 
 winpct_resource = WinsResources()
 app.add_route("/winpct", winpct_resource)
