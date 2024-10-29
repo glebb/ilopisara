@@ -41,11 +41,13 @@ LOADOUTS = {
     "100": "Hammer - Grinder",
     "101": "Surge - Playmaker",
     "102": "Bullseye - Sniper",
-    "103": "Moonlight - Power FWD",
+    "103": "Moonlight - Power Forward",
     "106": "Vector - Dangler",
     "111": "Deepfreeze - DD",
     "115": "Bones - Puck Moving D",
-    "120": "Wally - Stand-Up G",
+    "120": "Wally - Stand-Up Goalie",
+    "205": "Sudden Death - Enforcer",
+    "212": "Agent Blueline - OD",
 }
 
 
