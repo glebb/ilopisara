@@ -19,6 +19,8 @@ API_KEY = os.getenv("OWN_API_KEY", "")
 PWD = "ilopisara"
 assert len(API_KEY) > 10, "You need to set proper api key for server"
 
+html = """<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>"""
+
 
 class AuthMiddleware:
     async def process_request_async(self, req, resp):
@@ -72,7 +74,7 @@ class MatchesMarkdownResource:
             if "summary" in game:
                 text += game["summary"] + "\n"
             text += "\n\n"
-        resp.text = markdown.markdown(text)
+        resp.text = html + markdown.markdown(text) + "</body></html>"
 
 
 class MatchesResource:
@@ -101,11 +103,13 @@ class MatchResource:
                 title="No match found",
             )
         resp.status = falcon.HTTP_200  # This is the default status
-        resp.content_type = falcon.MEDIA_TEXT  # Default is JSON, so override
+        resp.content_type = falcon.MEDIA_HTML  # Default is JSON, so override
         logger.info(match)
         del match[0]["_id"]
         cleaned_game = chatify_data(match[0], skip_player_names=True)
-        resp.text = pprint.pformat(cleaned_game)
+        resp.text = (
+            html + "<pre>" + pprint.pformat(cleaned_game) + "</pre></body></html>"
+        )
 
 
 class WinsResources:
