@@ -104,7 +104,6 @@ class MatchResource:
             )
         resp.status = falcon.HTTP_200  # This is the default status
         resp.content_type = falcon.MEDIA_HTML  # Default is JSON, so override
-        logger.info(match)
         del match[0]["_id"]
         cleaned_game = chatify_data(match[0], skip_player_names=True)
         resp.text = (
