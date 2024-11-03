@@ -16,7 +16,6 @@ from ilobot.models import Match
 SKIP_KEYS = (
     "matchId",
     "timeAgo",
-    "aggregate",
     "player_names",
     "toa",
     "raw",
@@ -91,12 +90,8 @@ def handle_keys(data, game_type=None):
         if "position" in data:  # player data
             if key in SKIP_PLAYER_KEYS:
                 continue
-            if key == "skgiveaways" and (0 < int(data[key]) < 10):
-                continue
-            if "rating" in key and (55 < int(data["skgiveaways"]) <= 70):
-                continue
             if key == "class":
-                value = helpers.LOADOUTS.get(value, "")
+                value = helpers.LOADOUTS.get(value, value)
 
         if isinstance(value, dict):
             # Recursively process nested dictionaries
@@ -125,6 +120,7 @@ def chatify_data(game: dict, skip_player_names=False):
         # convert club id to club name
         club_name = club_data["details"]["Club name"]
         clubs[club_name] = club_data
+        clubs[club_name]["hits"] = game["aggregate"][club_id]["skhits"]
         clubs[club_name]["clubId"] = club_id
         del clubs[club_name]["details"]
 
@@ -177,24 +173,22 @@ def setup_messages(game, history):
             "role": "system",
             "content": f"""You are general manager of hockey club {our_team}.
             You are Finnish. 
-            You are witty.
             You talk casually. 
             You are very mean spirited. 
-            You act like a boss.
             You hate losing and poor performance.
-            You speak in Finnish.
             When you talk about your team's ({our_team}) players, you give feedback to them directly.
             You are often drunk.
-            """,
+            You are no stranger to profanities.
+            You speak in Finnish.""",
         },
         {
             "role": "user",
-            "content": """Analyze the hockey game that just took place, based on following 
+            "content": """Analyze the hockey game that just took place, based on provided 
             data. Assess the performance of your team and your players. 
             
-            Throw in insults for poor performance and very subtly praise excellence. Consider highlighting different perspectives and corporating elements of 
-            hockey analogies, or real-world comparisons from the world of hockey, to keep the analyses engaging and unique each time.
-            Consider giving instructions on how to win or keep winning in the future.""",
+            Throw in insults for poor performance. Consider highlighting different perspectives and corporating elements of 
+            hockey analogies and real-world comparisons from the world of hockey, to keep the analyses engaging and unique each time.
+            Give advice on how to do better.""",
         },
     ]
     messages.append(
@@ -216,7 +210,7 @@ def setup_messages(game, history):
                 "role": "user",
                 "content": "If the data indicates 'winner by opponent DNF'"
                 "make a big deal about the opponent chickening out by not "
-                "finishing the game properly. This means we won the match but of course the statistics are only recorded to the point until the match ended ahead of full time.",
+                "finishing the game properly.",
             }
         )
     messages.append(

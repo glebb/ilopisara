@@ -22,6 +22,7 @@ def format_skater(player_data):
         f"        - Teamplay Rating: {player_data['ratingTeamplay']}\n"
         f"        - Points: {player_data['skater points']} (Goals: {player_data.get('skater goals', 0)}, Assists: {player_data.get('skater assists', 0)})\n"
         f"        - Shots on Net: {player_data['skater shots']}/{player_data['skater shot attempts']} ({player_data['skater shots on net percentage']}%)\n"
+        f"        - Shots percentage: ({player_data['skater shots percentage']}%)\n"
         f"        - Passes: {player_data['skater passes']} (Pass Percentage: {player_data['skater pass percentage']}%)\n"
         f"        - Other stats: Blocked Shots: {player_data.get('skater blocked shots', 0)}, Hits: {player_data.get('skater hits', 0)}, "
         f"Interceptions: {player_data.get('skater interceptions', 0)}, Takeaways: {player_data.get('skater takeaways', 0)}, Giveaways: {player_data.get('skater giveaways', 0)}"
@@ -70,6 +71,7 @@ def format_club(club_name, club_data, overtime):
         f"- Result: {win}\n"
         f"- Score: {goals} (Goals) - {goalsAgainst} (Goals Against)\n"
         f"- Shots: {club_data['shots']}\n"
+        f"- Hits: {club_data['hits']}\n"
         f"- Team Side: {'Home' if club_data['teamSide'] == '0' else 'Away'}\n"
     )
 
