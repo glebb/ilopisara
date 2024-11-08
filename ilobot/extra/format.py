@@ -1,5 +1,7 @@
 import json
 
+from ilobot.base_logger import logger
+
 
 # Function to format skater details
 def format_skater(player_data):
@@ -68,20 +70,24 @@ def format_club(club_name, club_data, overtime):
         win += " (Overtime)"
     formatted_club = (
         f"### {club_name}\n"
-        f"- Result: {win}\n"
-        f"- Score: {goals} (Goals) - {goalsAgainst} (Goals Against)\n"
-        f"- Shots: {club_data['shots']}\n"
-        f"- Hits: {club_data['hits']}\n"
         f"- Team Side: {'Home' if club_data['teamSide'] == '0' else 'Away'}\n"
+        f"- Result: {win}\n"
     )
+    if not club_data["no_game"]:
+        formatted_club += (
+            f"- Score: {goals} (Goals) - {goalsAgainst} (Goals Against)\n"
+            f"- Shots: {club_data['shots']}\n"
+            f"- Hits: {club_data['hits']}\n"
+        )
 
     if club_data["winner by DNF"] != "0" or club_data["winner by goalie DNF"] != "0":
         formatted_club += f"- Winner by opponent DNF: {'Yes' if club_data['winner by DNF'] != '0' or club_data['winner by goalie DNF'] != '0' else 'No'}\n"
 
     if club_data["players"]:
-        formatted_club += "- Players:"
-        for player_name, player_data in club_data["players"].items():
-            formatted_club += format_player(player_data)
+        if not club_data["no_game"]:
+            formatted_club += "- Players:"
+            for player_name, player_data in club_data["players"].items():
+                formatted_club += format_player(player_data)
     else:
         formatted_club += "- Players: (No player data available)\n"
 

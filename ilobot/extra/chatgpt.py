@@ -5,13 +5,13 @@ import random
 from dacite import from_dict
 from openai import AsyncOpenAI, OpenAIError
 
-from ilobot import helpers, jsonmap
+from ilobot import data_service, helpers, jsonmap
 from ilobot.base_logger import logger
 from ilobot.config import CLUB_ID, GPT_MODEL, OPEN_API
 from ilobot.data import api
 from ilobot.extra.format import format_game_data
 from ilobot.helpers import is_overtime
-from ilobot.models import Match
+from ilobot.models import Match, MatchType
 
 SKIP_KEYS = (
     "matchId",
@@ -61,7 +61,6 @@ def handle_keys(data, game_type=None):
     """Skip unwanted keys and convert rest to mapped names"""
     if not game_type:
         game_type = int(data["clubs"][CLUB_ID]["cNhlOnlineGameType"])
-        logger.info(game_type)
     converted_data = {}
     for key, value in data.items():
         original_key = key
@@ -114,6 +113,7 @@ def chatify_data(game: dict, skip_player_names=False):
         cleaned_data["clubs"][key]["players"] = cleaned_data["players"][key]
         # else:
         #    cleaned_data["clubs"][key]["players"] = {}
+        cleaned_data["clubs"][key]["no_game"] = check_no_game(game)
 
     clubs = {}
     for club_id, club_data in cleaned_data["clubs"].items():
@@ -162,11 +162,24 @@ def check_dnf(game: dict):
     return False
 
 
+def check_no_game(game: dict):
+    zero = []
+    for club in game["clubs"]:
+        if str(game["clubs"][club]["shots"]) == "0":
+            zero.append(True)
+        else:
+            zero.append(False)
+    if all(zero):
+        return True
+    return False
+
+
 def setup_messages(game, history):
+    model = data_service.convert_match(game)
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
     cleaned_game = chatify_data(game)
     cleaned_game["previous_games"] = history if history else {}
-    game_json_output = json.dumps(format_game_data(cleaned_game))
+    formatted_game = format_game_data(cleaned_game)
     now = datetime.date.today().strftime("%d %B")
     messages = [
         {
@@ -176,16 +189,16 @@ def setup_messages(game, history):
             You talk casually. 
             You are very mean spirited. 
             You hate losing and poor performance.
+            You are extremly sarcastic about positive results.
             When you talk about your team's ({our_team}) players, you give feedback to them directly.
-            You are often drunk.
-            You are no stranger to profanities.
+            You are sometimes drunk.
+            You are no stranger to profanities when it's called for.
             You speak in Finnish.""",
         },
         {
             "role": "user",
             "content": """Analyze the hockey game that just took place, based on provided 
-            data. Assess the performance of your team and your players. 
-            
+            data. If the game was won because of DNF, don't analyze players or the game further. Otherwise, assess the performance of your team and your players directly based on the data. 
             Throw in insults for poor performance. Consider highlighting different perspectives and corporating elements of 
             hockey analogies and real-world comparisons from the world of hockey, to keep the analyses engaging and unique each time.
             Give advice on how to do better.""",
@@ -194,10 +207,17 @@ def setup_messages(game, history):
     messages.append(
         {
             "role": "user",
-            "content": "\n###\n" + game_json_output + "\n",
+            "content": "\n###\n" + formatted_game + "\n\n",
         }
     )
-    if random.randint(0, 5) == 0:
+    if model.clubs[CLUB_ID].get_match_type().value == MatchType.THREE_ON_THREE.value:
+        messages.append(
+            {
+                "role": "user",
+                "content": f"Match was played as 3vs3, meaning each team had 3 skaters and a goalie on ice. This game mode doesn't have regular penalties, only penalty shots. ",
+            }
+        )
+    if random.randint(0, 10) == 0:
         messages.append(
             {
                 "role": "user",
@@ -209,7 +229,7 @@ def setup_messages(game, history):
             {
                 "role": "user",
                 "content": "If the data indicates 'winner by opponent DNF'"
-                "make a big deal about the opponent chickening out by not "
+                "make a big deal about the losing team chickening out by not "
                 "finishing the game properly.",
             }
         )

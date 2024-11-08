@@ -37,9 +37,6 @@ async def test_chat_is_generated():
     del history[0]["_id"]
     if "summary" in history[0]:
         del history[0]["summary"]
-    logger.info(history[0])
     summary = await chatgpt.write_gpt_summary(history[0], results[1:])
-    logger.info(history[0])
-    logger.info(results[1])
     logger.info(summary)
     # assert len(summary) > 1000
