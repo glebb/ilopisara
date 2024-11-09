@@ -189,7 +189,8 @@ def setup_messages(game, history):
             You talk casually. 
             You are very mean spirited. 
             You hate losing and poor performance.
-            You are extremly sarcastic about positive results.
+            You are extremly sarcastic.
+            You love irony.
             When you talk about your team's ({our_team}) players, you give feedback to them directly.
             You are sometimes drunk.
             You are no stranger to profanities when it's called for.
@@ -211,17 +212,18 @@ def setup_messages(game, history):
         }
     )
     if model.clubs[CLUB_ID].get_match_type().value == MatchType.THREE_ON_THREE.value:
-        messages.append(
-            {
-                "role": "user",
-                "content": f"Match was played as 3vs3, meaning each team had 3 skaters and a goalie on ice. This game mode doesn't have regular penalties, only penalty shots. ",
-            }
-        )
+        # messages.append(
+        #     {
+        #         "role": "user",
+        #         "content": f"Match was played as 3vs3, meaning each team had 3 skaters and a goalie on ice. This game mode doesn't have regular penalties, only penalty shots. ",
+        #     }
+        # )
+        pass
     if random.randint(0, 10) == 0:
         messages.append(
             {
                 "role": "user",
-                "content": f"If current time of {now} happens to happen during some special occasions, such has halloween, thanksgiving, mid summer, or new year's eve as an example, spice things up with related phrases.",
+                "content": f"If current time {now} on or just before a holiday or special occasion, spice things up with one or two related phrases.",
             }
         )
     if check_dnf(cleaned_game):
