@@ -46,6 +46,8 @@ LOADOUTS = {
     "111": "Deepfreeze - DD",
     "115": "Bones - Puck Moving D",
     "120": "Wally - Stand-Up Goalie",
+    "203": "Antler - Power Forward",
+    "204": "Woody - Two-Way Forward",
     "205": "Sudden Death - Enforcer",
     "212": "Agent Blueline - OD",
 }
