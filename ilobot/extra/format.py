@@ -1,7 +1,5 @@
 import json
 
-from ilobot.base_logger import logger
-
 
 # Function to format skater details
 def format_skater(player_data):
@@ -67,21 +65,25 @@ def format_club(club_name, club_data, overtime):
     goalsAgainst = club_data["goalsAgainst"]
     win = "Win" if int(goals) > int(goalsAgainst) else "Loss"
     if overtime:
-        win += " (Overtime)"
+        win += " (OT)"
     formatted_club = (
-        f"### {club_name}\n"
-        f"- Team Side: {'Home' if club_data['teamSide'] == '0' else 'Away'}\n"
-        f"- Result: {win}\n"
+        f"### {club_name} ({'Home' if club_data['teamSide'] == '0' else 'Away'} | {win})\n"
     )
+    
+    # Add team analysis if available
+    if "team_analysis" in club_data:
+        formatted_club += "**Season Stats**\n"
+        for stat in club_data["team_analysis"]:
+            formatted_club += f"- {stat}\n"
+    
     if not club_data["no_game"]:
         formatted_club += (
-            f"- Score: {goals} (Goals) - {goalsAgainst} (Goals Against)\n"
-            f"- Shots: {club_data['shots']}\n"
-            f"- Hits: {club_data['hits']}\n"
+            "**Game Stats**\n"
+            f"- score: {goals}-{goalsAgainst} | shots: {club_data['shots']} | hits: {club_data['hits']}\n"
         )
 
     if club_data["winner by DNF"] != "0" or club_data["winner by goalie DNF"] != "0":
-        formatted_club += f"- Winner by opponent DNF: {'Yes' if club_data['winner by DNF'] != '0' or club_data['winner by goalie DNF'] != '0' else 'No'}\n"
+        formatted_club += "- won by DNF\n"
 
     if club_data["players"]:
         if not club_data["no_game"]:

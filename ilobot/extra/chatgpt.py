@@ -1,11 +1,10 @@
 import datetime
-import json
 import random
 
 from dacite import from_dict
 from openai import AsyncOpenAI, OpenAIError
 
-from ilobot import data_service, helpers, jsonmap
+from ilobot import config, data_service, helpers, jsonmap
 from ilobot.base_logger import logger
 from ilobot.config import CLUB_ID, GPT_MODEL, OPEN_API
 from ilobot.data import api
@@ -108,10 +107,76 @@ def handle_keys(data, game_type=None):
 
 def chatify_data(game: dict, skip_player_names=False):
     cleaned_data = handle_keys(game)
-    for key in cleaned_data["clubs"].keys():  # keep only our team players
-        # if key == str(CLUB_ID):
+
+    # Get team analysis for each club
+    for key in cleaned_data["clubs"].keys():
+        # Get team name from club data
+        team_name = cleaned_data["clubs"][key]["details"]["Club name"]
+
+        # Get team stats from API
+        team_data = api.get_team_record(team_name, config.PLATFORM)
+        if team_data:
+            api_key = list(team_data.keys())[0]
+            record = list(map(int, team_data[api_key]["record"].split("-")))
+            total_games = sum(record)
+
+            if total_games > 0:
+                # Calculate all stats
+                stats = {
+                    "record": {
+                        "wins": record[0],
+                        "losses": record[1],
+                        "otl": record[2],
+                        "total_games": total_games,
+                        "win_pct": round(record[0] / total_games * 100, 1),
+                        "points_pct": round(
+                            (record[0] * 2 + record[2]) / (total_games * 2) * 100, 1
+                        ),
+                    },
+                    "scoring": {
+                        "goals_for": int(team_data[api_key]["goals"]),
+                        "goals_against": int(team_data[api_key]["goalsAgainst"]),
+                        "goals_per_game": round(
+                            int(team_data[api_key]["goals"]) / total_games, 2
+                        ),
+                        "goals_against_per_game": round(
+                            int(team_data[api_key]["goalsAgainst"]) / total_games, 2
+                        ),
+                        "goal_differential": int(team_data[api_key]["goals"])
+                        - int(team_data[api_key]["goalsAgainst"]),
+                        "goal_differential_per_game": round(
+                            (
+                                int(team_data[api_key]["goals"])
+                                - int(team_data[api_key]["goalsAgainst"])
+                            )
+                            / total_games,
+                            2,
+                        ),
+                    },
+                    "team_info": {
+                        "division": int(team_data[api_key]["currentDivision"]),
+                        "rank": int(team_data[api_key].get("rank", 0)),
+                        "streak": team_data[api_key].get("streak", "N/A"),
+                        "last_ten": team_data[api_key].get("last_ten", "N/A"),
+                    },
+                }
+
+                # Format stats as markdown-friendly strings
+                team_analysis = [
+                    f"record: {stats['record']['wins']}-{stats['record']['losses']}-{stats['record']['otl']} ({stats['record']['win_pct']}% wins, {stats['record']['points_pct']}% points)",
+                    f"scoring: {stats['scoring']['goals_per_game']} GF/{stats['scoring']['goals_against_per_game']} GA per game ({stats['scoring']['goal_differential_per_game']:+.2f} diff)",
+                    f"totals: {stats['scoring']['goals_for']} GF/{stats['scoring']['goals_against']} GA ({stats['scoring']['goal_differential']:+} diff)",
+                    f"division: {stats['team_info']['division']} | rank: {stats['team_info']['rank']} | streak: {stats['team_info']['streak']} | last10: {stats['team_info']['last_ten']}",
+                ]
+
+                # Add the analysis to the club data
+                cleaned_data["clubs"][key]["team_analysis"] = team_analysis
+                cleaned_data["clubs"][key][
+                    "team_stats"
+                ] = stats  # Raw stats for potential deeper analysis
+
+        # Add player data
         cleaned_data["clubs"][key]["players"] = cleaned_data["players"][key]
-        # else:
         #    cleaned_data["clubs"][key]["players"] = {}
         cleaned_data["clubs"][key]["no_game"] = check_no_game(game)
 
@@ -174,43 +239,71 @@ def check_no_game(game: dict):
     return False
 
 
-def setup_messages(game, history):
+def setup_messages(game, history, vs_matches):
     model = data_service.convert_match(game)
     our_team = game["clubs"][CLUB_ID]["details"]["name"]
     cleaned_game = chatify_data(game)
     cleaned_game["previous_games"] = history if history else {}
     formatted_game = format_game_data(cleaned_game)
+
+    # Get matchup context if we have history
+    matchup_context = ""
+    if vs_matches:
+        from ilobot.analysis.team_matchup import get_matchup_context
+
+        context = get_matchup_context(
+            model, [data_service.convert_match(h) for h in vs_matches]
+        )
+        matchup_context = "\n".join(context.values())
+
     now = datetime.date.today().strftime("%d %B")
     messages = [
         {
             "role": "system",
-            "content": f"""You are general manager of hockey club {our_team}.
-            You are Finnish. 
-            You talk casually. 
-            You are very mean spirited. 
-            You hate losing and poor performance.
-            You are extremly sarcastic.
-            You love irony.
-            When you talk about your team's ({our_team}) players, you give feedback to them directly.
-            You are sometimes drunk.
-            You are no stranger to profanities when it's called for.
-            You speak in Finnish.""",
+            "content": f"""You are {our_team}'s drunk, sarcastic Finnish GM who:
+            - Uses stats to brutally roast or rarely praise players
+            - Gets furious when losing to lower division teams
+            - Speaks only Finnish with hockey slang and profanity
+            - Loves mocking DNFs and underperformers""",
         },
         {
             "role": "user",
-            "content": """Analyze the hockey game that just took place, based on provided 
-            data. If the game was won because of DNF, don't analyze players or the game further. Otherwise, assess the performance of your team and your players directly based on the data. 
-            Throw in insults for poor performance. Consider highlighting different perspectives and corporating elements of 
-            hockey analogies and real-world comparisons from the world of hockey, to keep the analyses engaging and unique each time.
-            Give advice on how to do better.""",
+            "content": """Create a Finnish, sub-280-word game analysis:
+            
+            1. Team Performance:
+               - Compare season averages vs. this game
+               - Highlight any ironic stat differences
+               - Mock teams playing below their usual level
+            
+            2. Division & Streaks:
+               - Only mention if divisions differ (lower=rage, higher=smug)
+               - Use current streaks for extra mockery
+            
+            3. Players:
+               - Compare to team averages
+               - Use specific stats for roasting
+            
+            4. If DNF: Mock their rank/record and cowardice""",
         },
     ]
+
+    # Add game data
     messages.append(
         {
             "role": "user",
-            "content": "\n###\n" + formatted_game + "\n\n",
+            "content": "\n###\nGame Data:\n" + formatted_game + "\n\n",
         }
     )
+
+    # Add matchup context if available
+    if matchup_context:
+        messages.append(
+            {
+                "role": "user",
+                "content": "\n###\nMatchup Context:\n" + matchup_context + "\n\n",
+            }
+        )
+
     if model.clubs[CLUB_ID].get_match_type().value == MatchType.THREE_ON_THREE.value:
         # messages.append(
         #     {
@@ -219,6 +312,7 @@ def setup_messages(game, history):
         #     }
         # )
         pass
+
     if random.randint(0, 10) == 0:
         messages.append(
             {
@@ -226,6 +320,7 @@ def setup_messages(game, history):
                 "content": f"If current time {now} on or just before a holiday or special occasion, spice things up with one or two related phrases.",
             }
         )
+
     if check_dnf(cleaned_game):
         messages.append(
             {
@@ -235,21 +330,23 @@ def setup_messages(game, history):
                 "finishing the game properly.",
             }
         )
+
     messages.append(
         {"role": "user", "content": "Limit the reply to 280 words maximum."}
     )
     return messages
 
 
-async def write_gpt_summary(game: dict, history=None):
-    messages = setup_messages(game, history)
+async def write_gpt_summary(game: dict, history=None, vs_matches=None):
+    messages = setup_messages(game, history, vs_matches)
     try:
         client = AsyncOpenAI(
             api_key=OPEN_API,
         )
 
+        model = GPT_MODEL
         chat_completion = await client.chat.completions.create(
-            model=GPT_MODEL,
+            model=model,
             messages=messages,
             temperature=1.9,
             top_p=0.2,

@@ -64,9 +64,10 @@ class Bot(commands.Bot):
             ]
             db_id = match.pop("_id")
 
+            vs_matches = await db_mongo.find_matches_by_club_id(match["opponent"]["id"])
             summary: str = (
                 await chatgpt.write_gpt_summary(
-                    match, history[1:]
+                    match, history[1:], vs_matches[1:]
                 )  # history[0] is same as match
                 if "summary" not in match
                 else match["summary"]
