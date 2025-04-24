@@ -1,5 +1,82 @@
 import json
 
+# Example analysis data
+"""
+**Current Win Streak for us: 11**
+
+### Ilo Pisara (Away | Win)
+**Season Stats**
+- record: 714-111-24 (84.1% wins, 85.5% points)
+- scoring: 5.49 GF/2.39 GA per game (+3.09 diff)
+- totals: 4657 GF/2032 GA (+2625 diff)
+- division: 1 | rank: 0 | streak: N/A | last10: N/A
+**Game Stats**
+- score: 5-4 | shots: 14 | hits: 3
+- Players:
+    - Teppo Winnipeg (Offensive Defenseman)
+        - Position: Defensemen
+        - Ratings: Off 80.00, Def 60.00, Team 60.00
+        - Points: 3 (Goals: 0, Assists: 3)
+        - Shooting: 1/3 on net, 0.00% scoring
+        - Takeaway/Giveaway Ratio: 0.5
+        - Impact Stats: Blocks 2, Hits 1, Interceptions 3, Takeaways 3, Giveaways 6
+    - Idän Jätti (Dangler)
+        - Position: Leftwing
+        - Ratings: Off 90.00, Def 60.00, Team 50.00
+        - Points: 4 (Goals: 3, Assists: 1)
+        - Shooting: 7/7 on net, 42.86% scoring
+        - Takeaway/Giveaway Ratio: 0.25
+        - Impact Stats: Blocks 0, Hits 0, Interceptions 2, Takeaways 1, Giveaways 4
+    - Jani Saari (Grinder)
+        - Position: Center
+        - Ratings: Off 100.00, Def 55.00, Team 80.00
+        - Points: 5 (Goals: 2, Assists: 3)
+        - Shooting: 3/4 on net, 66.67% scoring
+        - Takeaway/Giveaway Ratio: 0.36
+        - Impact Stats: Blocks 1, Hits 2, Interceptions 4, Takeaways 4, Giveaways 11
+        - Faceoffs: Won 15, Lost 6 (Win Rate: 71.43%)
+
+### Gotham Knights (Home | Loss)
+**Season Stats**
+- record: 262-51-7 (81.9% wins, 83.0% points)
+- scoring: 4.98 GF/2.51 GA per game (+2.47 diff)
+- totals: 1594 GF/803 GA (+791 diff)
+- division: 1 | rank: 0 | streak: N/A | last10: N/A
+**Game Stats**
+- score: 4-5 | shots: 18 | hits: 7
+- Players:
+    -  Hapettaja (Sniper)
+        - Position: Leftwing
+        - Ratings: Off 95.00, Def 70.00, Team 60.00
+        - Points: 4 (Goals: 1, Assists: 3)
+        - Shooting: 7/9 on net, 14.29% scoring
+        - Takeaway/Giveaway Ratio: 0.5
+        - Impact Stats: Blocks 1, Hits 1, Interceptions 3, Takeaways 3, Giveaways 6
+    - Luca Bauer (Hybrid)
+        - Position: Goalie
+        - Saves: 9 out of 14 shots
+        - Save Percentage: 0.64%
+        - Goals Against: 5
+        - Shutout Periods: 2
+        - Breakaway Saves: 1/2 (Save Percentage: 0.50%)
+        - Penalty Shots Saved: 0/0 (Save Percentage: 0.00%)
+    -  Alistaja (Offensive Defenseman)
+        - Position: Defensemen
+        - Ratings: Off 95.00, Def 30.00, Team 70.00
+        - Points: 2 (Goals: 2, Assists: 0)
+        - Shooting: 5/7 on net, 40.00% scoring
+        - Takeaway/Giveaway Ratio: 0.5
+        - Impact Stats: Blocks 1, Hits 3, Interceptions 3, Takeaways 3, Giveaways 6
+    - A Konna (Sniper)
+        - Position: Center
+        - Ratings: Off 100.00, Def 75.00, Team 50.00
+        - Points: 4 (Goals: 1, Assists: 3)
+        - Shooting: 5/7 on net, 20.00% scoring
+        - Takeaway/Giveaway Ratio: 1.0
+        - Impact Stats: Blocks 1, Hits 3, Interceptions 7, Takeaways 4, Giveaways 4
+        - Faceoffs: Won 6, Lost 15 (Win Rate: 28.57%)
+"""
+
 
 # Function to format skater details
 def format_skater(player_data):
@@ -8,24 +85,31 @@ def format_skater(player_data):
         if player_data["playername"].startswith("-")
         else player_data["playername"]
     )
+    # Calculate efficiency metrics
+    takeaway_ratio = round(
+        float(player_data.get("skater takeaways", 0))
+        / max(float(player_data.get("skater giveaways", 1)), 1),
+        2,
+    )
+
     if player_data["position"].capitalize() == "Center":
-        faceoffs = f", Faceoffs Won: {player_data.get('skater faceoff won', 0)}, Faceoffs Lost: {player_data.get('skater faceoffs lost', 0)}, "
-        faceoffs += f"Faceoff Percentage: {player_data.get('skater faceoffs percentage', 'N/A')}%"
+        faceoffs = f"\n        - Faceoffs: Won {player_data.get('skater faceoff won', 0)}, Lost {player_data.get('skater faceoffs lost', 0)} "
+        faceoffs += (
+            f"(Win Rate: {player_data.get('skater faceoffs percentage', 'N/A')}%)"
+        )
     else:
         faceoffs = ""
+
     return (
         f"\n"
         f"    - {name} ({player_data['class']})\n"
         f"        - Position: {player_data['position'].capitalize()}\n"
-        f"        - Offense Rating: {player_data['ratingOffense']}\n"
-        f"        - Defense Rating: {player_data['ratingDefense']}\n"
-        f"        - Teamplay Rating: {player_data['ratingTeamplay']}\n"
+        f"        - Ratings: Off {player_data['ratingOffense']}, Def {player_data['ratingDefense']}, Team {player_data['ratingTeamplay']}\n"
         f"        - Points: {player_data['skater points']} (Goals: {player_data.get('skater goals', 0)}, Assists: {player_data.get('skater assists', 0)})\n"
-        f"        - Shots on Net: {player_data['skater shots']}/{player_data['skater shot attempts']} ({player_data['skater shots on net percentage']}%)\n"
-        f"        - Shots percentage: ({player_data['skater shots percentage']}%)\n"
-        f"        - Passes: {player_data['skater passes']} (Pass Percentage: {player_data['skater pass percentage']}%)\n"
-        f"        - Other stats: Blocked Shots: {player_data.get('skater blocked shots', 0)}, Hits: {player_data.get('skater hits', 0)}, "
-        f"Interceptions: {player_data.get('skater interceptions', 0)}, Takeaways: {player_data.get('skater takeaways', 0)}, Giveaways: {player_data.get('skater giveaways', 0)}"
+        f"        - Shooting: {player_data['skater shots']}/{player_data['skater shot attempts']} on net, {player_data['skater shots percentage']}% scoring\n"
+        f"        - Takeaway/Giveaway Ratio: {takeaway_ratio}\n"
+        f"        - Impact Stats: Blocks {player_data.get('skater blocked shots', 0)}, Hits {player_data.get('skater hits', 0)}, "
+        f"Interceptions {player_data.get('skater interceptions', 0)}, Takeaways {player_data.get('skater takeaways', 0)}, Giveaways {player_data.get('skater giveaways', 0)}"
         f"{faceoffs}"
     )
 
@@ -66,16 +150,14 @@ def format_club(club_name, club_data, overtime):
     win = "Win" if int(goals) > int(goalsAgainst) else "Loss"
     if overtime:
         win += " (OT)"
-    formatted_club = (
-        f"### {club_name} ({'Home' if club_data['teamSide'] == '0' else 'Away'} | {win})\n"
-    )
-    
+    formatted_club = f"### {club_name} ({'Home' if club_data['teamSide'] == '0' else 'Away'} | {win})\n"
+
     # Add team analysis if available
     if "team_analysis" in club_data:
         formatted_club += "**Season Stats**\n"
         for stat in club_data["team_analysis"]:
             formatted_club += f"- {stat}\n"
-    
+
     if not club_data["no_game"]:
         formatted_club += (
             "**Game Stats**\n"
@@ -108,18 +190,33 @@ def format_previous_games(games):
     return formatted_games
 
 
+# Function to calculate win streak
+def calculate_win_streak(previous_games):
+    if not previous_games:
+        return 0
+    streak = 0
+    for game in previous_games:
+        if game["win"]:
+            streak += 1
+        else:
+            break
+    return streak
+
+
 # Main function to format the JSON data
 def format_game_data(json_data, title="Match"):
-    formatted_output = f"# {title}\n"
-    formatted_output += "## Clubs\n"
+    formatted_output = f"# {title}\n\n"
 
-    # Format clubs data
-    for club_name, club_data in json_data["clubs"].items():
-        formatted_output += format_club(club_name, club_data, json_data["overtime"])
-
-    # Format previous games data
+    # Calculate and add win streak
     if "previous_games" in json_data:
-        formatted_output += format_previous_games(json_data["previous_games"])
+        win_streak = calculate_win_streak(json_data["previous_games"])
+        if win_streak > 0:
+            formatted_output += f"**Current Win Streak for us: {win_streak}**\n\n"
+
+    # Format clubs
+    overtime = json_data["overtime"]
+    for club_name, club_data in json_data["clubs"].items():
+        formatted_output += format_club(club_name, club_data, overtime)
 
     return formatted_output
 

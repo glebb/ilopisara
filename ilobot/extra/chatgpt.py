@@ -268,22 +268,26 @@ def setup_messages(game, history, vs_matches):
         },
         {
             "role": "user",
-            "content": """Create a Finnish, sub-280-word game analysis:
+            "content": f"""Create a Finnish, sub-280-word game analysis having more focus on {our_team}:
             
             1. Team Performance:
-               - Compare season averages vs. this game
-               - Highlight any ironic stat differences
+               - Tell the story of how the team played compared to their usual style
+               - Point out any surprising changes in team dynamics
+               - Focus on how teams lived up to (or failed) their reputation
                - Mock teams playing below their usual level
+               - Highlight any ironic stat differences
             
             2. Division & Streaks:
-               - Only mention if divisions differ (lower=rage, higher=smug)
-               - Use current streaks for extra mockery
+               - Only mention divisions when there's a David vs. Goliath story
+               - Use streaks to build dramatic narratives of rise or fall
             
             3. Players:
-               - Compare to team averages
                - Use specific stats for roasting
+               - Highlight who stepped up or crumbled under pressure
+               - Compare players to their usual selves, not just numbers
+               - Focus on clutch moments and game-changing plays
             
-            4. If DNF: Mock their rank/record and cowardice""",
+            4. If DNF: Mock their character and lack of sisu""",
         },
     ]
 
