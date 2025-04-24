@@ -193,25 +193,27 @@ def format_previous_games(games):
 # Function to calculate win streak
 def calculate_win_streak(previous_games):
     if not previous_games:
-        return 0
+        return (0, "")
     streak = 0
+    first_game = previous_games[0]["win"]
     for game in previous_games:
-        if game["win"]:
+        if game["win"] == first_game:
             streak += 1
         else:
             break
-    return streak
+    streak_type = "win streak" if first_game else "losing streak"
+    return (streak, streak_type)
 
 
 # Main function to format the JSON data
 def format_game_data(json_data, title="Match"):
     formatted_output = f"# {title}\n\n"
 
-    # Calculate and add win streak
+    # Calculate and add streak
     if "previous_games" in json_data:
-        win_streak = calculate_win_streak(json_data["previous_games"])
-        if win_streak > 0:
-            formatted_output += f"**Current Win Streak for us: {win_streak}**\n\n"
+        streak_count, streak_type = calculate_win_streak(json_data["previous_games"])
+        if streak_count > 0:
+            formatted_output += f"**Current {streak_type} for us: {streak_count}**\n\n"
 
     # Format clubs
     overtime = json_data["overtime"]
