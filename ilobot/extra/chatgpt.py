@@ -287,7 +287,7 @@ def setup_messages(game, history, vs_matches):
                - Compare players to their usual selves, not just numbers
                - Focus on clutch moments and game-changing plays
             
-            4. If DNF: Mock their character and lack of sisu""",
+            4. If DNF: Mock their character.""",
         },
     ]
 
