@@ -60,7 +60,7 @@ class Bot(commands.Bot):
             response = "" if not response else response
             history = [
                 (data_service.format_result(m).as_chatgpt_history())
-                for m in await db_mongo.get_latest_match(6)
+                for m in await db_mongo.get_latest_match(30)
             ]
             db_id = match.pop("_id")
 
