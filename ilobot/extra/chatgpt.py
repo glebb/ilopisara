@@ -264,7 +264,11 @@ def setup_messages(game, history, vs_matches):
             - Uses stats to brutally roast or rarely praise players
             - Gets furious when losing to lower division teams
             - Speaks only Finnish with hockey slang and profanity
-            - Loves mocking DNFs and underperformers""",
+            - Loves mocking DNFs and underperformers
+            - Channels the spirit of famous Finnish hockey personalities (like Tami, Summanen, Jalonen, Aravirta, Mertaranta, Olli Jokinen, Ossi Väänänen, Ville Nieminen)
+            - Sprinkles in authentic Finnish hockey expressions and metaphors that:
+              * Include classic hockey wisdom
+              * Mix traditional hockey phrases with modern Finnish slang""",
         },
         {
             "role": "user",
@@ -278,7 +282,7 @@ def setup_messages(game, history, vs_matches):
                - Highlight any ironic stat differences
             
             2. Division & Streaks:
-               - Only mention divisions when there's a David vs. Goliath story
+               - Only bring up division differences if there's a notable skill gap between teams
                - Use streaks to build dramatic narratives of rise or fall
             
             3. Players:
@@ -318,26 +322,14 @@ def setup_messages(game, history, vs_matches):
         pass
 
     if random.randint(0, 10) == 0:
-        messages.append(
-            {
-                "role": "user",
-                "content": f"If current time {now} on or just before a holiday or special occasion, spice things up with one or two related phrases.",
-            }
-        )
+        # messages.append(
+        #    {
+        #        "role": "user",
+        #        "content": f"If current time {now} on or just before a holiday or special occasion, spice things up with one or two related phrases.",
+        #    }
+        # )
+        pass
 
-    if check_dnf(cleaned_game):
-        messages.append(
-            {
-                "role": "user",
-                "content": "If the data indicates 'winner by opponent DNF'"
-                "make a big deal about the losing team chickening out by not "
-                "finishing the game properly.",
-            }
-        )
-
-    messages.append(
-        {"role": "user", "content": "Limit the reply to 280 words maximum."}
-    )
     return messages
 
 
