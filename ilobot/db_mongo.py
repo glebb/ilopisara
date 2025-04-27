@@ -12,7 +12,7 @@ from dacite import MissingValueError, from_dict
 import ilobot.config
 from ilobot import db_utils, helpers
 from ilobot.base_logger import logger
-from ilobot.config import DB_NAME
+from ilobot.config import DB_NAME, CLUB_ID
 from ilobot.data import api
 from ilobot.models import Match
 
@@ -24,8 +24,8 @@ def handle_exceptions(func):
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
-        except pymongo.errors.ServerSelectionTimeoutError:
-            logger.exception("DB not accessible.")
+        except pymongo.errors.PyMongoError as e:
+            logger.exception(f"DB not accessible: {e}")
             return None
 
     return wrapper
@@ -68,8 +68,8 @@ async def update_matches(team_id, system):
             )
             try:
                 enriched_match = db_utils.enrich_match(match, game_type)
-            except:
-                logger.exception(f"Could not enrich matchId {match['matchId']}")
+            except Exception as e:
+                logger.exception(f"Could not enrich matchId {match['matchId']}: {e}")
                 continue
             try:
                 from_dict(data_class=Match, data=enriched_match)
@@ -141,6 +141,40 @@ async def find_matches_for_player(player_id):
 async def get_latest_match(count=1):
     matches = db.matches.find().sort("timestamp", -1)
     return await matches.to_list(count)
+
+
+@handle_exceptions
+async def find_recent_matches(club_id=None, game_type=None, source=None, limit=20):
+    """Find recent matches with optional filters using aggregation pipeline.
+    
+    Args:
+        club_id: Optional club ID to filter by
+        game_type: Optional game type to filter by
+        source: Optional source/match type to filter by
+        limit: Maximum number of matches to return (default 20)
+        
+    Returns:
+        List of matches sorted by timestamp (newest first)
+    """
+    pipeline = [
+        {"$match": {}},
+        {"$sort": {"timestamp": -1}},
+        {"$limit": limit}
+    ]
+    
+    match_conditions = {}
+    if club_id:
+        match_conditions["opponent.id"] = club_id
+    if game_type:
+        match_conditions["gameType"] = game_type
+    if source:
+        match_conditions[f"clubs.{CLUB_ID}.matchType"] = source
+    
+    if match_conditions:
+        pipeline[0]["$match"] = match_conditions
+    
+    matches = await db.matches.aggregate(pipeline).to_list(limit)
+    return list(reversed(matches))
 
 
 if __name__ == "__main__":

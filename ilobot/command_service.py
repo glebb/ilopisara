@@ -17,14 +17,12 @@ def filter_matches_by_type(matches, match_type):
 async def results(
     club_id=None, game_type=None, source=None
 ) -> List[data_service.Result]:
-    data = []
-    matches = await db_mongo.find_matches_by_club_id(club_id, game_type)
-    if source:
-        matches = filter_matches_by_type(matches, source)
-    if matches:
-        for i in range(0, len(matches))[-20:]:
-            data.append(data_service.format_result(matches[i]))
-    return data
+    try:
+        matches = await db_mongo.find_recent_matches(club_id, game_type, source)
+        return [data_service.format_result(match) for match in matches]
+    except Exception as e:
+        logger.exception(f"Error getting results: {e}")
+        return []
 
 
 async def match(match_id):
