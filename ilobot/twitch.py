@@ -3,7 +3,8 @@ from enum import Enum
 import requests
 
 from ilobot.base_logger import logger
-from ilobot.config import CLIENT_ID, OAUTH, STREAMERS
+from ilobot.config import STREAMERS
+from ilobot.twitch_auth import TwitchAuth
 
 
 class TwitchStatus(Enum):
@@ -17,10 +18,7 @@ class Twitcher:
         self.status = TwitchStatus.STOPPED
         self.stream_started = ""
         self.stream_url = None
-        self.headers = {
-            "Client-Id": CLIENT_ID,
-            "Authorization": "Bearer " + OAUTH,
-        }
+        self.auth = TwitchAuth()
         self.params = []
         for streamer in STREAMERS.split(","):
             param = ("user_login", streamer)
@@ -37,7 +35,7 @@ class Twitcher:
         try:
             response = requests.get(
                 "https://api.twitch.tv/helix/streams",
-                headers=self.headers,
+                headers=self.auth.get_headers(),
                 params=self.params,
                 timeout=5,
             )
