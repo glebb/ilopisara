@@ -170,7 +170,7 @@ class Bot(commands.Bot):
                 "hours since the last game, time to play @here?"
             )
 
-    @tasks.loop(minutes=1)  # Adjusted polling interval for testing, can be increased
+    @tasks.loop(minutes=5)  # Adjusted polling interval for testing, can be increased
     async def stream_check(self):  # Renamed from twitch_check
         await self.wait_until_ready()
         if not self.stream_monitors:
