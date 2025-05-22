@@ -23,3 +23,5 @@ types-requests==2.31.0.20240406
 types-simplejson==3.19.0.20240310
 uvicorn==0.29.0
 # zombieimp #for 3.12
+google-api-python-client
+google-auth-httplib2

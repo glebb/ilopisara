@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import pprint
 import sys
@@ -12,9 +13,11 @@ from ilobot import command_service, data_service, db_mongo, tumblrl
 from ilobot.base_logger import logger
 from ilobot.data import api
 from ilobot.extra import chatgpt
-from ilobot.twitch import Twitcher, TwitchStatus
-
-from .models import Match
+from ilobot.models import Match
+from ilobot.streamer_base import Streamer, StreamStatus
+from ilobot.twitch import Twitcher
+from ilobot.twitch_auth import TwitchAuth
+from ilobot.youtube_streamer import Youtuber
 
 
 class Bot(commands.Bot):
@@ -26,9 +29,45 @@ class Bot(commands.Bot):
         self.loop.create_task(self.watch_db())
         self.all_teams = ()
         self.fetch_team_names.start()
-        self.twitcher = Twitcher()
-        self.twitch_check.start()
-        # self.check_latest_game.start()
+
+        # Initialize Stream Monitors
+        self.twitch_auth = TwitchAuth()
+        self.stream_monitors: list[Streamer] = []
+        if ilobot.config.STREAMERS:
+            for twitch_login in ilobot.config.STREAMERS.split(","):
+                if twitch_login.strip():  # Ensure not empty string
+                    self.stream_monitors.append(
+                        Twitcher(twitch_login.strip(), self.twitch_auth)
+                    )
+                    logger.info(
+                        f"Initialized Twitch monitor for: {twitch_login.strip()}"
+                    )
+
+        if (
+            ilobot.config.YOUTUBE_STREAMERS
+            and ilobot.config.YOUTUBE_API_KEY
+            and ilobot.config.YOUTUBE_API_KEY != "YOUR_YOUTUBE_API_KEY_HERE"
+        ):
+            for yt_channel_input in ilobot.config.YOUTUBE_STREAMERS.split(","):
+                if yt_channel_input.strip():  # Ensure not empty string
+                    self.stream_monitors.append(
+                        Youtuber(
+                            yt_channel_input.strip(), ilobot.config.YOUTUBE_API_KEY
+                        )
+                    )
+                    logger.info(
+                        f"Initialized YouTube monitor for: {yt_channel_input.strip()}"
+                    )
+        else:
+            logger.warning(
+                "YouTube streamers not configured or API key missing/placeholder."
+            )
+
+        if self.stream_monitors:
+            self.stream_check.start()  # Start the unified stream checking task
+        else:
+            logger.info("No stream monitors configured.")
+
         self.now = None
         self.pre_fetch_players_for_caching()
 
@@ -131,18 +170,57 @@ class Bot(commands.Bot):
                 "hours since the last game, time to play @here?"
             )
 
-    @tasks.loop(minutes=10)
+    @tasks.loop(minutes=1)  # Adjusted polling interval for testing, can be increased
+    async def stream_check(self):  # Renamed from twitch_check
+        await self.wait_until_ready()
+        if not self.stream_monitors:
+            return
+
+        logger.info(f"Running stream check for {len(self.stream_monitors)} monitors...")
+
+        # Update all monitors concurrently
+        update_tasks = [monitor.update() for monitor in self.stream_monitors]
+        await asyncio.gather(
+            *update_tasks, return_exceptions=True
+        )  # Capture exceptions to prevent task crash
+
+        for monitor in self.stream_monitors:
+            notification_message = monitor.get_notification_message()
+            if notification_message:  # Covers STARTED and STOPPED by default
+                # Determine the channel to send the notification to
+                # For now, using TWITCH_CHANNEL for all. This can be made more specific.
+                target_channel_id_str = ilobot.config.TWITCH_CHANNEL
+                if not target_channel_id_str:
+                    logger.warning(
+                        f"TWITCH_CHANNEL not set in config. Cannot send stream notification for {monitor.streamer_identifier}."
+                    )
+                    continue
+                try:
+                    target_channel_id = int(target_channel_id_str)
+                    channel = self.get_channel(target_channel_id)
+                    if channel:
+                        logger.info(
+                            f"Sending notification for {monitor.streamer_identifier} ({monitor.platform_name}): {notification_message}"
+                        )
+                        await channel.send(notification_message)
+                    else:
+                        logger.warning(
+                            f"Could not find channel with ID {target_channel_id} for stream notifications."
+                        )
+                except ValueError:
+                    logger.error(
+                        f"Invalid TWITCH_CHANNEL ID in config: {target_channel_id_str}"
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"Error sending stream notification for {monitor.streamer_identifier}: {e}"
+                    )
+
+            if monitor.status == StreamStatus.ERROR and monitor.last_exception:
+                logger.error(
+                    f"Error updating {monitor.platform_name} streamer {monitor.streamer_identifier}: {monitor.last_exception}"
+                )
+
+    @tasks.loop(minutes=60)  # Or your desired interval
     async def fetch_team_names(self):
         self.all_teams = tuple(await db_mongo.get_known_team_names())
-
-    @tasks.loop(minutes=2)
-    async def twitch_check(self):
-        await self.wait_until_ready()
-
-        status = self.twitcher.update()
-        if status == TwitchStatus.STOPPED:
-            return
-        if status == TwitchStatus.STARTED:
-            channel = self.get_channel(int(ilobot.config.TWITCH_CHANNEL))
-            logger.info(f"Stream activated {self.twitcher.stream_url}")
-            await channel.send("Stream started: " + self.twitcher.stream_url)
