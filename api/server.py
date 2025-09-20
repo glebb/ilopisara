@@ -1,4 +1,3 @@
-import json
 import os
 import pprint
 
@@ -95,7 +94,7 @@ class MatchResource:
             match_id = int(req.params["id"])
         try:
             match = await db_mongo.find_match_by_id(str(match_id))
-        except:
+        except Exception:
             logger.exception("Failed to find match")
             pass
         if not match or len(match) != 1:

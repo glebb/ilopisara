@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import pprint
 import sys
-from typing import cast
+from typing import Any, cast
 
 import nextcord
 from dacite import from_dict
@@ -23,7 +23,7 @@ from ilobot.youtube_streamer import Youtuber
 class Bot(commands.Bot):
     TEAM_NAME = api.get_team_info(ilobot.config.CLUB_ID)[ilobot.config.CLUB_ID]["name"]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs, intents=nextcord.Intents.all())
         self.player_names = {}
         self.loop.create_task(self.watch_db())

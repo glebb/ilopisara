@@ -9,7 +9,7 @@ from ilobot.streamer_base import Streamer, StreamStatus
 
 # Store service instance at class level to avoid re-initializing on every object creation
 # if multiple Youtuber objects are used with the same API key.
-_youtube_services = {}
+_youtube_services: dict[str, Resource] = {}
 
 
 def get_youtube_service_instance(api_key: str) -> Optional[Resource]:
