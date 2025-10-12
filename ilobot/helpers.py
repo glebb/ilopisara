@@ -52,6 +52,7 @@ LOADOUTS = {
     "205": "Sudden Death - Enforcer",
     "212": "Agent Blueline - OD",
     "213": "Grizzer - ED",
+    "214": "Curly - TWD",
 }
 
 
