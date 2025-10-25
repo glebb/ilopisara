@@ -14,9 +14,10 @@ class Twitcher(Streamer):
         self.params = [("user_login", self.streamer_identifier)]
 
     def _is_relevant_stream(self, stream_data: dict) -> bool:
-        if stream_data and isinstance(stream_data.get("game_name"), str):
-            return stream_data["game_name"].lower().startswith("nhl")
-        return False
+        return True
+        # if stream_data and isinstance(stream_data.get("game_name"), str):
+        #    return stream_data["game_name"].lower().startswith("nhl")
+        # return False
 
     async def update(self) -> StreamStatus:
         try:
