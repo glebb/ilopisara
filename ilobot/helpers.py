@@ -51,10 +51,10 @@ LOADOUTS = {
     "203": "Antler - Power Forward",
     "204": "Woody - Two-Way Forward",
     "205": "Sudden Death - Enforcer",
-    "211": "Inferno - DD",
     "212": "Agent Blueline - OD",
     "213": "Grizzer - ED",
     "214": "Curly - TWD",
+    "311": "Inferno - DD",
 }
 
 
