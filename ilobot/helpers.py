@@ -44,6 +44,7 @@ LOADOUTS = {
     "103": "Moonlight - Power Forward",
     "106": "Vector - Dangler",
     "111": "Deepfreeze - DD",
+    "114": "Inferno - DD",
     "115": "Bones - Puck Moving D",
     "120": "Wally - Stand-Up Goalie",
     "200": "Sneaky - Grinder",
