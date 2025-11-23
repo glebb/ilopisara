@@ -55,6 +55,7 @@ LOADOUTS = {
     "213": "Grizzer - ED",
     "214": "Curly - TWD",
     "311": "Inferno - DD",
+    "314": "Kraken - TWD",
 }
 
 
