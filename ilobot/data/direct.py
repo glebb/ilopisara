@@ -9,7 +9,25 @@ from ilobot.base_logger import logger
 from ilobot.config import EA_API_BASE_URL
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:77.0) Gecko/20100101 Firefox/77.0"
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    # Accept headers
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
+    # Origin and Referer (critical for bot protection bypass!)
+    "Referer": "https://www.ea.com/games/nhl/nhl-26",
+    "Origin": "https://www.ea.com",
+    # Chrome security headers (sec-ch-ua)
+    "sec-ch-ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"macOS"',
+    # Fetch metadata headers
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-site",
+    # Additional headers
+    "DNT": "1",
+    "Connection": "keep-alive",
 }
 
 

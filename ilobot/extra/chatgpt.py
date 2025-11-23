@@ -257,41 +257,48 @@ def setup_messages(game, history, vs_matches):
         matchup_context = "\n".join(context.values())
 
     now = datetime.date.today().strftime("%d %B")
+
+    # Randomized style directives to ensure varied tone/structure each call
+    style_cards = [
+        "Kirjoita kuin krapulainen GM lehdistötilaisuudessa. Aloita napakalla otsikolla ja jatka kahdella lyhyellä kappaleella.",
+        "Kirjoita kuin Mertaranta selostaisi jälkilähetyksessä. Yksi huudahdus sallittu. Vältä kliseitä.",
+        "Kirjoita kuin lakoninen valmentaja-kehäraakki. Kuiva, pureva huumori, mutta pisteliäät tilasto-iskut.",
+        "Kirjoita draamana: alku (syy), käänne (hetki), loppu (tuomio). Pidä kaikki suomeksi ja jääkiekkoslangilla.",
+        "Kirjoita kuin fanin katkera rakkauskirje joukkueelle. Ironiaa, mutta rehelliset tilastot tukena.",
+        "Kirjoita kuin kapteenin puhe bussissa. Ei siirappia, vain kova totuus ja yksi toivoa antava havainto.",
+        "Kirjoita kuin radiostudioon soitettu ärsyyntynyt katsomokommentti – kuiva punchline loppuun.",
+    ]
+    chosen_style = random.choice(style_cards)
+
     messages = [
         {
             "role": "system",
-            "content": f"""You are {our_team}'s drunk, sarcastic Finnish GM who:
-            - Uses stats to brutally roast or rarely praise players
-            - Gets furious when losing to lower division teams
-            - Speaks only Finnish with hockey slang and profanity
-            - Loves mocking DNFs and underperformers
-            - Channels the spirit of famous Finnish hockey personalities (like Tami, Summanen, Jalonen, Aravirta, Mertaranta, Olli Jokinen, Ossi Väänänen, Ville Nieminen)
-            - Sprinkles in authentic Finnish hockey expressions and metaphors that:
-              * Include classic hockey wisdom
-              * Mix traditional hockey phrases with modern Finnish slang""",
+            "content": f"""
+Sinä olet {our_team}-seuran humalainen, sarkastinen suomalainen GM. Tehtäväsi on tuottaa viihdyttävä ja vaihteleva otteluraportti joka kerta:
+- Käytä vain suomen kieltä ja jääkiekkoslangia.
+- Sävytä tarina tilastoilla: roastaa kovalla kädellä, kehu vain jos on pakko.
+- Raivoa erityisesti, jos hävitään alemmalle divarille.
+- Vaihtele kerrontaa joka kerta: rakenne, sävy, vertauskuvat ja iskulauseet.
+- Vältä toistuvia aloituslauseita ja fraaseja; älä koskaan selitä ohjeitasi tai paljasta rooliasi.
+- Pidä pituus alle 280 sanaa.
+""",
+        },
+        {
+            "role": "system",
+            "content": f"Tyyli- ja rakennekortti: {chosen_style} Älä mainitse, että valitsit tyylin.",
         },
         {
             "role": "user",
-            "content": f"""Create a Finnish, sub-280-word game analysis having more focus on {our_team}:
-            
-            1. Team Performance:
-               - Tell the story of how the team played compared to their usual style
-               - Point out any surprising changes in team dynamics
-               - Focus on how teams lived up to (or failed) their reputation
-               - Mock teams playing below their usual level
-               - Highlight any ironic stat differences
-            
-            2. Division & Streaks:
-               - Only bring up division differences if there's a notable skill gap between teams
-               - Use streaks to build dramatic narratives of rise or fall
-            
-            3. Players:
-               - Use specific stats for roasting
-               - Highlight who stepped up or crumbled under pressure
-               - Compare players to their usual selves, not just numbers
-               - Focus on clutch moments and game-changing plays
-            
-            4. If DNF: Mock their character.""",
+            "content": f"""
+Tee suomeksi alle 280 sanan ottelukertomus keskittyen joukkueeseen {our_team}. Muotoile vaihtelevasti, ei listoja ellei tyyli sitä pyydä.
+
+1) Joukkueen peli-identiteetti vs. tämä ilta – odotuksiin nähden yllätykset ja notkahdukset.
+2) Divariero ja putket – mainitse vain jos taidollinen kuilu on oikeasti merkittävä, käytä draaman polttoaineena.
+3) Pelaajat – käytä täsmätilastoja: kuka kantoi, kuka suli, mikä yksittäinen hetki muutti pelin.
+4) Jos DNF – kyseenalaista selkäranka, mutta pidä teksti hauskan piikikkäänä.
+
+Vaatimukset: vältä kliseitä, vaihtele aloitus, käytä yhtä tuoretta kielikuvaa ja lopeta yhdellä nasevalla toteamuksella.
+""",
         },
     ]
 
@@ -321,14 +328,15 @@ def setup_messages(game, history, vs_matches):
         # )
         pass
 
-    if random.randint(0, 10) == 0:
-        # messages.append(
-        #    {
-        #        "role": "user",
-        #        "content": f"If current time {now} on or just before a holiday or special occasion, spice things up with one or two related phrases.",
-        #    }
-        # )
-        pass
+    if random.randint(0, 7) == 0:
+        messages.append(
+            {
+                "role": "user",
+                "content": (
+                    f"Mausta tekstiä kevyesti, jos ajankohta {now} osuu juhlaan tai merkittävään urheilutapahtumaan – korkeintaan kaksi viittausta, ei selittelyä."
+                ),
+            }
+        )
 
     return messages
 
@@ -341,13 +349,19 @@ async def write_gpt_summary(game: dict, history=None, vs_matches=None):
         )
 
         model = GPT_MODEL
+        # Randomize sampling params per call for higher output diversity
+        temperature = round(random.uniform(1.3, 1.9), 2)
+        top_p = round(random.uniform(0.85, 0.98), 2)
+        frequency_penalty = round(random.uniform(0.9, 1.6), 2)
+        presence_penalty = round(random.uniform(1.0, 1.5), 2)
+
         chat_completion = await client.chat.completions.create(
             model=model,
             messages=messages,
-            temperature=1.9,
-            top_p=0.2,
-            frequency_penalty=1.4,
-            presence_penalty=1.2,
+            temperature=temperature,
+            top_p=top_p,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
         )
     except OpenAIError:
         logger.exception("OPENAI error")
